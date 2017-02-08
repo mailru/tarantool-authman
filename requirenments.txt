@@ -1,0 +1,2 @@
+tarantool>1.7
+tarantool-curl
