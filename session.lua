@@ -27,7 +27,7 @@ function session.create_session(user_id)
     return string.format('%s.%s', encoded_session_data, encoded_sign)
 end
 
-function session.check_session(session)
+function session.sign_is_valid(session)
     local encoded_session_data, user_sign = string.match(session, '([^.]+).([^.]+)')
     local sign = make_session_sign(encoded_session_data)
     return sign == user_sign

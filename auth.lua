@@ -25,7 +25,7 @@ function generate_restore_token(user_id)
     return token
 end
 
-function check_restore_token(user_id, user_token)
+function restore_token_is_valid(user_id, user_token)
     local token = pwd_token_space:get{user_id}[2]
     if token ~= user_token then
         return False
@@ -76,10 +76,6 @@ function auth.complete_registration(email, code, password)
 end
 
 function auth.auth(email, password)
-    if not validator.email(email) then
-        return response.error(error.INVALID_PARAMS)
-    end
-
     local user_tuple = user.get_by_email(email)
     if user_tuple == nil then
         return response.error(error.USER_NOT_FOUND)
@@ -92,70 +88,63 @@ function auth.auth(email, password)
         return response.error(error.WRONG_PASSWORD)
     end
 
-    local user_id = user_tuple[user.ID]
-    local session = session.create_session(user_id)
-    return response.ok(session)
+    local signed_session = session.create_session(user_tuple[user.ID])
+    return response.ok(signed_session)
 end
 
-function auth.check_auth(session)
-    local is_signed = check_session(session)
-    if not is_signed then
-        local message = string.format('Wrong sign')
-        return response.error(message)
+function auth.check_auth(signed_session)
+    if not session.sign_is_valid(signed_session) then
+        return response.error(error.WRONG_SESSION_SIGN)
     end
 
     local encoded_session_data, sign = string.match(session, '([^.]+).([^.]+)')
     local session_data_json = digest.base64_decode(encoded_session_data)
     local session_data = json.decode(session_data_json)
-    local user = user_space:get{session_data.user_id}
-    if user == nil then
-        local message = string.format('User not found')
-        return response.error(message)
+    local user_tuple = user_space:get{session_data.user_id}
+    if user_tuple == nil then
+        return response.error(error.USER_NOT_FOUND)
     end
 
     local new_session
 
     if session_data.exp < os.time() then
-        local message = string.format('User is logged out')
-        return response.error(message)
+        return response.error(error.NOT_AUTHENTICATED)
     elseif session_data.exp < (os.time() - config.session_update_timedelta) then
         new_session = session.create_session(session_data.user_id)
     else
-        new_session = session
+        new_session = signed_session
     end
 
     return response.ok(new_session)
 end
 
 function auth.restore_password(email)
-    local user = find_user(email)
-    if user == nil then
-        local message = string.format('User with email %s does not exist', email)
-        return response.error(message)
+    local user_tuple = user.get_by_email(email)
+    if user_tuple == nil then
+        return response.error(error.USER_NOT_FOUND)
     end
-    return response.ok(generate_restore_token(user[1]))
+
+    return response.ok(generate_restore_token(user_tuple[user.ID]))
 end
 
 function auth.set_new_password(email, token, password)
-    local user = find_user(email)
-    if user == nil then
-        local message = string.format('User with email %s does not exist', email)
-        return response.error(message)
+    local user_tuple = user.get_by_email(email)
+    if user_tuple == nil then
+        return response.error(error.USER_NOT_FOUND)
     end
 
-    if check_restore_token(email, token) then
-        user_space:update(user[1], {{'=', 4, session.hash_password(password)}})
-        return response.ok(user)
+    if restore_token_is_valid(email, token) then
+        user_space:update(user_tuple[user.ID], {{'=', user.PASSWORD, session.hash_password(password)}})
+        return response.ok(user.serialize(user_tuple))
     else
-        local message = string.format('Wrong restore token')
-        return response.error(message)
+        return response.error(error.WRONG_RESTORE_TOKEN)
     end
 end
 
-function auth.create_social_user()
-    local user_id = uuid.str()
-    user_space:insert{user_id, '', true, '', nil }
-    return response.ok()
-end
+--function auth.create_social_user()
+--    local user_id = uuid.str()
+--    user_space:insert{user_id, '', true, '', nil }
+--    return response.ok()
+--end
 
 return auth
