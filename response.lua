@@ -6,9 +6,9 @@ local errors = require('error')
 ----
 
 function response.error(code)
-    local message = errors.CODES[code]
-    error(message)
-    return false, {[code] = message}
+    local message = {[code] = errors.CODES[code]}
+--    error(message)
+    return false, message
 end
 
 function response.ok(data)

@@ -18,17 +18,36 @@ function user.get_space()
     return box.space[user.SPACE_NAME]
 end
 
-function user.serialize(user_tuple)
-    return {
+function user.serialize(user_tuple, session)
+    local user_data = {
         id = user_tuple[user.ID],
         email = user_tuple[user.EMAIL],
         is_active = user_tuple[user.IS_ACTIVE],
     }
+    if session ~= nil then
+        user_data['session'] = session
+    end
+    return user_data
 end
 
 function user.get_by_email(email)
-    -- first user with email
     return user.get_space().index[user.EMAIL_INDEX]:select(email)[1]
+end
+
+function user.get_not_active(email)
+    local user_tuple = user.get_by_email(email)
+    if user_tuple == nil then
+        return nil
+    end
+    return not user_tuple[user.IS_ACTIVE] and user_tuple or nil
+end
+
+function user.get_active(email)
+    local user_tuple = user.get_by_email(email)
+    if user_tuple == nil then
+        return nil
+    end
+    return user_tuple[user.IS_ACTIVE] and user_tuple or nil
 end
 
 return user

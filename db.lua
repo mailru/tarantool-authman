@@ -40,10 +40,14 @@ function db.start()
     }
 end
 
+function db.truncate_spaces()
+    user.get_space():truncate()
+    password_token.get_space():truncate()
+end
+
 function db.drop_database()
-    box.schema.portal_user:drop()
-    box.schema.portal_reset_pwd_token:drop()
-    box.schema.portal_social:drop()
+    user.get_space():drop()
+    password_token.get_space():drop()
 end
 
 return db

@@ -45,7 +45,12 @@ function auth.registration(email)
 
     local user_tuple = user.get_by_email(email)
     if user_tuple ~= nil then
-        return response.error(error.USER_ALREADY_EXISTS)
+        if user_tuple[user.IS_ACTIVE] then
+            return response.error(error.USER_ALREADY_EXISTS)
+        else
+            local code = generate_activation_code(user_tuple[user.ID])
+            return response.ok(code)
+        end
     end
 
     local user_id = uuid.str()
@@ -62,6 +67,10 @@ function auth.complete_registration(email, code, password)
     local user_tuple = user.get_by_email(email)
     if user_tuple == nil then
         return response.error(error.USER_NOT_FOUND)
+    end
+
+    if user_tuple[user.IS_ACTIVE] then
+        return response.error(error.USER_ALREADY_ACTIVE)
     end
 
     local user_id = user_tuple[user.ID]
@@ -84,12 +93,14 @@ function auth.auth(email, password)
     if not user_tuple[user.IS_ACTIVE] then
         return response.error(error.USER_NOT_ACTIVE)
     end
+
     if session.hash_password(password) ~= user_tuple[user.PASSWORD] then
         return response.error(error.WRONG_PASSWORD)
     end
 
     local signed_session = session.create_session(user_tuple[user.ID])
-    return response.ok(signed_session)
+
+    return response.ok(user.serialize(user_tuple, signed_session))
 end
 
 function auth.check_auth(signed_session)
@@ -106,7 +117,6 @@ function auth.check_auth(signed_session)
     end
 
     local new_session
-
     if session_data.exp < os.time() then
         return response.error(error.NOT_AUTHENTICATED)
     elseif session_data.exp < (os.time() - config.session_update_timedelta) then
@@ -115,11 +125,12 @@ function auth.check_auth(signed_session)
         new_session = signed_session
     end
 
-    return response.ok(new_session)
+    return response.ok(user.serialize(user_tuple, new_session))
 end
 
 function auth.restore_password(email)
     local user_tuple = user.get_by_email(email)
+    --
     if user_tuple == nil then
         return response.error(error.USER_NOT_FOUND)
     end
