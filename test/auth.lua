@@ -30,9 +30,9 @@ function test_auth_success()
     user['id'] = nil
     user['session'] = nil
     expected = {email = 'test@test.ru', is_active = true}
-    test:is(ok, true, 'user logged in')
-    test:isstring(session, 'session returned')
-    test:is_deeply(user, expected, 'user returned')
+    test:is(ok, true, 'test_auth_success user logged in')
+    test:isstring(session, 'test_auth_success session returned')
+    test:is_deeply(user, expected, 'test_auth_success user returned')
 end
 
 function test_check_auth_success()
@@ -44,30 +44,30 @@ function test_check_auth_success()
     user['id'] = nil
     user['session'] = nil
     expected = {email = 'test@test.ru', is_active = true}
-    test:is(ok, true, 'user logged in')
-    test:isstring(session, 'session returned')
-    test:is_deeply(user, expected, 'user returned')
+    test:is(ok, true, 'test_check_auth_success user logged in')
+    test:isstring(session, 'test_check_auth_success session returned')
+    test:is_deeply(user, expected, 'test_check_auth_success user returned')
 end
 
 function test_auth_wrong_password()
     local got, expected
     got = {auth.auth('test@test.ru', 'wrong_password'), }
     expected = {response.error(error.WRONG_PASSWORD), }
-    test:is_deeply(got, expected, 'wrong password')
+    test:is_deeply(got, expected, 'test_auth_wrong_password')
 end
 
 function test_auth_user_not_found()
     local got, expected
     got = {auth.auth('not_found@test.ru', '123'), }
     expected = {response.error(error.USER_NOT_FOUND), }
-    test:is_deeply(got, expected, 'user not found')
+    test:is_deeply(got, expected, 'test_auth_user_not_found')
 end
 
 function test_auth_user_not_active()
     local got, expected
     got = {auth.auth('not_active@test.ru', '123'), }
     expected = {response.error(error.USER_NOT_ACTIVE), }
-    test:is_deeply(got, expected, 'user not active')
+    test:is_deeply(got, expected, 'test_auth_user_not_active')
 end
 
 function test_check_auth_wrong_sign()
@@ -75,7 +75,7 @@ function test_check_auth_wrong_sign()
     ok, user = auth.auth('test@test.ru', '123')
     got = {auth.check_auth('thissession.iswrongsigned'), }
     expected = {response.error(error.WRONG_SESSION_SIGN), }
-    test:is_deeply(got, expected, 'wrong sign')
+    test:is_deeply(got, expected, 'test_check_auth_wrong_sign')
 end
 
 function test_check_auth_user_not_found()
@@ -88,7 +88,7 @@ function test_check_auth_user_not_found()
 
     got = {auth.check_auth(session), }
     expected = {response.error(error.USER_NOT_FOUND), }
-    test:is_deeply(got, expected, 'user not found')
+    test:is_deeply(got, expected, 'test_check_auth_user_not_found')
 end
 
 function test_check_auth_user_not_active()
@@ -101,7 +101,7 @@ function test_check_auth_user_not_active()
 
     got = {auth.check_auth(session), }
     expected = {response.error(error.USER_NOT_ACTIVE), }
-    test:is_deeply(got, expected, 'user not active')
+    test:is_deeply(got, expected, 'test_check_auth_user_not_active')
 end
 
 -- TODO NEED TO TEST CHECK_AUTH EXPIRATION DATE FUNCTIONALITY

@@ -27,8 +27,8 @@ function exports.teardown() end
 function test_restore_password_success()
     local ok, token
     ok, token = auth.restore_password('test@test.ru')
-    test:is(ok, true, 'password restore')
-    test:isstring(token, 'token returned')
+    test:is(ok, true, 'test_restore_password_success password restored')
+    test:isstring(token, 'test_restore_password_success token returned')
 end
 
 function test_complete_restore_password_success()
@@ -37,8 +37,8 @@ function test_complete_restore_password_success()
     ok, user = auth.complete_restore_password('test@test.ru', token, 'new_pwd')
     user['id'] = nil
     expected = {email = 'test@test.ru', is_active = true}
-    test:is(ok, true, 'password changed')
-    test:is_deeply(user, expected, 'user returned')
+    test:is(ok, true, 'test_complete_restore_password_success password changed')
+    test:is_deeply(user, expected, 'test_complete_restore_password_success user returned')
 end
 
 function test_complete_restore_password_and_auth_success()
@@ -50,23 +50,23 @@ function test_complete_restore_password_and_auth_success()
     user['id'] = nil
     user['session'] = nil
     expected = {email = 'test@test.ru', is_active = true}
-    test:is(ok, true, 'user logged in')
-    test:isstring(session, 'session returned')
-    test:is_deeply(user, expected, 'user returned')
+    test:is(ok, true, 'test_complete_restore_password_and_auth_success user logged in')
+    test:isstring(session, 'test_complete_restore_password_and_auth_success session returned')
+    test:is_deeply(user, expected, 'test_complete_restore_password_and_auth_success user returned')
 end
 
 function test_restore_password_user_not_found()
     local got, expected
     got = {auth.restore_password('not_found@test.ru'), }
     expected = {response.error(error.USER_NOT_FOUND), }
-    test:is_deeply(got, expected, 'user not found')
+    test:is_deeply(got, expected, 'test_restore_password_user_not_found')
 end
 
 function test_restore_password_user_not_active()
     local got, expected
     got = {auth.restore_password('not_active@test.ru'), }
     expected = {response.error(error.USER_NOT_ACTIVE), }
-    test:is_deeply(got, expected, 'user not active')
+    test:is_deeply(got, expected, 'test_restore_password_user_not_active')
 end
 
 function test_complete_restore_password_user_not_found()
@@ -79,7 +79,7 @@ function test_complete_restore_password_user_not_found()
 
     got = {auth.complete_restore_password('test@test.ru', token, 'new_pwd'), }
     expected = {response.error(error.USER_NOT_FOUND), }
-    test:is_deeply(got, expected, 'user not found')
+    test:is_deeply(got, expected, 'test_complete_restore_password_user_not_found')
 end
 
 function test_complete_restore_password_user_not_active()
@@ -92,7 +92,7 @@ function test_complete_restore_password_user_not_active()
 
     got = {auth.complete_restore_password('test@test.ru', token, 'new_pwd'), }
     expected = {response.error(error.USER_NOT_ACTIVE), }
-    test:is_deeply(got, expected, 'user not active')
+    test:is_deeply(got, expected, 'test_complete_restore_password_user_not_active')
 end
 
 function test_complete_restore_password_wrong_token()
@@ -101,7 +101,7 @@ function test_complete_restore_password_wrong_token()
 
     got = {auth.complete_restore_password('test@test.ru', 'wrong_password_token', 'new_pwd'), }
     expected = {response.error(error.WRONG_RESTORE_TOKEN), }
-    test:is_deeply(got, expected, 'wrong restore token')
+    test:is_deeply(got, expected, 'test_complete_restore_password_wrong_token')
 end
 
 function test_complete_restore_password_and_auth_with_old_password()
@@ -110,7 +110,7 @@ function test_complete_restore_password_and_auth_with_old_password()
     ok, user = auth.complete_restore_password('test@test.ru', token, 'new_pwd')
     got = {auth.auth('test@test.ru', '123'), }
     expected = {response.error(error.WRONG_PASSWORD), }
-    test:is_deeply(got, expected, 'old password')
+    test:is_deeply(got, expected, 'test_complete_restore_password_and_auth_with_old_password')
 end
 
 exports.tests = {

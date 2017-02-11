@@ -1,4 +1,7 @@
 local user = {}
+local digest = require('digest')
+local config = require('config')
+local json = require('json')
 -----
 -- user (uuid, email, is_active, password, profile)
 -----
@@ -41,6 +44,51 @@ function user.get_id_by_email(email)
     else
         return nil
     end
+end
+
+function user.generate_activation_code(user_id)
+    return digest.md5_hex(string.format('%s%s', config.activation_secret, user_id))
+end
+
+function user.hash_password(password, salt)
+    -- Need stronger hash?
+    return digest.sha256(string.format('%s%s', salt, password))
+end
+
+function make_session_sign(encoded_session_data)
+    local sign = digest.sha256_hex(string.format('%s%s', encoded_session_data, config.session_secret))
+    return digest.base64_encode(sign)
+end
+
+function get_expiration_time()
+    return os.time() + config.session_lifetime
+end
+
+function split_session(session)
+    return string.match(session, '([^.]+).([^.]+)')
+end
+
+function user.create_session(user_id)
+    local expiration_time = get_expiration_time()
+    local session_data = json.encode({user_id = user_id, exp = expiration_time})
+    local encoded_session_data = digest.base64_encode(session_data)
+
+    local encoded_sign = make_session_sign(encoded_session_data)
+    return string.format('%s.%s', encoded_session_data, encoded_sign)
+end
+
+function user.session_is_valid(session)
+    local encoded_session_data, user_sign = split_session(session, '([^.]+).([^.]+)')
+    local sign = make_session_sign(encoded_session_data)
+    return sign == user_sign
+end
+
+function user.get_session_data(session)
+    local encoded_session_data, sign = split_session(session, '([^.]+).([^.]+)')
+    local session_data_json = digest.base64_decode(encoded_session_data)
+    local session_data = json.decode(session_data_json)
+    local user_tuple = user.get_space():get{session_data.user_id }
+    return user_tuple, session_data
 end
 
 return user
