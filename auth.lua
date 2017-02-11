@@ -1,10 +1,8 @@
 local auth = {}
 local uuid = require('uuid')
 local config = require('config')
-local digest = require('digest')
 local response = require('response')
 local error = require('error')
-local json = require('json')
 local validator = require('validator')
 
 local user = require('model.user')
@@ -37,7 +35,7 @@ function auth.registration(email)
 end
 
 function auth.complete_registration(email, code, password)
-    if not validator.email(email) then
+    if not (validator.email(email) and validator.not_empty_string(code)) then
         return response.error(error.INVALID_PARAMS)
     end
 
@@ -81,6 +79,10 @@ function auth.auth(email, password)
 end
 
 function auth.check_auth(signed_session)
+    if not validator.not_empty_string(signed_session) then
+        return response.error(error.INVALID_PARAMS)
+    end
+
     if not user.session_is_valid(signed_session) then
         return response.error(error.WRONG_SESSION_SIGN)
     end
@@ -119,6 +121,10 @@ function auth.restore_password(email)
 end
 
 function auth.complete_restore_password(email, token, password)
+    if not validator.not_empty_string(token) then
+        return response.error(error.INVALID_PARAMS)
+    end
+
     local user_tuple = user.get_by_email(email)
     if user_tuple == nil then
         return response.error(error.USER_NOT_FOUND)

@@ -11,8 +11,8 @@ box.cfg {
 db.create_database()
 
 local TEST_CASES = {
-    'test.auth',
     'test.registration',
+    'test.auth',
     'test.restore_password'
 }
 
@@ -30,4 +30,5 @@ function run()
 end
 
 run()
+
 db.drop_database()

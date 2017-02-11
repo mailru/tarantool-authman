@@ -84,6 +84,14 @@ function test_complete_registration_user_not_found()
     test:is_deeply(got, expected, 'test_complete_registration_user_not_found')
 end
 
+function test_complete_registration_empty_code()
+    local ok, code, got, expected
+    ok, code = auth.registration('test@test.ru')
+    got = {auth.complete_registration('test@test.ru', '', '123123'), }
+    expected = {response.error(error.INVALID_PARAMS), }
+    test:is_deeply(got, expected, 'test_complete_registration_empty_code')
+end
+
 exports.tests = {
     test_registration_succes,
     test_registartion_user_not_active_success,
@@ -94,6 +102,7 @@ exports.tests = {
     test_complete_registration_wrong_code,
     test_complete_registration_user_already_active,
     test_complete_registration_user_not_found,
+    test_complete_registration_empty_code,
 }
 
 return exports

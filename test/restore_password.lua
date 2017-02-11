@@ -104,13 +104,21 @@ function test_complete_restore_password_wrong_token()
     test:is_deeply(got, expected, 'test_complete_restore_password_wrong_token')
 end
 
-function test_complete_restore_password_and_auth_with_old_password()
+function test_complete_restore_password_auth_with_old_password()
     local ok, token, user, got, expected
     ok, token = auth.restore_password('test@test.ru')
     ok, user = auth.complete_restore_password('test@test.ru', token, 'new_pwd')
     got = {auth.auth('test@test.ru', '123'), }
     expected = {response.error(error.WRONG_PASSWORD), }
-    test:is_deeply(got, expected, 'test_complete_restore_password_and_auth_with_old_password')
+    test:is_deeply(got, expected, 'test_complete_restore_password_auth_with_old_password')
+end
+
+function test_complete_restore_password_empty_token()
+    local ok, token, got, expected
+    ok, token = auth.restore_password('test@test.ru')
+    got = {auth.complete_restore_password('test@test.ru', '', 'new_pwd'), }
+    expected = {response.error(error.INVALID_PARAMS), }
+    test:is_deeply(got, expected, 'test_complete_restore_password_empty_token')
 end
 
 exports.tests = {
@@ -123,7 +131,8 @@ exports.tests = {
     test_complete_restore_password_user_not_found,
     test_complete_restore_password_user_not_active,
     test_complete_restore_password_wrong_token,
-    test_complete_restore_password_and_auth_with_old_password,
+    test_complete_restore_password_auth_with_old_password,
+    test_complete_restore_password_empty_token,
 }
 
 return exports

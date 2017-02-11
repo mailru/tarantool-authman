@@ -104,6 +104,15 @@ function test_check_auth_user_not_active()
     test:is_deeply(got, expected, 'test_check_auth_user_not_active')
 end
 
+function test_check_auth_empty_session()
+    local ok, user, got, expected
+    ok, user = auth.auth('test@test.ru', '123')
+
+    got = {auth.check_auth(''), }
+    expected = {response.error(error.INVALID_PARAMS), }
+    test:is_deeply(got, expected, 'test_check_auth_empty_session')
+end
+
 -- TODO NEED TO TEST CHECK_AUTH EXPIRATION DATE FUNCTIONALITY
 
 exports.tests = {
@@ -116,6 +125,7 @@ exports.tests = {
     test_check_auth_wrong_sign,
     test_check_auth_user_not_found,
     test_check_auth_user_not_active,
+    test_check_auth_empty_session,
 
 }
 
