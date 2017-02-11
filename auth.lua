@@ -21,17 +21,21 @@ end
 
 function generate_restore_token(user_id)
     local token = digest.md5_hex(user_id .. os.time() .. config.restore_secret)
-    pwd_token_space:upsert(user_id, {{'=', 2, token}})
+    pwd_token_space:upsert({user_id, token}, {{'=', 2, token}})
     return token
 end
 
 function restore_token_is_valid(user_id, user_token)
-    local token = pwd_token_space:get{user_id}[2]
+    local token_tuple = pwd_token_space:select{user_id}[1]
+    if token_tuple == nil then
+        return false
+    end
+    local token = token_tuple[2]
     if token ~= user_token then
-        return False
+        return false
     else
         pwd_token_space:delete{user_id}
-        return True
+        return true
     end
 end
 
@@ -108,12 +112,17 @@ function auth.check_auth(signed_session)
         return response.error(error.WRONG_SESSION_SIGN)
     end
 
-    local encoded_session_data, sign = string.match(session, '([^.]+).([^.]+)')
+    local encoded_session_data, sign = string.match(signed_session, '([^.]+).([^.]+)')
     local session_data_json = digest.base64_decode(encoded_session_data)
     local session_data = json.decode(session_data_json)
-    local user_tuple = user_space:get{session_data.user_id}
+    local user_tuple = user_space:get{session_data.user_id }
+
     if user_tuple == nil then
         return response.error(error.USER_NOT_FOUND)
+    end
+
+    if not user_tuple[user.IS_ACTIVE] then
+        return response.error(error.USER_NOT_ACTIVE)
     end
 
     local new_session
@@ -130,21 +139,27 @@ end
 
 function auth.restore_password(email)
     local user_tuple = user.get_by_email(email)
-    --
     if user_tuple == nil then
         return response.error(error.USER_NOT_FOUND)
     end
 
+    if not user_tuple[user.IS_ACTIVE] then
+        return response.error(error.USER_NOT_ACTIVE)
+    end
     return response.ok(generate_restore_token(user_tuple[user.ID]))
 end
 
-function auth.set_new_password(email, token, password)
+function auth.complete_restore_password(email, token, password)
     local user_tuple = user.get_by_email(email)
     if user_tuple == nil then
         return response.error(error.USER_NOT_FOUND)
     end
 
-    if restore_token_is_valid(email, token) then
+    if not user_tuple[user.IS_ACTIVE] then
+        return response.error(error.USER_NOT_ACTIVE)
+    end
+
+    if restore_token_is_valid(user_tuple[user.ID], token) then
         user_space:update(user_tuple[user.ID], {{'=', user.PASSWORD, session.hash_password(password)}})
         return response.ok(user.serialize(user_tuple))
     else

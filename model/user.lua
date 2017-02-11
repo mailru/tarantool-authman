@@ -34,20 +34,13 @@ function user.get_by_email(email)
     return user.get_space().index[user.EMAIL_INDEX]:select(email)[1]
 end
 
-function user.get_not_active(email)
-    local user_tuple = user.get_by_email(email)
-    if user_tuple == nil then
+function user.get_id_by_email(email)
+    local user_tuple = user.get_space().index[user.EMAIL_INDEX]:select(email)[1]
+    if user_tuple ~= nil then
+        return user_tuple[user.ID]
+    else
         return nil
     end
-    return not user_tuple[user.IS_ACTIVE] and user_tuple or nil
-end
-
-function user.get_active(email)
-    local user_tuple = user.get_by_email(email)
-    if user_tuple == nil then
-        return nil
-    end
-    return user_tuple[user.IS_ACTIVE] and user_tuple or nil
 end
 
 return user
