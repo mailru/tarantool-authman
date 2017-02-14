@@ -3,6 +3,7 @@ local config = require('config')
 
 local user = require('model.user')
 local password_token = require('model.password_token')
+local social = require('model.social')
 
 function db.create_database()
 
@@ -30,7 +31,21 @@ function db.create_database()
         if_not_exists = true
     })
 
---    local social_space = box.schema.space.create('portal_social')
+    local social_space = box.schema.space.create(social.SPACE_NAME, {
+        if_not_exists = true
+    })
+
+    social_space:create_index(social.PRIMARY_INDEX, {
+        type = 'hash',
+        parts = {social.USER_ID, 'string'},
+        if_not_exists = true
+    })
+    social_space:create_index(social.PRIMARY_INDEX, {
+        type = 'hash',
+        unique = true,
+        parts = {social.SOCIAL_ID, 'string', social.SOCIAL_TYPE, 'string'},
+        if_not_exists = true
+    })
 end
 
 function db.start()
@@ -43,11 +58,13 @@ end
 function db.truncate_spaces()
     user.get_space():truncate()
     password_token.get_space():truncate()
+    social.get_space():truncate()
 end
 
 function db.drop_database()
     user.get_space():drop()
     password_token.get_space():drop()
+    social.get_space():drop()
 end
 
 return db

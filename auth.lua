@@ -142,6 +142,10 @@ function auth.complete_restore_password(email, token, password)
     end
 end
 
+function auth.social_auth(provider, code)
+    
+end
+
 --function auth.create_social_user()
 --    local user_id = uuid.str()
 --    user_space:insert{user_id, '', true, '', nil }
