@@ -27,7 +27,7 @@ rm -rf %{buildroot}/%{name}-%{version}
 
 %{__mkdir_p} %{buildroot}/%{luapkgdir}/
 cp -pR %{_builddir}/%{name}-%{version}/auth/* %{buildroot}/%{luapkgdir}/
-cp -pR %{_builddir}/%{name}-%{version}/README.md %{buildroot}/%{luapkgdir}/doc
+cp -pR %{_builddir}/%{name}-%{version}/README.md %{buildroot}/%{luapkgdir}/README.md
 
 %clean
 rm -rf %{buildroot}
@@ -39,5 +39,4 @@ rm -rf %{buildroot}
 %{luapkgdir}/model/*.lua
 %{luapkgdir}/test/*.lua
 %{luapkgdir}/util/*.lua
-%{luapkgdir}/requirenments.txt
-%doc %{luapkgdir}/doc/README.md
+%doc %{luapkgdir}/README.md
