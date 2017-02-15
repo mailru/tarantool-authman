@@ -26,7 +26,7 @@ rm -rf %{_builddir}/%{name}-%{version}/.git
 rm -rf %{buildroot}/%{name}-%{version}
 
 %{__mkdir_p} %{buildroot}/%{luapkgdir}/
-cp -pR %{_builddir}/%{name}-%{version} %{buildroot}/%{luapkgdir}/
+cp -pR %{_builddir}/%{name}-%{version}/* %{buildroot}/%{luapkgdir}/
 
 
 %clean
