@@ -7,6 +7,7 @@ local validator = require('validator')
 
 local user = require('model.user')
 local password_token = require('model.password_token')
+local social = require('model.social')
 
 local user_space = user.get_space()
 
@@ -73,7 +74,7 @@ function auth.auth(email, password)
         return response.error(error.WRONG_PASSWORD)
     end
 
-    local signed_session = user.create_session(user_tuple[user.ID])
+    local signed_session = user.create_session(user_tuple[user.ID], user.COMMON_SESSION_TYPE)
 
     return response.ok(user.serialize(user_tuple, signed_session))
 end
@@ -97,12 +98,39 @@ function auth.check_auth(signed_session)
     end
 
     local new_session
-    if session_data.exp < os.time() then
-        return response.error(error.NOT_AUTHENTICATED)
-    elseif session_data.exp < (os.time() - config.session_update_timedelta) then
-        new_session = user.create_session(session_data.user_id)
+
+    if session_data.type == user.SOCIAL_SESSION_TYPE then
+        local social_tuple = social.get_space():get(user_tuple[user.ID])
+        if social_tuple == nil then
+            return response.error(error.USER_NOT_FOUND)
+        end
+
+        if session_data.exp < os.time() then
+            -- TODO try to update profile
+            local new_user_tuple = {}
+            local social_id = social.get_profile_info(
+                social_tuple[social.PROVIDER], social_tuple[social.TOKEN], new_user_tuple
+            )
+
+            if social_id == nil then
+                return response.error(error.NOT_AUTHENTICATED)
+            end
+
+            new_session = user.create_session(user_tuple[user.ID], user.SOCIAL_SESSION_TYPE)
+
+        else
+            new_session = signed_session
+        end
+
     else
-        new_session = signed_session
+
+        if session_data.exp < os.time() then
+            return response.error(error.NOT_AUTHENTICATED)
+        elseif session_data.exp < (os.time() - config.session_update_timedelta) then
+            new_session = user.create_session(session_data.user_id, user.COMMON_SESSION_TYPE)
+        else
+            new_session = signed_session
+        end
     end
 
     return response.ok(user.serialize(user_tuple, new_session))
@@ -142,14 +170,30 @@ function auth.complete_restore_password(email, token, password)
     end
 end
 
-function auth.social_auth(provider, code)
-    
+function auth.social_auth_url(provider)
+    return response.ok(social.get_social_auth_url(provider))
 end
 
---function auth.create_social_user()
---    local user_id = uuid.str()
---    user_space:insert{user_id, '', true, '', nil }
---    return response.ok()
---end
+function auth.social_auth(provider, code)
+    -- TODO validate provider and code
+    local user_tuple = {}
+    local token = social.get_token(provider, code, user_tuple)
+
+    if not validator.not_empty_string(token) then
+        return response.error(error.WRONG_AUTH_TOKEN)
+    end
+    local social_id = social.get_profile_info(provider, token, user_tuple)
+
+    local email = user_tuple[user.EMAIL]
+    local exists_user_tuple = user.get_by_email(email)
+    local user_id = exists_user_tuple ~= nil and exists_user_tuple[user.ID] or uuid.str();
+    local user_id = social.create_or_update(user_id, provider, social_id, token)
+    -- TODO refactor for create_or_update
+    local user_tuple = user.create_or_update(user_id, email, true, '')
+    -- TODO update profile with user_tuple
+    local session = user.create_session(user_tuple[user.ID], user.SOCIAL_SESSION_TYPE)
+
+    return response.ok(session)
+end
 
 return auth

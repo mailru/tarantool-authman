@@ -40,10 +40,10 @@ function db.create_database()
         parts = {social.USER_ID, 'string'},
         if_not_exists = true
     })
-    social_space:create_index(social.PRIMARY_INDEX, {
+    social_space:create_index(social.SOCIAL_INDEX, {
         type = 'hash',
         unique = true,
-        parts = {social.SOCIAL_ID, 'string', social.SOCIAL_TYPE, 'string'},
+        parts = {social.SOCIAL_ID, 'string', social.PROVIDER, 'string'},
         if_not_exists = true
     })
 end

@@ -10,6 +10,7 @@ error.WRONG_SESSION_SIGN = '7'
 error.NOT_AUTHENTICATED = '8'
 error.WRONG_RESTORE_TOKEN = '9'
 error.USER_ALREADY_ACTIVE = '10'
+error.WRONG_AUTH_TOKEN = '11'
 
 error.CODES = {
     [error.USER_NOT_FOUND] = 'User not found',
@@ -21,7 +22,8 @@ error.CODES = {
     [error.WRONG_SESSION_SIGN] = 'Wrong session sign',
     [error.NOT_AUTHENTICATED] = 'User is not authenticated',
     [error.WRONG_RESTORE_TOKEN] = 'Wrong restore token',
-    [error.USER_ALREADY_ACTIVE] = 'User already active'
+    [error.USER_ALREADY_ACTIVE] = 'User already active',
+    [error.WRONG_AUTH_TOKEN] = 'Wrong auth code'
 }
 
 return error
