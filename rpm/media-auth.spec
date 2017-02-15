@@ -39,5 +39,5 @@ rm -rf $RPM_BUILD_ROOT
 %{luapkgdir}/model/*.lua
 %{luapkgdir}/test/*.lua
 %{luapkgdir}/util/*.lua
+%{luapkgdir}/requirenments.txt
 %doc README.md
-requirenments.txt
