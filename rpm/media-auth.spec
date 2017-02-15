@@ -17,7 +17,7 @@ media-auth for tarantool
 
 %prep
 git clone ssh://git@stash.mail.ru:2222/portal/media-auth.git %{_builddir}/%{name}-%{version}
-rm %{_builddir}/%{name}-%{version}/.git
+rm -rf %{_builddir}/%{name}-%{version}/.git
 
 
 %define luapkgdir %{_datadir}/tarantool/queue/
