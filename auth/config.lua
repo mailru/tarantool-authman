@@ -1,6 +1,6 @@
 return {
     port = 3301,
-    test_database_dir = 'test/test_db',
+    test_database_dir = 'auth/test/test_db',
 
     activation_secret = 'ehbgrTUHIJ7689fyvg',
     session_secret = 'aswfWERVefver324efv',

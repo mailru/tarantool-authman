@@ -1,10 +1,10 @@
 local social = {}
 
-local config = require('config')
-local utils = require('util.utils')
 local curl = require('curl')
 local json = require('json')
-local user = require('model.user')
+local config = require('auth.config')
+local utils = require('auth.util.utils')
+local user = require('auth.model.user')
 
 local http = curl.http()
 

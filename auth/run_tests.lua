@@ -1,5 +1,5 @@
-local db = require('db')
-local config = require('config')
+local db = require('auth.db')
+local config = require('auth.config')
 
 box.cfg {
     listen = config.port,
@@ -11,9 +11,9 @@ box.cfg {
 db.create_database()
 
 local TEST_CASES = {
-    'test.registration',
-    'test.auth',
-    'test.restore_password'
+    'auth.test.registration',
+    'auth.test.auth',
+    'auth.test.restore_password'
 }
 
 function run()

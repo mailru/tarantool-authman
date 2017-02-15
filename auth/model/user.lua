@@ -1,7 +1,8 @@
 local user = {}
+
 local digest = require('digest')
-local config = require('config')
 local json = require('json')
+local config = require('auth.config')
 -----
 -- user (uuid, email, is_active, password, profile)
 -----

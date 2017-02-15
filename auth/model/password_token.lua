@@ -1,6 +1,7 @@
 local password_token = {}
+
 local digest = require('digest')
-local config = require('config')
+local config = require('auth.config')
 -----
 -- token (user_uuid, code)
 -----

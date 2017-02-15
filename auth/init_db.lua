@@ -1,4 +1,4 @@
-local db = require('db')
+local db = require('auth.db')
 
 db.start()
 db.create_database()

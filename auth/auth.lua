@@ -1,13 +1,13 @@
 local auth = {}
 local uuid = require('uuid')
-local config = require('config')
-local response = require('response')
-local error = require('error')
-local validator = require('validator')
+local config = require('auth.config')
+local response = require('auth.response')
+local error = require('auth.error')
+local validator = require('auth.validator')
 
-local user = require('model.user')
-local password_token = require('model.password_token')
-local social = require('model.social')
+local user = require('auth.model.user')
+local password_token = require('auth.model.password_token')
+local social = require('auth.model.social')
 
 local user_space = user.get_space()
 

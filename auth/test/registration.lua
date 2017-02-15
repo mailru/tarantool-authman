@@ -1,9 +1,9 @@
 local exports = {}
 local tap = require('tap')
-local response = require('response')
-local error = require('error')
-local auth = require('auth')
-local db = require('db')
+local response = require('auth.response')
+local error = require('auth.error')
+local auth = require('auth.auth')
+local db = require('auth.db')
 
 local test = tap.test('user_registration')
 
