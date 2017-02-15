@@ -21,7 +21,7 @@ rm -rf %{_builddir}/%{name}-%{version}/.git
 rm -rf %{_builddir}/%{name}-%{version}/rpm
 
 
-%define luapkgdir %{_datadir}/media-auth/
+%define luapkgdir %{_datadir}/tarantool/media-auth/
 
 %install
 rm -rf %{buildroot}/%{name}-%{version}
