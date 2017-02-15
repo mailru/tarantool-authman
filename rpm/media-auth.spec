@@ -25,7 +25,7 @@ rm -rf %{_builddir}/%{name}-%{version}/.git
 %install
 rm -rf %{buildroot}/%{name}-%{version}
 
-%{__mkdir_p} %{buildroot}/home/sites/sport.mail.ru/var/etc
+%{__mkdir_p} %{buildroot}/%{_libdir}/
 cp -pR %{_builddir}/%{name}-%{version} %{buildroot}/%{_libdir}/
 
 
