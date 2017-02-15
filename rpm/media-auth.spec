@@ -8,7 +8,7 @@ License: MAILRU
 BuildArch: noarch
 BuildRequires: git
 Requires: tarantool >= 1.7.0
-# Requires: tarantool-curl >= 2.2.6
+Requires: tarantool-curl >= 2.2.6
 
 
 %description
