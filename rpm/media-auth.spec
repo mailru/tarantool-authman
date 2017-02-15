@@ -1,4 +1,4 @@
-Name: tarantool-media-auth
+Name: tarantool-auth
 Version: 0.0.1
 Release: 1
 Summary: Tarantool auth module
@@ -12,7 +12,7 @@ Requires: tarantool >= 1.7.0
 
 
 %description
-media-auth for tarantool
+auth lib for tarantool
 
 
 %prep
@@ -23,17 +23,17 @@ rm -rf %{_builddir}/%{name}-%{version}/.git
 rm -rf %{_builddir}/%{name}-%{version}/rpm
 
 
-%define luapkgdir %{_datadir}/tarantool/media-auth/
+%define luapkgdir %{_datadir}/tarantool/auth/
 
 %install
 rm -rf %{buildroot}/%{name}-%{version}
 
 %{__mkdir_p} %{buildroot}/%{luapkgdir}/
-cp -pR %{_builddir}/%{name}-%{version}/* %{buildroot}/%{luapkgdir}/
-
+cp -pR %{_builddir}/%{name}-%{version}/auth/* %{buildroot}/%{luapkgdir}/
+cp -pR %{_builddir}/%{name}-%{version}/README.md %{buildroot}/%{luapkgdir}/doc/
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 
 %files
@@ -43,4 +43,4 @@ rm -rf $RPM_BUILD_ROOT
 %{luapkgdir}/test/*.lua
 %{luapkgdir}/util/*.lua
 %{luapkgdir}/requirenments.txt
-%doc %{luapkgdir}/README.md
+%doc %{luapkgdir}/doc/README.md
