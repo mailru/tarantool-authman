@@ -40,4 +40,4 @@ rm -rf $RPM_BUILD_ROOT
 %{luapkgdir}/test/*.lua
 %{luapkgdir}/util/*.lua
 %{luapkgdir}/requirenments.txt
-%doc README.md
+%doc %{luapkgdir}/README.md
