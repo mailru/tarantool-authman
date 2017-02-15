@@ -19,18 +19,15 @@ auth lib for tarantool
 %{__rm} -rf %{_builddir}/%{name}-%{version}
 
 git clone ssh://git@stash.mail.ru:2222/portal/media-auth.git %{_builddir}/%{name}-%{version}
-rm -rf %{_builddir}/%{name}-%{version}/.git
-rm -rf %{_builddir}/%{name}-%{version}/rpm
 
-
-%define luapkgdir %{_datadir}/tarantool/auth/
+%define luapkgdir %{_datadir}/tarantool/auth
 
 %install
 rm -rf %{buildroot}/%{name}-%{version}
 
 %{__mkdir_p} %{buildroot}/%{luapkgdir}/
 cp -pR %{_builddir}/%{name}-%{version}/auth/* %{buildroot}/%{luapkgdir}/
-cp -pR %{_builddir}/%{name}-%{version}/README.md %{buildroot}/%{luapkgdir}/doc/
+cp -pR %{_builddir}/%{name}-%{version}/README.md %{buildroot}/%{luapkgdir}/doc
 
 %clean
 rm -rf %{buildroot}
