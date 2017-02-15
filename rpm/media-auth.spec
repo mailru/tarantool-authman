@@ -22,7 +22,6 @@ rm -rf %{buildroot}/%{name}-%{version}
 
 %install
 install -d %{buildroot}%{_datarootdir}/tarantool/
-install -m 0644 shard.lua %{buildroot}%{_datarootdir}/tarantool/
 
 %files
 %{_datarootdir}/*.lua
