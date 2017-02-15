@@ -20,13 +20,13 @@ git clone ssh://git@stash.mail.ru:2222/portal/media-auth.git %{_builddir}/%{name
 rm -rf %{_builddir}/%{name}-%{version}/.git
 
 
-%define luapkgdir %{_datadir}/tarantool/queue/
+%define luapkgdir %{_datadir}/media-auth/
 
 %install
 rm -rf %{buildroot}/%{name}-%{version}
 
-%{__mkdir_p} %{buildroot}/%{_libdir}/
-cp -pR %{_builddir}/%{name}-%{version} %{buildroot}/%{_libdir}/
+%{__mkdir_p} %{buildroot}/%{luapkgdir}/
+cp -pR %{_builddir}/%{name}-%{version} %{buildroot}/%{luapkgdir}/
 
 
 %clean
