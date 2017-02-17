@@ -1,7 +1,6 @@
 local db = require('auth.db')
 
 db.start()
-db.create_database()
 
 -- Need for manual tests
 --local auth = require('auth')

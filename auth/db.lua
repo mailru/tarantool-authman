@@ -1,9 +1,9 @@
 local db = {}
 local config = require('auth.config')
 
-local user = require('auth.model.user')
-local password_token = require('auth.model.password_token')
-local social = require('auth.model.social')
+local user = require('auth.model.user').model()
+local password_token = require('auth.model.password_token').model()
+local social = require('auth.model.social').model()
 
 function db.create_database()
 

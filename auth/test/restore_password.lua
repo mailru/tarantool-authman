@@ -2,12 +2,13 @@ local exports = {}
 local tap = require('tap')
 local response = require('auth.response')
 local error = require('auth.error')
-local auth = require('auth.auth')
 local db = require('auth.db')
+local config = require('auth.test.config')
 
-local test = tap.test('fake_test')
-local user_space = require('auth.model.user').get_space()
-local get_id_by_email = require('auth.model.user').get_id_by_email
+local test = tap.test('restore_pwd_test')
+local auth = require('auth.auth').api(config)
+local user_space = require('auth.model.user').model('config').get_space()
+local get_id_by_email = require('auth.model.user').model('config').get_id_by_email
 
 function exports.setup() end
 
