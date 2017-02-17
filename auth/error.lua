@@ -11,6 +11,7 @@ error.NOT_AUTHENTICATED = '8'
 error.WRONG_RESTORE_TOKEN = '9'
 error.USER_ALREADY_ACTIVE = '10'
 error.WRONG_AUTH_TOKEN = '11'
+error.IMPROPERLY_CONFIGURED = '12'
 
 error.CODES = {
     [error.USER_NOT_FOUND] = 'User not found',
@@ -23,7 +24,8 @@ error.CODES = {
     [error.NOT_AUTHENTICATED] = 'User is not authenticated',
     [error.WRONG_RESTORE_TOKEN] = 'Wrong restore token',
     [error.USER_ALREADY_ACTIVE] = 'User already active',
-    [error.WRONG_AUTH_TOKEN] = 'Wrong auth code'
+    [error.WRONG_AUTH_TOKEN] = 'Wrong auth code',
+    [error.IMPROPERLY_CONFIGURED] = 'Wrong config passed'
 }
 
 return error

@@ -2,16 +2,21 @@ local auth = {}
 local response = require('auth.response')
 local error = require('auth.error')
 local validator = require('auth.validator')
-local db = require('db')
+local db = require('auth.db')
 
 
 function auth.api(config)
     local api = {}
 
+    if not validator.config(config) then
+        return response.error(error.IMPROPERLY_CONFIGURED)
+    end
+
     local user = require('auth.model.user').model(config)
     local password_token = require('auth.model.password_token').model(config)
     local social = require('auth.model.social').model(config)
     db.create_database()
+
     --------------
     -- API methods
     --------------
@@ -223,7 +228,7 @@ function auth.api(config)
         return response.ok(user.serialize(user_tuple, session))
     end
 
-    return api
+    return response.ok(api)
 end
 
 return auth
