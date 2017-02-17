@@ -44,6 +44,10 @@ function validator.table(tbl)
     return type(tbl) == 'table'
 end
 
+function validator.password(pwd)
+    return validator.not_empty_string(pwd)
+end
+
 function validator.config(config)
     local param_name, param_value, is_valid
     for param_index = 1, #config_required do
@@ -75,7 +79,6 @@ function validator.config(config)
                     return false
                 end
             end
-
         end
     end
     return true

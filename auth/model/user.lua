@@ -46,6 +46,10 @@ function user.model(config)
         return user_data
     end
 
+    function model.get_by_id(user_id)
+        model.get_space():get(user_id)
+    end
+
     function model.get_by_email(email)
         return model.get_space().index[model.EMAIL_INDEX]:select(email)[1]
     end

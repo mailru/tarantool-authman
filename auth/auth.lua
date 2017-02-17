@@ -17,9 +17,9 @@ function auth.api(config)
     local social = require('auth.model.social').model(config)
     db.create_database()
 
-    --------------
-    -- API methods
-    --------------
+    -----------------
+    -- API methods --
+    -----------------
     function api.registration(email)
         if not validator.email(email) then
             return response.error(error.INVALID_PARAMS)
@@ -35,7 +35,11 @@ function auth.api(config)
             end
         end
 
-        user_tuple = user.create({nil, email, false, '' })
+        user_tuple = user.create({
+            [user.EMAIL] = email,
+            [user.IS_ACTIVE] = false
+        })
+
         local code = user.generate_activation_code(user_tuple[user.ID])
         return response.ok(code)
     end
@@ -60,7 +64,12 @@ function auth.api(config)
             return response.error(error.WRONG_ACTIVATION_CODE)
         end
 
-        user_tuple = user.update({user_id, nil, true, user.hash_password(password)})
+        user_tuple = user.update({
+            [user.ID] = user_id,
+            [user.IS_ACTIVE] = true,
+            [user.PASSWORD] = user.hash_password(password)
+        })
+
         return response.ok(user.serialize(user_tuple))
     end
 
@@ -70,7 +79,7 @@ function auth.api(config)
             return response.error(error.INVALID_PARAMS)
         end
 
-        local user_tuple = user.get_space():get(user_id)
+        local user_tuple = user.get_by_id(user_id)
         if user_tuple == nil then
             return response.error(error.USER_NOT_FOUND)
         end
@@ -126,7 +135,7 @@ function auth.api(config)
         local new_session
 
         if session_data.type == user.SOCIAL_SESSION_TYPE then
-            local social_tuple = social.get_space():get(user_tuple[user.ID])
+            local social_tuple = social.get_by_id(user_tuple[user.ID])
             if social_tuple == nil then
                 return response.error(error.USER_NOT_FOUND)
             end
@@ -189,7 +198,11 @@ function auth.api(config)
         end
 
         if password_token.restore_token_is_valid(user_tuple[user.ID], token) then
-            user_tuple = user.update({user_tuple[user.ID], nil, nil, user.hash_password(password)})
+            user_tuple = user.update({
+                [user.ID] = user_tuple[user.ID],
+                [user.PASSWORD] = user.hash_password(password),
+            })
+
             return response.ok(user.serialize(user_tuple))
         else
             return response.error(error.WRONG_RESTORE_TOKEN)
@@ -197,6 +210,7 @@ function auth.api(config)
     end
 
     function api.social_auth_url(provider)
+        -- TODO validate provider
         return response.ok(social.get_social_auth_url(provider))
     end
 
@@ -218,8 +232,6 @@ function auth.api(config)
         end
 
         user_tuple[user.IS_ACTIVE] = true
-        print(user_tuple[user.PROFILE][user.PROFILE_FIRST_NAME])
-        print('ok')
         user_tuple = user.create_or_update(user_tuple)
         social_tuple = social.create_or_update(user_tuple[user.ID], provider, social_id, token)
 

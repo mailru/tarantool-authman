@@ -36,6 +36,10 @@ function social.model(config)
         }
     end
 
+    function model.get_by_id(user_id)
+        return model.get_space():get(user_id)
+    end
+
     function model.create_or_update(user_id, provider, social_id, token)
         local social_tuple
         social_tuple = model.get_space():get(user_id)

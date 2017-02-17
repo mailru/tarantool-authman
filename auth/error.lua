@@ -12,6 +12,8 @@ error.WRONG_RESTORE_TOKEN = '9'
 error.USER_ALREADY_ACTIVE = '10'
 error.WRONG_AUTH_TOKEN = '11'
 error.IMPROPERLY_CONFIGURED = '12'
+error.WRONG_PROVIDER = '13'
+error.WEAK_PASSWORD = '14'
 
 error.CODES = {
     [error.USER_NOT_FOUND] = 'User not found',
@@ -25,7 +27,10 @@ error.CODES = {
     [error.WRONG_RESTORE_TOKEN] = 'Wrong restore token',
     [error.USER_ALREADY_ACTIVE] = 'User already active',
     [error.WRONG_AUTH_TOKEN] = 'Wrong auth code',
-    [error.IMPROPERLY_CONFIGURED] = 'Wrong config passed'
+    [error.IMPROPERLY_CONFIGURED] = 'Wrong config passed',
+    [error.WRONG_PROVIDER] = 'Wrong social provider',
+    [error.WEAK_PASSWORD] = 'Password to weak',
+
 }
 
 return error
