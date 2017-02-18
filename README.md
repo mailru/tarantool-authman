@@ -132,9 +132,8 @@ Return url for social auth. State is optional but recommended for csrf protectio
 #### auth.social_auth(provider, code)
 
 ```
-tarantool> ok, user = auth.social_auth_url('facebook', 'some-state-string')
+tarantool> ok, user = auth.social_auth('facebook', code)
 tarantool> user
----
 - is_active: true
   profile: {'first_name': 'a', 'last_name': 'aa'}
   id: e954033b-3a61-4e49-9e8c-640e01bf8d66
