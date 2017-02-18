@@ -37,7 +37,7 @@ function validator.provider(provider)
 end
 
 function validator.positive_integer(integer)
-    return type(integer) == 'number' and integer > 0
+    return type(integer) == 'number' and integer >= 0
 end
 
 function validator.table(tbl)

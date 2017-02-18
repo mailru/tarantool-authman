@@ -1,7 +1,46 @@
 local utils = {}
+local curl = require('curl')
+
+local http = curl.http()
 
 function utils.format(string, tab)
-  return (string:gsub('($%b{})', function(word) return tab[word:sub(3, -2)] or word end))
+    return (string:gsub('($%b{})', function(word) return tab[word:sub(3, -2)] or word end))
+end
+
+function utils.dump(o)
+   if type(o) == 'table' then
+      local s = '{ '
+      for k,v in pairs(o) do
+         if type(k) ~= 'number' then k = '"'..k..'"' end
+         s = s .. '['..k..'] = ' .. utils.dump(v) .. ','
+      end
+      return s .. '} '
+   else
+      return tostring(o)
+   end
+end
+
+function utils.request(method, url, params, param_values)
+    local response, connection_timeot, read_timeout, body
+    connection_timeot = 1000
+    read_timeout = 3000
+
+    if method == 'POST' then
+        body = utils.format(params, param_values)
+        response = http:post(url, body, {
+            headers = {['Content-Type'] = 'application/x-www-form-urlencoded'},
+            connection_timeot = connection_timeot,
+            read_timeout = read_timeout
+        })
+    else
+        params = utils.format(params, param_values)
+        url = url .. params
+        response = http:get(url, {
+            connection_timeot = connection_timeot,
+            read_timeout = read_timeout
+        })
+    end
+    return response
 end
 
 return utils

@@ -1,5 +1,4 @@
 local db = {}
-local config = require('auth.config')
 
 local user = require('auth.model.user').model()
 local password_token = require('auth.model.password_token').model()
@@ -51,7 +50,7 @@ end
 function db.start()
     print('start database now!')
     box.cfg {
-        listen = config.port,
+        listen = 3301,
     }
 end
 

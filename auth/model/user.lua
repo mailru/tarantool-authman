@@ -3,6 +3,7 @@ local user = {}
 local digest = require('digest')
 local json = require('json')
 local uuid = require('uuid')
+local validator =  require('auth.validator')
 
 -----
 -- user (uuid, email, is_active, password, profile)
@@ -47,7 +48,7 @@ function user.model(config)
     end
 
     function model.get_by_id(user_id)
-        model.get_space():get(user_id)
+        return model.get_space():get(user_id)
     end
 
     function model.get_by_email(email)
@@ -55,6 +56,9 @@ function user.model(config)
     end
 
     function model.get_id_by_email(email)
+        if not validator.not_empty_string(email) then
+            return nil
+        end
         local user_tuple = model.get_space().index[model.EMAIL_INDEX]:select(email)[1]
         if user_tuple ~= nil then
             return user_tuple[model.ID]
@@ -65,9 +69,10 @@ function user.model(config)
 
     function model.create(user_tuple)
         local user_id = uuid.str()
+        local email = validator.string(user_tuple[model.EMAIL]) and user_tuple[model.EMAIL] or ''
         return model.get_space():insert{
             user_id,
-            user_tuple[model.EMAIL],
+            email,
             user_tuple[model.IS_ACTIVE],
             user_tuple[model.PASSWORD],
             user_tuple[model.PROFILE]

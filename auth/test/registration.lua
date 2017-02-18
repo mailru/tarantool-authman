@@ -5,7 +5,7 @@ local error = require('auth.error')
 local db = require('auth.db')
 local config = require('auth.test.config')
 
-local auth = require('auth.auth').api(config)
+local ok, auth = require('auth.auth').api(config)
 local test = tap.test('registration_test')
 
 function exports.setup() end

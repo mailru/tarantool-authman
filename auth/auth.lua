@@ -49,6 +49,10 @@ function auth.api(config)
             return response.error(error.INVALID_PARAMS)
         end
 
+        if not validator.password(password) then
+            return response.error(error.WEAK_PASSWORD)
+        end
+
         local user_tuple = user.get_by_email(email)
         if user_tuple == nil then
             return response.error(error.USER_NOT_FOUND)
@@ -73,9 +77,8 @@ function auth.api(config)
         return response.ok(user.serialize(user_tuple))
     end
 
-    function api.set_profile(user_id, first_name, last_name)
-        if not (validator.string(first_name) and validator.string(last_name) and
-                validator.not_empty_string(user_id)) then
+    function api.set_profile(user_id, user_profile)
+        if not validator.not_empty_string(user_id) then
             return response.error(error.INVALID_PARAMS)
         end
 
@@ -84,15 +87,19 @@ function auth.api(config)
             return response.error(error.USER_NOT_FOUND)
         end
 
+        if not user_tuple[user.IS_ACTIVE] then
+            return response.error(error.USER_NOT_ACTIVE)
+        end
+
         user_tuple = user.update({
             [user.ID] = user_id,
             [user.PROFILE] = {
-                [user.PROFILE_FIRST_NAME] = first_name,
-                [user.PROFILE_LAST_NAME] = last_name,
+                [user.PROFILE_FIRST_NAME] = user_profile['first_name'],
+                [user.PROFILE_LAST_NAME] = user_profile['last_name'],
             },
         })
 
-        return user_tuple
+        return response.ok(user.serialize(user_tuple))
     end
 
     function api.auth(email, password)
@@ -140,7 +147,7 @@ function auth.api(config)
                 return response.error(error.USER_NOT_FOUND)
             end
 
-            if session_data.exp < os.time() then
+            if session_data.exp <= os.time() then
                 local new_user_tuple = {user_tuple[user.ID]}
                 local social_id = social.get_profile_info(
                     social_tuple[social.PROVIDER], social_tuple[social.TOKEN], new_user_tuple
@@ -158,10 +165,11 @@ function auth.api(config)
             end
 
         else
-
-            if session_data.exp < os.time() then
+            print(session_data.exp)
+            print(os.time())
+            if session_data.exp <= os.time() then
                 return response.error(error.NOT_AUTHENTICATED)
-            elseif session_data.exp < (os.time() - config.session_update_timedelta) then
+            elseif session_data.exp <= (os.time() - config.session_update_timedelta) then
                 new_session = user.create_session(session_data.user_id, user.COMMON_SESSION_TYPE)
             else
                 new_session = signed_session
@@ -197,6 +205,11 @@ function auth.api(config)
             return response.error(error.USER_NOT_ACTIVE)
         end
 
+        if not validator.password(password) then
+            return response.error(error.WEAK_PASSWORD)
+        end
+
+
         if password_token.restore_token_is_valid(user_tuple[user.ID], token) then
             user_tuple = user.update({
                 [user.ID] = user_tuple[user.ID],
@@ -209,21 +222,31 @@ function auth.api(config)
         end
     end
 
-    function api.social_auth_url(provider)
-        -- TODO validate provider
-        return response.ok(social.get_social_auth_url(provider))
+    function api.social_auth_url(provider, state)
+        if not validator.provider(provider) then
+            return response.error(error.WRONG_PROVIDER)
+        end
+
+        return response.ok(social.get_social_auth_url(provider, state))
     end
 
     function api.social_auth(provider, code)
-        -- TODO validate provider and code
         local token, social_id, social_tuple
         local user_tuple = {}
+
+        if not (validator.provider(provider) and validator.not_empty_string(code)) then
+            return response.error(error.WRONG_PROVIDER)
+        end
+
         token = social.get_token(provider, code, user_tuple)
         if not validator.not_empty_string(token) then
-            return response.error(error.WRONG_AUTH_TOKEN)
+            return response.error(error.WRONG_AUTH_CODE)
         end
 
         social_id = social.get_profile_info(provider, token, user_tuple)
+        if not validator.not_empty_string(social_id) then
+            return response.error(error.SOCIAL_AUTH_ERROR)
+        end
 
         local email = user_tuple[user.EMAIL]
         local exists_user_tuple = user.get_by_email(email)
@@ -233,7 +256,12 @@ function auth.api(config)
 
         user_tuple[user.IS_ACTIVE] = true
         user_tuple = user.create_or_update(user_tuple)
-        social_tuple = social.create_or_update(user_tuple[user.ID], provider, social_id, token)
+        social_tuple = social.create_or_update({
+            [social.USER_ID] = user_tuple[user.ID],
+            [social.PROVIDER] = provider,
+            [social.SOCIAL_ID] = social_id,
+            [social.TOKEN] = token
+        })
 
         local session = user.create_session(user_tuple[user.ID], user.SOCIAL_SESSION_TYPE)
 

@@ -13,7 +13,9 @@ db.create_database()
 local TEST_CASES = {
     'auth.test.registration',
     'auth.test.auth',
-    'auth.test.restore_password'
+    'auth.test.restore_password',
+    'auth.test.profile',
+    'auth.test.social'
 }
 
 function run()

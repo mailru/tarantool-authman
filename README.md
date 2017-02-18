@@ -1,21 +1,48 @@
-# tarantool-media-auth
+# tarantool-auth
 
 Require tarantool >= 1.7
 
 Run tarantool and create scopes:
 
 ```
-tarantool> db = require('db')
+tarantool> db = require('auth.db')
 tarantool> db.start()
-tarantool> db.create_database()
 ```
 
 Use auth api:
 ```
-tarantool> auth = require('auth')
+tarantool> config = require('my_config')
+tarantool> auth = require('auth').api(config)
 tarantool> ok, activation_code = auth.registration('example@mail.ru')
 ```
+## Configuration
+Exaple of my_config.lua module, fill empty strings with your values:
+```
+return {
+    activation_secret = '',
+    session_secret = '',
+    restore_secret = '',
+    session_lifetime = 7 * 24 * 60 * 60,
+    session_update_timedelta = 2 * 24 * 60* 60,
+    social_check_time = 60 * 60* 24,
 
+    facebook = {
+        client_id = '',
+        client_secret = '',
+        redirect_uri='',
+    },
+    google = {
+        client_id = '',
+        client_secret = '',
+        redirect_uri=''
+    },
+    vk = {
+        client_id = '',
+        client_secret = '',
+        redirect_uri='',
+    },
+}
+```
 ## Api methods
 
 #### auth.registration(email)
@@ -35,6 +62,18 @@ tarantool> user
   id: b8c9ee9d-ae15-469d-a16f-415594121ece
 ```
 Set user is_active=true and password, return user table (without session)
+
+#### auth.set_profile(user_id, profile_table)
+```
+tarantool> ok, user = auth.set_profile(id, {first_name='name', laste_name='surname'})
+tarantool> user
+- is_active: true
+  email: aaa@mail.ru
+  profile: {'first_name': 'name'}
+  id: bcb6e00a-1148-4b7d-9ab1-9a9a3b21ce2a
+
+```
+Set user profile first_name and last_name
 
 #### auth.auth(email, password)
 ```
@@ -81,6 +120,29 @@ tarantool> user
 ```
 Set new password, return user table (without session)
 
+#### auth.social_auth_url(provider, state)
+
+```
+tarantool> ok, url = auth.social_auth_url('facebook', 'some-state-string')
+tarantool> url
+- https://www.facebook.com/v2.8/dialog/oauth?client_id=1813230128941062&redirect_uri={redirect}&scope=email&state=some-state-string
+```
+Return url for social auth. State is optional but recommended for csrf protection.
+
+#### auth.social_auth(provider, code)
+
+```
+tarantool> ok, user = auth.social_auth_url('facebook', 'some-state-string')
+tarantool> user
+---
+- is_active: true
+  profile: {'first_name': 'a', 'last_name': 'aa'}
+  id: e954033b-3a61-4e49-9e8c-640e01bf8d66
+  email: aaa@mail.ru
+  session: 'eyJ1c2VyX2lkIj.....'
+```
+Sign in user, return user table (with session)
+
 ## Handling errors:
 
 If first parametr (ok - bool) is false then error is occured. Error description will be stored in second param like:
@@ -107,10 +169,16 @@ error.WRONG_SESSION_SIGN = '7'
 error.NOT_AUTHENTICATED = '8'
 error.WRONG_RESTORE_TOKEN = '9'
 error.USER_ALREADY_ACTIVE = '10'
+error.WRONG_AUTH_CODE = '11'
+error.IMPROPERLY_CONFIGURED = '12'
+error.WRONG_PROVIDER = '13'
+error.WEAK_PASSWORD = '14'
+error.SOCIAL_AUTH_ERROR = '15'
+
 ```
 
 ## Run tests:
 To perform tests run this in directory with media-auth module:
 ```
-$ tarantool run_tests.lua
+$ tarantool auth/run_tests.lua
 ```

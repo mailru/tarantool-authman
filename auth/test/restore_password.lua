@@ -6,7 +6,7 @@ local db = require('auth.db')
 local config = require('auth.test.config')
 
 local test = tap.test('restore_pwd_test')
-local auth = require('auth.auth').api(config)
+local ok, auth = require('auth.auth').api(config)
 local user_space = require('auth.model.user').model('config').get_space()
 local get_id_by_email = require('auth.model.user').model('config').get_id_by_email
 
