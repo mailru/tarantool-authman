@@ -1,5 +1,5 @@
 local db = require('auth.db')
-local config = require('auth.config')
+local config = require('auth.test.config')
 
 box.cfg {
     listen = config.port,

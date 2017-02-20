@@ -5,9 +5,9 @@ return {
     activation_secret = 'ehbgrTUHIJ7689fyvg',
     session_secret = 'aswfWERVefver324efv',
     restore_secret = 'ybhinjTRCFYVGUHB5678jh',
-    session_lifetime = 0,
-    session_update_timedelta = 0,
-    social_check_time = 0,
+    session_lifetime = 3,
+    session_update_timedelta = 2,
+    social_check_time = 3,
 
     facebook = {
         client_id = '1813230128941062',

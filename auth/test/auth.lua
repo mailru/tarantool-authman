@@ -1,5 +1,6 @@
 local exports = {}
 local tap = require('tap')
+local fiber = require('fiber')
 local response = require('auth.response')
 local error = require('auth.error')
 local db = require('auth.db')
@@ -114,11 +115,37 @@ function test_check_auth_empty_session()
     test:is_deeply(got, expected, 'test_check_auth_empty_session')
 end
 
--- TODO NEED TO TEST CHECK_AUTH EXPIRATION DATE FUNCTIONALITY
+function test_check_auth_update_session_success()
+    local ok, user, got, expected, first_session, second_session
+    ok, user = auth.auth('test@test.ru', '123')
+    first_session = user['session']
+
+    fiber.sleep(config.session_lifetime - config.session_update_timedelta)
+
+    ok, user = auth.check_auth(first_session)
+    test:is(ok, true, 'test_check_auth_update_session_success session updated')
+
+    second_session = user['session']
+    test:isstring(second_session, 'test_check_auth_update_session_success session returned')
+    test:isnt(first_session, second_session, 'test_check_auth_update_session_success new session')
+end
+
+function test_check_auth_expired_session()
+    local ok, user, got, expected, session
+    ok, user = auth.auth('test@test.ru', '123')
+    session = user['session']
+
+    fiber.sleep(config.session_lifetime)
+
+    got = {auth.check_auth(session), }
+    expected = {response.error(error.NOT_AUTHENTICATED), }
+    test:is_deeply(got, expected, 'test_check_auth_expired_session')
+end
 
 exports.tests = {
     test_auth_success,
     test_check_auth_success,
+    test_check_auth_update_session_success,
 
     test_auth_wrong_password,
     test_auth_user_not_found,
@@ -127,6 +154,7 @@ exports.tests = {
     test_check_auth_user_not_found,
     test_check_auth_user_not_active,
     test_check_auth_empty_session,
+    test_check_auth_expired_session,
 
 }
 

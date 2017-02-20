@@ -35,6 +35,9 @@ rm -rf %{buildroot}
 
 %files
 %dir %{luapkgdir}
+%dir %{luapkgdir}/model
+%dir %{luapkgdir}/test
+%dir %{luapkgdir}/util
 %{luapkgdir}/*.lua
 %{luapkgdir}/model/*.lua
 %{luapkgdir}/test/*.lua

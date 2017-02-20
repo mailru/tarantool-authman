@@ -165,11 +165,10 @@ function auth.api(config)
             end
 
         else
-            print(session_data.exp)
-            print(os.time())
+
             if session_data.exp <= os.time() then
                 return response.error(error.NOT_AUTHENTICATED)
-            elseif session_data.exp <= (os.time() - config.session_update_timedelta) then
+            elseif session_data.exp <= (os.time() + config.session_update_timedelta) then
                 new_session = user.create_session(session_data.user_id, user.COMMON_SESSION_TYPE)
             else
                 new_session = signed_session
