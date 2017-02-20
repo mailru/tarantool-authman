@@ -1,14 +1,15 @@
-local db = require('auth.db')
 local config = require('auth.test.config')
+
+local test_db_path = config.test_database_dir
+
+os.execute('mkdir -p ' .. test_db_path)
 
 box.cfg {
     listen = config.port,
-    wal_dir = config.test_database_dir,
-    snap_dir = config.test_database_dir,
-    vinyl_dir = config.test_database_dir,
+    wal_dir = test_db_path,
+    snap_dir = test_db_path,
+    vinyl_dir = test_db_path,
 }
-
-db.create_database()
 
 local TEST_CASES = {
     'auth.test.registration',
@@ -32,5 +33,4 @@ function run()
 end
 
 run()
-
-db.drop_database()
+os.execute('rm -rf '.. test_db_path)

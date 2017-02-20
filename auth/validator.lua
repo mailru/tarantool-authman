@@ -49,6 +49,10 @@ function validator.password(pwd)
 end
 
 function validator.config(config)
+    if not validator.table(config) then
+        return false
+    end
+
     local param_name, param_value, is_valid
     for param_index = 1, #config_required do
         param_name = config_required[param_index]
