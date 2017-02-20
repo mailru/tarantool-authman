@@ -2,3 +2,4 @@
 *.snap
 *.vymeta
 *.xlog
+t.lua

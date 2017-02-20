@@ -4,7 +4,7 @@ return {
     restore_secret = 'ybhinjTRCFYVGUHB5678jh',
     session_lifetime = 7 * 24 * 60 * 60,
     session_update_timedelta = 2 * 24 * 60* 60,
-    social_check_time = 60 * 60* 24,
+    social_check_time = 1,
 
     facebook = {
         client_id = '1813230128941062',
@@ -14,7 +14,7 @@ return {
     google = {
         client_id = '495340653331-3gmtvon6tc1o61ajn5piek6jgi0p2o47.apps.googleusercontent.com',
         client_secret = 'aaFDCa0mMK8YqeBWOeAnfGYY',
-        redirect_uri='http://localhost:8000/',
+        redirect_uri='http://localhost:8000',
     },
     vk = {
         client_id = '5873775',
