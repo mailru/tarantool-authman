@@ -115,7 +115,7 @@ function social.model(config)
                     code = code,
                 }
             )
-            if response.code ~= 200 then
+            if response == nil or response.code ~= 200 then
                 return nil
             else
                 data = json.decode(response.body)
@@ -134,7 +134,7 @@ function social.model(config)
                     code = code,
                 }
             )
-            if response.code ~= 200 then
+            if response == nil or response.code ~= 200 then
                 return nil
             else
                 data = json.decode(response.body)
@@ -155,7 +155,7 @@ function social.model(config)
                 }
             )
 
-            if response.code ~= 200 then
+            if response == nil or response.code ~= 200 then
                 return nil
             else
                 data = json.decode(response.body)
@@ -177,7 +177,7 @@ function social.model(config)
                 { token = token }
             )
 
-            if response.code ~= 200 then
+            if response == nil or response.code ~= 200 then
                 return nil
             else
                 data = json.decode(response.body)
@@ -194,7 +194,7 @@ function social.model(config)
                 { token = token }
             )
 
-            if response.code ~= 200 then
+            if response == nil or response.code ~= 200 then
                 return nil
             else
                 data = json.decode(response.body)
@@ -222,7 +222,7 @@ function social.model(config)
                 }
             )
 
-            if response.code ~= 200 then
+            if response == nil or response.code ~= 200 then
                 return nil
             end
 
@@ -236,7 +236,7 @@ function social.model(config)
                 { access_token = access_token }
             )
 
-            if response.code ~= 200 then
+            if response == nil or response.code ~= 200 then
                 return nil
             end
 

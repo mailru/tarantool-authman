@@ -21,24 +21,28 @@ function utils.dump(o)
 end
 
 function utils.request(method, url, params, param_values)
-    local response, connection_timeot, read_timeout, body
+    local response, connection_timeot, read_timeout, body, ok, msg
     connection_timeot = 1000
     read_timeout = 3000
 
     if method == 'POST' then
         body = utils.format(params, param_values)
-        response = http:post(url, body, {
-            headers = {['Content-Type'] = 'application/x-www-form-urlencoded'},
-            connection_timeot = connection_timeot,
-            read_timeout = read_timeout
-        })
+        ok, msg = pcall(function()
+            response = http:post(url, body, {
+                headers = {['Content-Type'] = 'application/x-www-form-urlencoded'},
+                connection_timeot = connection_timeot,
+                read_timeout = read_timeout
+            })
+        end)
     else
         params = utils.format(params, param_values)
         url = url .. params
-        response = http:get(url, {
-            connection_timeot = connection_timeot,
-            read_timeout = read_timeout
-        })
+        ok, msg = pcall(function()
+            response = http:get(url, {
+                connection_timeot = connection_timeot,
+                read_timeout = read_timeout
+            })
+        end)
     end
     return response
 end

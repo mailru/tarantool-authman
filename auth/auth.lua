@@ -148,6 +148,9 @@ function auth.api(config)
             end
 
             if session_data.exp <= os.time() then
+                return response.error(error.NOT_AUTHENTICATED)
+
+            elseif session_data.update <= os.time() then
                 local new_user_tuple = {user_tuple[user.ID]}
                 local social_id = social.get_profile_info(
                     social_tuple[social.PROVIDER], social_tuple[social.TOKEN], new_user_tuple

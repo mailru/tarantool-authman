@@ -45,7 +45,7 @@ function test_check_auth_success()
     session = user['session']
     user['id'] = nil
     user['session'] = nil
-    expected = {email = 'test@test.ru', is_active = true}
+    expected = {email = 'test@test.ru', is_active = true }
     test:is(ok, true, 'test_check_auth_success user logged in')
     test:isstring(session, 'test_check_auth_success session returned')
     test:is_deeply(user, expected, 'test_check_auth_success user returned')

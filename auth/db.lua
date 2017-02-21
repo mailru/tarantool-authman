@@ -3,6 +3,7 @@ local db = {}
 local user = require('auth.model.user').model()
 local password_token = require('auth.model.password_token').model()
 local social = require('auth.model.social').model()
+local session = require('auth.model.session').model()
 
 function db.create_database()
 
@@ -33,7 +34,6 @@ function db.create_database()
     local social_space = box.schema.space.create(social.SPACE_NAME, {
         if_not_exists = true
     })
-
     social_space:create_index(social.PRIMARY_INDEX, {
         type = 'hash',
         parts = {social.USER_ID, 'string'},
@@ -43,6 +43,15 @@ function db.create_database()
         type = 'hash',
         unique = true,
         parts = {social.SOCIAL_ID, 'string', social.PROVIDER, 'string'},
+        if_not_exists = true
+    })
+
+    local session_space = box.schema.space.create(session.SPACE_NAME, {
+        if_not_exists = true
+    })
+    session_space:create_index(session.PRIMARY_INDEX, {
+        type = 'hash',
+        parts = {session.ID, 'string'},
         if_not_exists = true
     })
 end
