@@ -3,3 +3,4 @@
 *.vymeta
 *.xlog
 t.lua
+config
