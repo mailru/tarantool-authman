@@ -10,7 +10,6 @@ local validator =  require('auth.validator')
 -----
 function user.model(config)
     local model = {}
-    local session = require('auth.model.session').model(config)
 
     model.SPACE_NAME = 'portal_user'
 
@@ -31,9 +30,6 @@ function user.model(config)
     function model.get_space()
         return box.space[model.SPACE_NAME]
     end
-
-    model.SOCIAL_SESSION_TYPE = 'social'
-    model.COMMON_SESSION_TYPE = 'common'
 
     function model.serialize(user_tuple, session)
         local user_data = {
@@ -107,80 +103,6 @@ function user.model(config)
     function model.hash_password(password, salt)
         -- Need stronger hash?
         return digest.sha256(string.format('%s%s', salt, password))
-    end
-
-    local function make_session_sign(encoded_session_data, user_secret)
-        local sign = digest.sha256_hex(string.format('%s%s%s',
-            user_secret,
-            encoded_session_data,
-            config.session_secret
-        ))
-        return digest.base64_encode(sign)
-    end
-
-    local function get_expiration_time()
-        return os.time() + config.session_lifetime
-    end
-
-    local function get_social_update_time()
-        return os.time() + config.social_check_time
-    end
-
-    local function split_session(session)
-        return string.match(session, '([^.]+).([^.]+)')
-    end
-
-    function model.create_session(user_id, type)
-        local expiration_time, update_time, session_data, session_tuple
-        update_time = get_social_update_time()
-        expiration_time = get_expiration_time()
-        session_tuple = session.generate()
-        session_data = {
-                user_id = user_id,
-                session_id = session_tuple[session.ID],
-                exp = expiration_time,
-                type = type,
-        }
-
-        if type == model.SOCIAL_SESSION_TYPE then
-            session_data['update'] = update_time
-        end
-
-        session_data = json.encode(session_data)
-        local encoded_session_data = digest.base64_encode(session_data)
-        local encoded_sign = make_session_sign(encoded_session_data, session_tuple[session.CODE])
-        return string.format('%s.%s', encoded_session_data, encoded_sign)
-    end
-
-    function model.session_is_valid(encoded_session)
-        local encoded_session_data, user_sign = split_session(encoded_session)
-        local session_tuple = model.get_session_tuple(encoded_session_data)
-        if session_tuple == nil then
-            return false
-        end
-        local sign = make_session_sign(encoded_session_data, session_tuple[session.CODE])
-        return sign == user_sign
-    end
-
-    function model.get_session_data(encoded_sesssion)
-        local encoded_session_data, sign = split_session(encoded_sesssion)
-        local session_data = session.decode_session(encoded_session_data)
-        if session_data == nil then
-            return nil
-        end
-
-        local user_tuple = model.get_space():get(session_data.user_id)
-        return user_tuple, session_data
-    end
-
-    function model.get_session_tuple(encoded_session_data)
-        local session_data = session.decode_session(encoded_session_data)
-        if session_data == nil then
-            return nil
-        end
-
-        local session_tuple = session.get(session_data.session_id)
-        return session_tuple
     end
 
     return model

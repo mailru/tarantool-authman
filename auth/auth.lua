@@ -15,6 +15,7 @@ function auth.api(config)
     local user = require('auth.model.user').model(config)
     local password_token = require('auth.model.password_token').model(config)
     local social = require('auth.model.social').model(config)
+    local session = require('auth.model.session').model(config)
     db.create_database()
 
     -----------------
@@ -116,7 +117,7 @@ function auth.api(config)
             return response.error(error.WRONG_PASSWORD)
         end
 
-        local signed_session = user.create_session(user_tuple[user.ID], user.COMMON_SESSION_TYPE)
+        local signed_session = session.create_session(user_tuple[user.ID], session.COMMON_SESSION_TYPE)
 
         return response.ok(user.serialize(user_tuple, signed_session))
     end
@@ -126,11 +127,13 @@ function auth.api(config)
             return response.error(error.INVALID_PARAMS)
         end
 
-        if not user.session_is_valid(signed_session) then
+        local encoded_session_data = session.validate_session(signed_session)
+
+        if encoded_session_data == nil then
             return response.error(error.WRONG_SESSION_SIGN)
         end
 
-        local user_tuple, session_data = user.get_session_data(signed_session)
+        local user_tuple = session.get_user_by_session(encoded_session_data)
         if user_tuple == nil then
             return response.error(error.USER_NOT_FOUND)
         end
@@ -140,6 +143,7 @@ function auth.api(config)
         end
 
         local new_session
+        local session_data = session.decode(encoded_session_data)
 
         if session_data.type == user.SOCIAL_SESSION_TYPE then
             local social_tuple = social.get_by_id(user_tuple[user.ID])
@@ -172,7 +176,7 @@ function auth.api(config)
             if session_data.exp <= os.time() then
                 return response.error(error.NOT_AUTHENTICATED)
             elseif session_data.exp <= (os.time() + config.session_update_timedelta) then
-                new_session = user.create_session(session_data.user_id, user.COMMON_SESSION_TYPE)
+                new_session = session.create_session(session_data.user_id, user.COMMON_SESSION_TYPE)
             else
                 new_session = signed_session
             end
@@ -265,7 +269,7 @@ function auth.api(config)
             [social.TOKEN] = token
         })
 
-        local session = user.create_session(user_tuple[user.ID], user.SOCIAL_SESSION_TYPE)
+        local session = session.create_session(user_tuple[user.ID], session.SOCIAL_SESSION_TYPE)
 
         return response.ok(user.serialize(user_tuple, session))
     end
