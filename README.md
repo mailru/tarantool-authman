@@ -2,8 +2,8 @@
 
 Require tarantool >= 1.7
 
-Run tarantool and create scopes:
-
+## Quickstart
+Run tarantool if not running yet:
 ```
 tarantool> db = require('auth.db')
 tarantool> db.start()
@@ -12,9 +12,15 @@ tarantool> db.start()
 Use auth api:
 ```
 tarantool> config = require('my_config')
-tarantool> auth = require('auth').api(config)
+tarantool> auth = require('auth').api(config) -- creates scopes
 tarantool> ok, activation_code = auth.registration('example@mail.ru')
+tarantool> ok, user = auth.registration('example@mail.ru', activation_code, 'Pa$$wOrD')
+tarantool> ok, user = auth.set_profile(user['id'], {first_name='name', laste_name='surname'})
+tarantool> ok, user = auth.auth('example@mail.ru', 'Pa$$wOrD')
+tarantool> session =  user['session']
+tarantool> ok, user = auth.check_auth(session) -- user can get new session
 ```
+
 ## Configuration
 Exaple of my_config.lua module, fill empty strings with your values:
 ```
