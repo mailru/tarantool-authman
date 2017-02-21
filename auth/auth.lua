@@ -3,6 +3,7 @@ local response = require('auth.response')
 local error = require('auth.error')
 local validator = require('auth.validator')
 local db = require('auth.db')
+local utils = require('auth.util.utils')
 
 
 function auth.api(config)

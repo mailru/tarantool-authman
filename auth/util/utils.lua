@@ -22,8 +22,8 @@ end
 
 function utils.request(method, url, params, param_values)
     local response, connection_timeot, read_timeout, body, ok, msg
-    connection_timeot = 1000
-    read_timeout = 3000
+    connection_timeot = 10
+    read_timeout = 20
 
     if method == 'POST' then
         body = utils.format(params, param_values)
