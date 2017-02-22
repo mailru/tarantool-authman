@@ -6,7 +6,7 @@ local db = require('auth.db')
 local config = require('auth.test.config')
 
 local test = tap.test('auth_test')
-local ok, auth = require('auth.auth').api(config)
+local auth = require('auth').api(config)
 
 function exports.setup() end
 

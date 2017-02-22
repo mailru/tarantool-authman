@@ -94,7 +94,7 @@ function validator.config(config)
             end
         end
     end
-    return true
+    return config
 end
 
 return validator

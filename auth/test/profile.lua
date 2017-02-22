@@ -6,7 +6,7 @@ local db = require('auth.db')
 local config = require('auth.test.config')
 
 local test = tap.test('auth_test')
-local ok, auth = require('auth.auth').api(config)
+local auth = require('auth').api(config)
 local user_space = require('auth.model.user').model(config).get_space()
 
 function exports.setup() end
