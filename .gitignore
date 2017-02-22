@@ -4,3 +4,4 @@
 *.xlog
 t.lua
 config
+tarantool.log

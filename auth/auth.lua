@@ -8,14 +8,13 @@ local db = require('auth.db')
 function auth.api(config)
     local api = {}
 
-    if not validator.config(config) then
-        return response.error(error.IMPROPERLY_CONFIGURED)
-    end
+    config = validator.config(config)
 
     local user = require('auth.model.user').model(config)
     local password_token = require('auth.model.password_token').model(config)
     local social = require('auth.model.social').model(config)
     local session = require('auth.model.session').model(config)
+
     db.create_database()
 
     -----------------
@@ -72,7 +71,7 @@ function auth.api(config)
         user_tuple = user.update({
             [user.ID] = user_id,
             [user.IS_ACTIVE] = true,
-            [user.PASSWORD] = user.hash_password(password)
+            [user.PASSWORD] = user.hash_password(password, user_id)
         })
 
         return response.ok(user.serialize(user_tuple))
@@ -113,7 +112,7 @@ function auth.api(config)
             return response.error(error.USER_NOT_ACTIVE)
         end
 
-        if user.hash_password(password) ~= user_tuple[user.PASSWORD] then
+        if user.hash_password(password, user_tuple[user.ID]) ~= user_tuple[user.PASSWORD] then
             return response.error(error.WRONG_PASSWORD)
         end
 
@@ -219,7 +218,7 @@ function auth.api(config)
         if password_token.restore_token_is_valid(user_tuple[user.ID], token) then
             user_tuple = user.update({
                 [user.ID] = user_tuple[user.ID],
-                [user.PASSWORD] = user.hash_password(password),
+                [user.PASSWORD] = user.hash_password(password, user_tuple[user.ID]),
             })
 
             return response.ok(user.serialize(user_tuple))
@@ -274,7 +273,7 @@ function auth.api(config)
         return response.ok(user.serialize(user_tuple, session))
     end
 
-    return response.ok(api)
+    return api
 end
 
 return auth

@@ -3,16 +3,33 @@
 Require tarantool >= 1.7
 
 ## Quickstart
-Run tarantool if not running yet:
+Create tarantool instance file /etc/tarantool/intanses.availible/tarantool-auth.lua:
 ```
-tarantool> db = require('auth.db')
-tarantool> db.start()
+box.cfg {
+    listen = 3302,
+}
+
+
+local config = {
+   -- configuration table, details below
+}
+auth = require('auth').api(config)
+
+```
+Create symlink in /etc/tarantool/intanses.enabled:
+```
+$ ln -s /etc/tarantool/instances.availible/tarantool-auth.lua .
+```
+
+Run tarantool and connect to it:
+```
+$ tarantoolctl start tarantool-auth
+$ tarantoolctl enter tarantool-auth
+
 ```
 
 Use auth api:
 ```
-tarantool> config = require('my_config')
-tarantool> auth = require('auth').api(config) -- creates scopes
 tarantool> ok, activation_code = auth.registration('example@mail.ru')
 tarantool> ok, user = auth.registration('example@mail.ru', activation_code, 'Pa$$wOrD')
 tarantool> ok, user = auth.set_profile(user['id'], {first_name='name', laste_name='surname'})
