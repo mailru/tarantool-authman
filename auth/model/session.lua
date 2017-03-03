@@ -1,5 +1,6 @@
 local session = {}
 
+local utils = require('auth.util.utils')
 local digest = require('digest')
 local uuid = require('uuid')
 local json = require('json')
@@ -71,7 +72,7 @@ function session.model(config)
             encoded_session_data,
             config.session_secret
         ))
-        return digest.base64_encode(sign)
+        return utils.base64_encode(sign)
     end
 
     local function get_expiration_time()
@@ -102,7 +103,7 @@ function session.model(config)
         end
 
         session_data = json.encode(session_data)
-        local encoded_session_data = digest.base64_encode(session_data)
+        local encoded_session_data = utils.base64_encode(session_data)
         local encoded_sign = make_session_sign(encoded_session_data, session_tuple[model.CODE])
         return string.format('%s.%s', encoded_session_data, encoded_sign)
     end
@@ -116,6 +117,7 @@ function session.model(config)
         end
 
         local sign = make_session_sign(encoded_session_data, session_tuple[model.CODE])
+
         if sign ~= session_sign then
             return nil
         end

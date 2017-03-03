@@ -1,4 +1,5 @@
 local utils = {}
+local digest = require('digest')
 local curl = require('curl')
 
 local http = curl.http()
@@ -18,6 +19,12 @@ function utils.dump(o)
    else
       return tostring(o)
    end
+end
+
+function utils.base64_encode(string)
+    return string.gsub(
+        digest.base64_encode(string), '\n', ''
+    )
 end
 
 function utils.request(method, url, params, param_values)
