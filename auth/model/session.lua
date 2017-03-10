@@ -37,6 +37,16 @@ function session.model(config)
         return model.get_space():get(session_id)
     end
 
+    function model.delete(encoded_session_data)
+        local session_tuple = model.get_by_session(encoded_session_data)
+        if session_tuple == nil then
+            return false
+        end
+
+        session_tuple = model.get_space():delete(session_tuple[model.ID])
+        return session_tuple ~= nil
+    end
+
     function model.decode(encoded_session_data)
         local session_data_json, session_data, ok, msg
         ok, msg = pcall(function()

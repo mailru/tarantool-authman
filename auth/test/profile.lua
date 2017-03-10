@@ -31,7 +31,7 @@ function test_set_profile_success()
     user['id'] = nil
     expected = {email = 'test@test.ru', is_active = true, profile=user_profile}
     test:is(ok, true, 'test_set_profile_success user returned')
-    test:is_deeply(user, expected, 'test_auth_success profile set')
+    test:is_deeply(user, expected, 'test_set_profile_success profile set')
 end
 
 function test_set_profile_invalid_id()
@@ -66,12 +66,46 @@ function test_set_profile_user_not_active()
     test:is_deeply(got, expected, 'test_set_profile_user_not_active')
 end
 
+function test_get_profile_success()
+    local user_profile, ok, user, code, expected
+    ok, code = auth.registration('test@test.ru')
+    ok, user = auth.complete_registration('test@test.ru', code, '123')
+    user_profile = {last_name='test_last', first_name='test_first' }
+
+    ok, user = auth.set_profile(user['id'], user_profile)
+    ok, user = auth.get_profile(user['id'])
+
+    user['id'] = nil
+    expected = {email = 'test@test.ru', is_active = true, profile=user_profile}
+    test:is(ok, true, 'test_get_profile_success user returned')
+    test:is_deeply(user, expected, 'test_get_profile_success profile')
+end
+
+function test_get_profile_invalid_id()
+    local got, expected, user_profile
+
+    got = {auth.get_profile(''), }
+    expected = {response.error(error.INVALID_PARAMS), }
+    test:is_deeply(got, expected, 'test_set_profile_invalid_id')
+end
+
+function test_get_profile_user_not_found()
+    local got, expected, user_profile
+
+    got = {auth.get_profile('not exists'), }
+    expected = {response.error(error.USER_NOT_FOUND), }
+    test:is_deeply(got, expected, 'test_set_user_not_found')
+end
+
 exports.tests = {
     test_set_profile_success,
+    test_get_profile_success,
 
     test_set_profile_invalid_id,
     test_set_profile_user_not_found,
-    test_set_profile_user_not_active
+    test_set_profile_user_not_active,
+    test_get_profile_invalid_id,
+    test_get_profile_user_not_found
 }
 
 return exports

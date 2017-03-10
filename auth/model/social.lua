@@ -31,9 +31,8 @@ function social.model(config)
 
     function model.serialize(social_tuple)
         return {
-            id = social_tuple[social_tuple.ID],
-            social_type = social_tuple[social_tuple.SOCIAL_TYPE],
-            social_id = social_tuple[social_tuple.SOCIAL_ID],
+            provider = social_tuple[model.PROVIDER],
+            social_id = social_tuple[model.SOCIAL_ID],
         }
     end
 

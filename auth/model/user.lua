@@ -1,7 +1,6 @@
 local user = {}
 
 local digest = require('digest')
-local json = require('json')
 local uuid = require('uuid')
 local validator =  require('auth.validator')
 
@@ -31,16 +30,20 @@ function user.model(config)
         return box.space[model.SPACE_NAME]
     end
 
-    function model.serialize(user_tuple, session)
+    function model.serialize(user_tuple, data)
+
         local user_data = {
             id = user_tuple[model.ID],
             email = user_tuple[model.EMAIL],
             is_active = user_tuple[model.IS_ACTIVE],
             profile = user_tuple[model.PROFILE],
         }
-        if session ~= nil then
-            user_data['session'] = session
+        if data ~= nil then
+            for k,v in pairs(data) do
+                user_data[k] = v
+            end
         end
+
         return user_data
     end
 

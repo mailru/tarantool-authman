@@ -142,10 +142,51 @@ function test_check_auth_expired_session()
     test:is_deeply(got, expected, 'test_check_auth_expired_session')
 end
 
+function test_drop_session_success()
+    local ok, user,session, expected, deleted, got
+    ok, user = auth.auth('test@test.ru', '123')
+    session = user['session']
+    ok, deleted = auth.drop_session(session)
+    test:is(ok, true, 'test_drop_session_success session droped')
+
+    got = {auth.check_auth(session), }
+    expected = {response.error(error.WRONG_SESSION_SIGN), }
+    test:is_deeply(got, expected, 'test_drop_session_success wrong sign')
+end
+
+function test_drop_session_empty()
+    local expected, got
+    got = {auth.drop_session(''), }
+    expected = {response.error(error.INVALID_PARAMS), }
+    test:is_deeply(got, expected, 'test_drop_session_empty')
+end
+
+function test_drop_session_wrong_sign()
+    local ok, user, got, expected
+    ok, user = auth.auth('test@test.ru', '123')
+    got = {auth.drop_session('thissession.iswrongsigned'), }
+    expected = {response.error(error.WRONG_SESSION_SIGN), }
+    test:is_deeply(got, expected, 'test_drop_session_wrong_sign')
+end
+
+function test_drop_session_twice()
+    local ok, user, got, expected, deleted, session
+    ok, user = auth.auth('test@test.ru', '123')
+    session = user['session']
+
+    ok, deleted = auth.drop_session(session)
+    got = {auth.drop_session(session), }
+
+    expected = {response.error(error.WRONG_SESSION_SIGN), }
+    test:is_deeply(got, expected, 'test_drop_session_twice')
+end
+
+
 exports.tests = {
     test_auth_success,
     test_check_auth_success,
     test_check_auth_update_session_success,
+    test_drop_session_success,
 
     test_auth_wrong_password,
     test_auth_user_not_found,
@@ -155,7 +196,9 @@ exports.tests = {
     test_check_auth_user_not_active,
     test_check_auth_empty_session,
     test_check_auth_expired_session,
-
+    test_drop_session_empty,
+    test_drop_session_wrong_sign,
+    test_drop_session_twice
 }
 
 return exports
