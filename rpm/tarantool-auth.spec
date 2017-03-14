@@ -41,5 +41,5 @@ rm -rf %{buildroot}
 %{luapkgdir}/*.lua
 %{luapkgdir}/model/*.lua
 %{luapkgdir}/test/*.lua
-%{luapkgdir}/util/*.lua
+%{luapkgdir}/utils/*.lua
 %doc %{luapkgdir}/README.md
