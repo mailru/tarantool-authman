@@ -13,7 +13,7 @@ local social_required = {
     'client_id', 'client_secret', 'redirect_uri',
 }
 
-local config_default_times = {
+local config_default_values = {
     session_lifetime = 7 * 24 * 60 * 60,
     session_update_timedelta = 2 * 24 * 60 * 60,
     social_check_time = 60 * 60 * 24,
@@ -60,7 +60,7 @@ function validator.config(config)
 
     local param_name, param_value, is_valid
 
-    for param_name, value in pairs(config_default_times) do
+    for param_name, value in pairs(config_default_values) do
         param_value = config[param_name]
         if param_value == nil or not validator.positive_integer(param_value) then
             config[param_name] = value

@@ -10,21 +10,22 @@ local validator =  require('auth.validator')
 function user.model(config)
     local model = {}
 
-    model.SPACE_NAME = 'portal_user'
-
+    model.SPACE_NAME = 'auth_user'
     model.PRIMARY_INDEX = 'primary'
     model.EMAIL_INDEX = 'email_index'
 
     model.ID = 1
     model.EMAIL = 2
-    model.IS_ACTIVE = 3
-    model.PASSWORD = 4
-    model.PROFILE = 5
+    model.TYPE = 3
+    model.IS_ACTIVE = 4
+    model.PASSWORD = 5
+    model.PROFILE = 6
 
     model.PROFILE_FIRST_NAME = 'first_name'
     model.PROFILE_LAST_NAME = 'last_name'
 
-
+    model.COMMON_TYPE = 1
+    model.SOCIAL_TYPE = 2
 
     function model.get_space()
         return box.space[model.SPACE_NAME]
@@ -51,19 +52,16 @@ function user.model(config)
         return model.get_space():get(user_id)
     end
 
-    function model.get_by_email(email)
-        return model.get_space().index[model.EMAIL_INDEX]:select(email)[1]
+    function model.get_by_email(email, type)
+        if validator.not_empty_string(email) then
+            return model.get_space().index[model.EMAIL_INDEX]:select({email, type})[1]
+        end
     end
 
-    function model.get_id_by_email(email)
-        if not validator.not_empty_string(email) then
-            return nil
-        end
-        local user_tuple = model.get_space().index[model.EMAIL_INDEX]:select(email)[1]
+    function model.get_id_by_email(email, type)
+        local user_tuple = model.get_by_email(email, type)
         if user_tuple ~= nil then
             return user_tuple[model.ID]
-        else
-            return nil
         end
     end
 
@@ -73,6 +71,7 @@ function user.model(config)
         return model.get_space():insert{
             user_id,
             email,
+            user_tuple[model.TYPE],
             user_tuple[model.IS_ACTIVE],
             user_tuple[model.PASSWORD],
             user_tuple[model.PROFILE]
@@ -91,7 +90,8 @@ function user.model(config)
 
     function model.create_or_update(user_tuple)
         local user_id = user_tuple[model.ID]
-        if user_id and model.get_space():get(user_id) then
+
+        if user_id and model.get_by_id(user_id) then
             user_tuple = model.update(user_tuple)
         else
             user_tuple = model.create(user_tuple)
@@ -104,7 +104,6 @@ function user.model(config)
     end
 
     function model.hash_password(password, salt)
-        -- Need stronger hash?
         return digest.sha256(string.format('%s%s', salt, password))
     end
 

@@ -89,7 +89,7 @@ function test_complete_restore_password_user_not_active()
 
     -- TODO API METHOD FOR BAN USER BY EMAIL ?
     id = get_id_by_email('test@test.ru')
-    user_space:update(id, {{'=', 3, false}})
+    user_space:update(id, {{'=', 4, false}})
 
     got = {auth.complete_restore_password('test@test.ru', token, 'new_pwd'), }
     expected = {response.error(error.USER_NOT_ACTIVE), }

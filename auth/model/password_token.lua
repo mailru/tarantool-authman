@@ -8,7 +8,7 @@ local digest = require('digest')
 function password_token.model(config)
     local model = {}
 
-    model.SPACE_NAME = 'portal_reset_pwd_token'
+    model.SPACE_NAME = 'auth_password_token'
 
     model.PRIMARY_INDEX = 'primary'
 

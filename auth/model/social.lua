@@ -1,10 +1,9 @@
 local social = {}
 local json = require('json')
-local utils = require('auth.util.utils')
+local uuid = require('uuid')
+local utils = require('auth.utils.utils')
+local http = require('auth.utils.http')
 local validator = require('auth.validator')
-local curl = require('curl')
-
-local http = curl.http()
 
 -----
 -- social (user_uuid, social_type, social_id, token)
@@ -13,15 +12,17 @@ function social.model(config)
     local model = {}
     local user = require('auth.model.user').model(config)
 
-    model.SPACE_NAME = 'portal_social_auth_credentials'
+    model.SPACE_NAME = 'auth_social_credential'
 
     model.PRIMARY_INDEX = 'primary'
+    model.USER_ID_INDEX = 'user'
     model.SOCIAL_INDEX = 'social'
 
-    model.USER_ID = 1
-    model.PROVIDER = 2
-    model.SOCIAL_ID = 3
-    model.TOKEN = 4
+    model.ID = 1
+    model.USER_ID = 2
+    model.PROVIDER = 3
+    model.SOCIAL_ID = 4
+    model.TOKEN = 5
 
     model.ALLOWED_PROVIDERS = {'facebook', 'vk', 'google'}
 
@@ -36,35 +37,39 @@ function social.model(config)
         }
     end
 
-    function model.get_by_id(user_id)
-        return model.get_space():get(user_id)
+    function model.get_by_id(id)
+        return model.get_space():get(id)
     end
 
-    function model.create_or_update(social_tuple)
-        local exists_social_tuple = model.get_space():get(social_tuple[model.USER_ID])
-        if exists_social_tuple ~= nil then
-            social_tuple = model.get_space():update(social_tuple[model.USER_ID], {
-                {'=', model.PROVIDER, social_tuple[model.PROVIDER]},
-                {'=', model.SOCIAL_ID, social_tuple[model.SOCIAL_ID]},
-                {'=', model.TOKEN, social_tuple[model.TOKEN]}
-            })
-            return social_tuple
+    function model.get_by_user_id(user_id, provider)
+        if validator.not_empty_string(user_id) then
+            return model.get_space().index[model.USER_ID_INDEX]:select({user_id, provider})[1]
         end
+    end
 
-        exists_social_tuple = model.get_space().index[model.SOCIAL_INDEX]:get({
+    function model.get_by_social_id(social_id, provider)
+        return model.get_space().index[model.SOCIAL_INDEX]:get({social_id, provider})
+    end
+
+    function model.create(social_tuple)
+        local id = uuid.str()
+        return model.get_space():insert({
+            id,
+            social_tuple[model.USER_ID],
+            social_tuple[model.PROVIDER],
             social_tuple[model.SOCIAL_ID],
-            social_tuple[model.PROVIDER]
+            social_tuple[model.TOKEN]
         })
+    end
 
-        if exists_social_tuple ~= nil then
-            social_tuple = model.get_space():update(social_tuple[model.USER_ID], {
-                {'=', model.TOKEN, social_tuple[model.TOKEN]}
-            })
-            return social_tuple
+    function model.update(social_tuple)
+        local social_id, fields
+        social_id = social_tuple[model.ID]
+        fields = {}
+        for number, value in pairs(social_tuple) do
+            table.insert(fields, {'=', number, value})
         end
-
-        social_tuple = model.get_space():insert(social_tuple)
-        return social_tuple
+        return model.get_space():update(social_id, fields)
     end
 
     function model.get_social_auth_url(provider, state)
@@ -103,7 +108,7 @@ function social.model(config)
     function model.get_token(provider, code, user_tuple)
         local response, data, token
         if provider == 'facebook' then
-            response = utils.request(
+            response = http.request(
                 'GET',
                 'https://graph.facebook.com/v2.8/oauth/access_token',
                 '?client_id=${client_id}&redirect_uri=${redirect_uri}&client_secret=${client_secret}&code=${code}',
@@ -122,7 +127,7 @@ function social.model(config)
             end
 
         elseif provider == 'vk' then
-            response = utils.request(
+            response = http.request(
                 'GET',
                 'https://oauth.vk.com/access_token',
                 '?client_id=${client_id}&redirect_uri=${redirect_uri}&client_secret=${client_secret}&code=${code}',
@@ -142,7 +147,7 @@ function social.model(config)
             end
 
         elseif provider == 'google' then
-            response = utils.request(
+            response = http.request(
                 'POST',
                 'https://www.googleapis.com/oauth2/v4/token',
                 'client_id=${client_id}&redirect_uri=${redirect_uri}&client_secret=${client_secret}&code=${code}&grant_type=authorization_code',
@@ -169,7 +174,7 @@ function social.model(config)
         user_tuple[user.PROFILE] = {}
 
         if provider == 'facebook' then
-            response = utils.request(
+            response = http.request(
                 'GET',
                 'https://graph.facebook.com/me',
                 '?access_token=${token}&fields=email,first_name,last_name',
@@ -186,7 +191,7 @@ function social.model(config)
                 return data.id
             end
         elseif provider == 'vk' then
-            response = utils.request(
+            response = http.request(
                 'GET',
                 'https://api.vk.com/method/users.get',
                 '?access_token=${token}&fields=first_name,last_name',
@@ -210,7 +215,7 @@ function social.model(config)
             end
 
         elseif provider == 'google' then
-            response = utils.request(
+            response = http.request(
                 'POST',
                 'https://www.googleapis.com/oauth2/v4/token',
                 'client_id=${client_id}&client_secret=${client_secret}&refresh_token=${token}&grant_type=refresh_token',
@@ -228,7 +233,7 @@ function social.model(config)
             data = json.decode(response.body)
             access_token = data.access_token
 
-            response = utils.request(
+            response = http.request(
                 'GET',
                 'https://www.googleapis.com/oauth2/v2/userinfo',
                 '?access_token=${access_token}',

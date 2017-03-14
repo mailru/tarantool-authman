@@ -99,7 +99,7 @@ function test_check_auth_user_not_active()
     id = user['id']
     session = user['session']
 
-    user_space:update(id, {{'=', 3, false}})
+    user_space:update(id, {{'=', 4, false}})
 
     got = {auth.check_auth(session), }
     expected = {response.error(error.USER_NOT_ACTIVE), }

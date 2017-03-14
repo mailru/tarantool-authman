@@ -58,7 +58,7 @@ function test_set_profile_user_not_active()
     ok, user = auth.complete_registration('test@test.ru', code, '123')
     id = user['id']
 
-    user_space:update(id, {{'=', 3, false}})
+    user_space:update(id, {{'=', 4, false}})
     user_profile = {last_name='test_last', first_name='test_first' }
 
     got = {auth.set_profile(id, user_profile), }

@@ -18,7 +18,7 @@ function db.create_database()
     user_space:create_index(user.EMAIL_INDEX, {
         type = 'tree',
         unique = false,
-        parts = {user.EMAIL, 'string'},
+        parts = {user.EMAIL, 'string', user.TYPE, 'unsigned'},
         if_not_exists = true
     })
 
@@ -36,7 +36,13 @@ function db.create_database()
     })
     social_space:create_index(social.PRIMARY_INDEX, {
         type = 'hash',
-        parts = {social.USER_ID, 'string'},
+        parts = {social.ID, 'string'},
+        if_not_exists = true
+    })
+    social_space:create_index(social.USER_ID_INDEX, {
+        type = 'tree',
+        unique = true,
+        parts = {social.USER_ID, 'string', social.PROVIDER, 'string'},
         if_not_exists = true
     })
     social_space:create_index(social.SOCIAL_INDEX, {
@@ -57,7 +63,6 @@ function db.create_database()
 end
 
 function db.start()
-    print('start database now!')
     box.cfg {
         listen = 3301,
     }

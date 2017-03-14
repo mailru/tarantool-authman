@@ -1,24 +1,24 @@
 local session = {}
 
-local utils = require('auth.util.utils')
+local utils = require('auth.utils.utils')
 local digest = require('digest')
 local uuid = require('uuid')
 local json = require('json')
 
 -----
--- token (session_id, code, user_id)
+-- token (session_id, code, user_id, credential_id(optional))
 -----
 function session.model(config)
     local model = {}
-    local user = require('auth.model.user').model(config)
 
-    model.SPACE_NAME = 'portal_sesssion_code'
+    model.SPACE_NAME = 'auth_sesssion'
 
     model.PRIMARY_INDEX = 'primary'
 
     model.ID = 1
     model.CODE = 2
     model.USER_ID = 3
+    model.CREDENTIAL_ID = 4
 
     model.SOCIAL_SESSION_TYPE = 'social'
     model.COMMON_SESSION_TYPE = 'common'
@@ -27,13 +27,13 @@ function session.model(config)
         return box.space[model.SPACE_NAME]
     end
 
-    function model.generate(user_id)
+    function model.generate(user_id, credential_id)
         local code = uuid.str()
         local session_id = uuid.str()
-        return model.get_space():insert({session_id, code, user_id})
+        return model.get_space():insert({session_id, code, user_id, credential_id})
     end
 
-    function model.get(session_id)
+    function model.get_by_id(session_id)
         return model.get_space():get(session_id)
     end
 
@@ -62,18 +62,8 @@ function session.model(config)
             return nil
         end
 
-        local session_tuple = model.get(session_data.sid)
+        local session_tuple = model.get_by_id(session_data.sid)
         return session_tuple
-    end
-
-    function model.get_user_by_session(encoded_session_data)
-        local session_tuple = model.get_by_session(encoded_session_data)
-        if session_tuple == nil then
-            return nil
-        end
-
-        local user_tuple = user.get_space():get(session_tuple[model.USER_ID])
-        return user_tuple
     end
 
     local function make_session_sign(encoded_session_data, session_code)
@@ -97,11 +87,11 @@ function session.model(config)
         return string.match(session, '([^.]+).([^.]+)')
     end
 
-    function model.create_session(user_id, type)
+    function model.create_session(user_id, type, credential_id)
         local expiration_time, update_time, session_data, session_tuple
         update_time = get_social_update_time()
         expiration_time = get_expiration_time()
-        session_tuple = model.generate(user_id)
+        session_tuple = model.generate(user_id, credential_id)
         session_data = {
                 sid = session_tuple[model.ID],
                 exp = expiration_time,
