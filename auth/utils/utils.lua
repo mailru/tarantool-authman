@@ -6,6 +6,14 @@ function utils.format(string, tab)
     return (string:gsub('($%b{})', function(word) return tab[word:sub(3, -2)] or word end))
 end
 
+function utils.format_update(tuple)
+    local fields = {}
+    for number, value in pairs(tuple) do
+        table.insert(fields, {'=', number, value})
+    end
+    return fields
+end
+
 function utils.dump(o)
    if type(o) == 'table' then
       local s = '{ '

@@ -1,5 +1,5 @@
 Name: tarantool-auth
-Version: 0.0.6
+Version: 0.0.7
 Release: 1
 Summary: Tarantool auth module
 Group: Applications/Databases

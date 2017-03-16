@@ -6,7 +6,7 @@ local uuid = require('uuid')
 local json = require('json')
 
 -----
--- token (session_id, code, user_id, credential_id(optional))
+-- token (id, code, user_id, credential_id(optional))
 -----
 function session.model(config)
     local model = {}
@@ -87,7 +87,7 @@ function session.model(config)
         return string.match(session, '([^.]+).([^.]+)')
     end
 
-    function model.create_session(user_id, type, credential_id)
+    function model.create(user_id, type, credential_id)
         local expiration_time, update_time, session_data, session_tuple
         update_time = get_social_update_time()
         expiration_time = get_expiration_time()

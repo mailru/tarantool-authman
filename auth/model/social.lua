@@ -1,4 +1,5 @@
 local social = {}
+
 local json = require('json')
 local uuid = require('uuid')
 local utils = require('auth.utils.utils')
@@ -6,7 +7,7 @@ local http = require('auth.utils.http')
 local validator = require('auth.validator')
 
 -----
--- social (user_uuid, social_type, social_id, token)
+-- social (id, user_id, social_type, social_id, token)
 -----
 function social.model(config)
     local model = {}
@@ -65,10 +66,7 @@ function social.model(config)
     function model.update(social_tuple)
         local social_id, fields
         social_id = social_tuple[model.ID]
-        fields = {}
-        for number, value in pairs(social_tuple) do
-            table.insert(fields, {'=', number, value})
-        end
+        fields = utils.format_update(social_tuple)
         return model.get_space():update(social_id, fields)
     end
 

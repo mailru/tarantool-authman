@@ -7,7 +7,6 @@ local errors = require('auth.error')
 
 function response.error(code)
     local message = {[code] = errors.CODES[code]}
---    error(message)
     return false, message
 end
 

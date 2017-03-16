@@ -3,9 +3,10 @@ local user = {}
 local digest = require('digest')
 local uuid = require('uuid')
 local validator =  require('auth.validator')
+local utils = require('auth.utils.utils')
 
 -----
--- user (uuid, email, is_active, password, profile)
+-- user (uuid, email, type, is_active, profile)
 -----
 function user.model(config)
     local model = {}
@@ -18,8 +19,7 @@ function user.model(config)
     model.EMAIL = 2
     model.TYPE = 3
     model.IS_ACTIVE = 4
-    model.PASSWORD = 5
-    model.PROFILE = 6
+    model.PROFILE = 5
 
     model.PROFILE_FIRST_NAME = 'first_name'
     model.PROFILE_LAST_NAME = 'last_name'
@@ -81,10 +81,7 @@ function user.model(config)
     function model.update(user_tuple)
         local user_id, fields
         user_id = user_tuple[model.ID]
-        fields = {}
-        for number, value in pairs(user_tuple) do
-            table.insert(fields, {'=', number, value})
-        end
+        fields = utils.format_update(user_tuple)
         return model.get_space():update(user_id, fields)
     end
 
@@ -101,10 +98,6 @@ function user.model(config)
 
     function model.generate_activation_code(user_id)
         return digest.md5_hex(string.format('%s%s', config.activation_secret, user_id))
-    end
-
-    function model.hash_password(password, salt)
-        return digest.sha256(string.format('%s%s', salt, password))
     end
 
     return model

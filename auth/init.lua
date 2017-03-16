@@ -12,6 +12,7 @@ function auth.api(config)
     config = validator.config(config)
 
     local user = require('auth.model.user').model(config)
+    local password = require('auth.model.password').model(config)
     local password_token = require('auth.model.password_token').model(config)
     local social = require('auth.model.social').model(config)
     local session = require('auth.model.session').model(config)
@@ -48,14 +49,14 @@ function auth.api(config)
         return response.ok(code)
     end
 
-    function api.complete_registration(email, code, password)
+    function api.complete_registration(email, code, raw_password)
         email = utils.lower(email)
 
         if not (validator.email(email) and validator.not_empty_string(code)) then
             return response.error(error.INVALID_PARAMS)
         end
 
-        if not validator.password(password) then
+        if not validator.password(raw_password) then
             return response.error(error.WEAK_PASSWORD)
         end
 
@@ -74,10 +75,14 @@ function auth.api(config)
             return response.error(error.WRONG_ACTIVATION_CODE)
         end
 
+        password.create_or_update({
+            [password.USER_ID] = user_id,
+            [password.HASH] = password.hash(raw_password, user_id)
+        })
+
         user_tuple = user.update({
             [user.ID] = user_id,
             [user.IS_ACTIVE] = true,
-            [user.PASSWORD] = user.hash_password(password, user_id)
         })
 
         return response.ok(user.serialize(user_tuple))
@@ -121,7 +126,7 @@ function auth.api(config)
         return response.ok(user.serialize(user_tuple))
     end
 
-    function api.auth(email, password)
+    function api.auth(email, raw_password)
         email = utils.lower(email)
 
         local user_tuple = user.get_by_email(email, user.COMMON_TYPE)
@@ -133,11 +138,11 @@ function auth.api(config)
             return response.error(error.USER_NOT_ACTIVE)
         end
 
-        if user.hash_password(password, user_tuple[user.ID]) ~= user_tuple[user.PASSWORD] then
+        if not password.is_valid(raw_password, user_tuple[user.ID]) then
             return response.error(error.WRONG_PASSWORD)
         end
 
-        local signed_session = session.create_session(user_tuple[user.ID], session.COMMON_SESSION_TYPE)
+        local signed_session = session.create(user_tuple[user.ID], session.COMMON_SESSION_TYPE)
 
         return response.ok(user.serialize(user_tuple, {session = signed_session}))
     end
@@ -191,7 +196,7 @@ function auth.api(config)
                 end
 
                 user_tuple = user.update(updated_user_tuple)
-                new_session = session.create_session(
+                new_session = session.create(
                     user_tuple[user.ID], session.SOCIAL_SESSION_TYPE, social_tuple[social.ID]
                 )
 
@@ -213,7 +218,7 @@ function auth.api(config)
             if session_data.exp <= os.time() then
                 return response.error(error.NOT_AUTHENTICATED)
             elseif session_data.exp <= (os.time() + config.session_update_timedelta) then
-                new_session = session.create_session(session_data.user_id, session.COMMON_SESSION_TYPE)
+                new_session = session.create(session_data.user_id, session.COMMON_SESSION_TYPE)
             else
                 new_session = signed_session
             end
@@ -250,10 +255,10 @@ function auth.api(config)
         if not user_tuple[user.IS_ACTIVE] then
             return response.error(error.USER_NOT_ACTIVE)
         end
-        return response.ok(password_token.generate_restore_token(user_tuple[user.ID]))
+        return response.ok(password_token.generate(user_tuple[user.ID]))
     end
 
-    function api.complete_restore_password(email, token, password)
+    function api.complete_restore_password(email, token, raw_password)
         email = utils.lower(email)
 
         if not validator.not_empty_string(token) then
@@ -270,16 +275,22 @@ function auth.api(config)
             return response.error(error.USER_NOT_ACTIVE)
         end
 
-        if not validator.password(password) then
+        if not validator.password(raw_password) then
             return response.error(error.WEAK_PASSWORD)
         end
 
+        local user_id = user_tuple[user.ID]
+        if password_token.is_valid(token, user_id) then
 
-        if password_token.restore_token_is_valid(user_tuple[user.ID], token) then
+            password.create_or_update({
+                [password.USER_ID] = user_id,
+                [password.HASH] = password.hash(raw_password, user_id)
+            })
+
+
             user_tuple = user.update({
-                [user.ID] = user_tuple[user.ID],
+                [user.ID] = user_id,
                 [user.TYPE] = user.COMMON_TYPE,
-                [user.PASSWORD] = user.hash_password(password, user_tuple[user.ID]),
             })
 
             return response.ok(user.serialize(user_tuple))
@@ -337,7 +348,7 @@ function auth.api(config)
             })
         end
 
-        local new_session = session.create_session(
+        local new_session = session.create(
             user_tuple[user.ID], session.SOCIAL_SESSION_TYPE, social_tuple[social.ID]
         )
 

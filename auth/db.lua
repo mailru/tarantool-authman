@@ -1,6 +1,7 @@
 local db = {}
 
 local user = require('auth.model.user').model()
+local password = require('auth.model.password').model()
 local password_token = require('auth.model.password_token').model()
 local social = require('auth.model.social').model()
 local session = require('auth.model.session').model()
@@ -19,6 +20,21 @@ function db.create_database()
         type = 'tree',
         unique = false,
         parts = {user.EMAIL, 'string', user.TYPE, 'unsigned'},
+        if_not_exists = true
+    })
+
+    local password_space = box.schema.space.create(password.SPACE_NAME, {
+        if_not_exists = true
+    })
+    password_space:create_index(password.PRIMARY_INDEX, {
+        type = 'hash',
+        parts = {password.ID, 'string'},
+        if_not_exists = true
+    })
+    password_space:create_index(password.USER_ID_INDEX, {
+        type = 'tree',
+        unique = true,
+        parts = {password.USER_ID, 'string'},
         if_not_exists = true
     })
 
