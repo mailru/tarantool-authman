@@ -73,7 +73,6 @@ function user.model(config)
             email,
             user_tuple[model.TYPE],
             user_tuple[model.IS_ACTIVE],
-            user_tuple[model.PASSWORD],
             user_tuple[model.PROFILE]
         }
     end
