@@ -4,7 +4,7 @@ local fiber = require('fiber')
 local response = require('auth.response')
 local error = require('auth.error')
 local db = require('auth.db')
-local config = require('auth.test.config')
+local config = require('test.config')
 
 local test = tap.test('auth_test')
 local auth = require('auth').api(config)

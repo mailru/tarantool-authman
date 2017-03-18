@@ -7,7 +7,7 @@ return {
     restore_secret = 'ybhinjTRCFYVGUHB5678jh',
     session_lifetime = 3,
     session_update_timedelta = 2,
-    social_check_time = 3,
+    social_check_time = 2,
 
     facebook = {
         client_id = '1813230128941062',
