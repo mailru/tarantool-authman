@@ -5,3 +5,6 @@
 t.lua
 config
 tarantool.log
+packpack
+old-tarantool-auth.spec
+build
