@@ -4,17 +4,15 @@ Section: database
 Maintainer: Denis Linnik <lindeni@mail.ru>
 Build-Depends: debhelper (>= 9),
                tarantool-dev (>= 1.7.0.0),
-               tarantool-curl (>= 2.2.3),
 # For /usr/bin/prove
 #              perl (>= 5.10.0)
 
 Standards-Version: 3.9.6
-Homepage: https://github.com/tarantool/queue
-Vcs-Git: git://github.com/tarantool/queue.git
-Vcs-Browser: https://github.com/tarantool/queue
+Homepage: https://github.com/LinnikD/tarantool-auth
+Vcs-Git: git:/github.com/LinnikD/tarantool-auth.git
+Vcs-Browser: https://github.com/LinnikD/tarantool-auth
 
-Package: tarantool-queue
+Package: tarantool-auth
 Architecture: all
-Depends: tarantool (>= 1.7.0.0),
-         tarantool-curl (>= 2.2.3), ${misc:Depends}
+Depends: tarantool (>= 1.7.0.0), ${misc:Depends}
 Description: Auth module
