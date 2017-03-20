@@ -3,7 +3,7 @@ Priority: optional
 Section: database
 Maintainer: Denis Linnik <lindeni@mail.ru>
 Build-Depends: debhelper (>= 9),
-               tarantool-dev (>= 1.7.0.0)
+               tarantool-dev (>= 1.6.8.0)
 
 Standards-Version: 3.9.6
 Homepage: https://github.com/LinnikD/tarantool-auth
