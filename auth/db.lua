@@ -78,22 +78,11 @@ function db.create_database()
     })
 end
 
-function db.start()
-    box.cfg {
-        listen = 3301,
-    }
-end
-
 function db.truncate_spaces()
     user.get_space():truncate()
     password_token.get_space():truncate()
+    password.get_space():truncate()
     social.get_space():truncate()
+    session.get_space():truncate()
 end
-
-function db.drop_database()
-    user.get_space():drop()
-    password_token.get_space():drop()
-    social.get_space():drop()
-end
-
 return db

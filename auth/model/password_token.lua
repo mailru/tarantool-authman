@@ -38,9 +38,12 @@ function password_token.model(config)
         if token ~= user_token then
             return false
         else
-            model.get_space():delete(user_id)
             return true
         end
+    end
+
+    function model.delete(user_id)
+        return model.get_space():delete(user_id)
     end
 
     return model

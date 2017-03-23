@@ -40,8 +40,8 @@ function validator.provider(provider)
     return enabled_providers[provider]
 end
 
-function validator.positive_integer(integer)
-    return type(integer) == 'number' and integer >= 0
+function validator.positive_number(number)
+    return type(number) == 'number' and number >= 0
 end
 
 function validator.table(tbl)
@@ -62,9 +62,9 @@ function validator.config(config)
 
     for param_name, value in pairs(config_default_values) do
         param_value = config[param_name]
-        if param_value == nil or not validator.positive_integer(param_value) then
+        if param_value == nil or not validator.positive_number(param_value) then
             config[param_name] = value
-            log.warn(string.format('Use %s for %s', value, param_name))
+            log.warn('Use %s for %s', value, param_name)
         end
     end
 
@@ -72,7 +72,7 @@ function validator.config(config)
         param_value = config[param_name]
         if param_value == nil or not validator.not_empty_string(param_value) then
             config[param_name] = value
-            log.warn(string.format('Use %s for %s', value, param_name))
+            log.warn('Use %s for %s', value, param_name)
         end
     end
 
@@ -81,15 +81,13 @@ function validator.config(config)
         if enabled then
             if not validator.table(param_value) then
                 param_value = {}
-                log.warn(string.format('Use empty for %s', provider))
+                log.warn('Use empty for %s', provider)
             end
 
             for field_num = 1, #social_required do
                 if not validator.not_empty_string(param_value[social_required[field_num]]) then
                     param_value[social_required[field_num]] = ''
-                    log.warn(string.format(
-                        'Use empty for %s in %s', social_required[field_num], provider
-                    ))
+                    log.warn('Use empty for %s in %s', social_required[field_num], provider)
                 end
             end
         end

@@ -31,6 +31,7 @@ function password.model(config)
 
     function model.get_by_user_id(user_id)
         if validator.not_empty_string(user_id) then
+            -- TODO create index and migrations
             return model.get_space().index[model.USER_ID_INDEX]:select({user_id})[1]
         end
     end

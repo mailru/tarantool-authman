@@ -125,6 +125,18 @@ function session.model(config)
         return encoded_session_data
     end
 
+    function model.is_expired(session_data)
+        return session_data.exp <= os.time()
+    end
+
+    function model.need_common_update(session_data)
+        return session_data.exp <= (os.time() + config.session_update_timedelta)
+    end
+
+    function model.need_social_update(session_data)
+        return session_data.update <= os.time()
+    end
+
     return model
 end
 

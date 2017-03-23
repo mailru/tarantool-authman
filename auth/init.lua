@@ -182,10 +182,11 @@ function auth.api(config)
                 return response.error(error.USER_NOT_FOUND)
             end
 
-            if session_data.exp <= os.time() then
+            if session.is_expired(session_data) then
                 return response.error(error.NOT_AUTHENTICATED)
 
-            elseif session_data.update <= os.time() then
+            elseif session.need_social_update(session_data) then
+
                 local updated_user_tuple = {user_tuple[user.ID]}
                 local social_id = social.get_profile_info(
                     social_tuple[social.PROVIDER], social_tuple[social.TOKEN], updated_user_tuple
@@ -215,10 +216,12 @@ function auth.api(config)
 
         else
 
-            if session_data.exp <= os.time() then
+            if session.is_expired(session_data) then
                 return response.error(error.NOT_AUTHENTICATED)
-            elseif session_data.exp <= (os.time() + config.session_update_timedelta) then
+
+            elseif session.need_common_update(session_data) then
                 new_session = session.create(session_data.user_id, session.COMMON_SESSION_TYPE)
+
             else
                 new_session = signed_session
             end
@@ -292,6 +295,8 @@ function auth.api(config)
                 [user.ID] = user_id,
                 [user.TYPE] = user.COMMON_TYPE,
             })
+
+            password_token.delete(user_id)
 
             return response.ok(user.serialize(user_tuple))
         else
