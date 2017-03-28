@@ -12,5 +12,5 @@ Vcs-Browser: https://github.com/mailru/tarantool-auth
 Package: tarantool-auth
 Architecture: all
 Depends: tarantool (>= 1.6.8.0),
-         tarantool-curl (>= 2.2.3), ${misc:Depends}
+         tarantool-curl (>= 2.2.7.0), ${misc:Depends}
 Description: Auth module
