@@ -10,7 +10,8 @@ description = {
     license  = 'MIT',
 }
 dependencies = {
-    'lua >= 5.1'
+    'lua >= 5.1',
+    'curl >= 2.2.7'
 }
 build = {
     type = 'builtin',
