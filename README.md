@@ -1,6 +1,7 @@
 # tarantool-auth
 
-Require tarantool >= 1.7
+Requires tarantool >= 1.7
+         tarantool-curl
 
 ## Quickstart
 Create tarantool instance file /etc/tarantool/intanses.availible/tarantool-auth.lua:
