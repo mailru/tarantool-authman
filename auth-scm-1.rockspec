@@ -6,8 +6,8 @@ source  = {
 }
 description = {
     summary  = "",
-    homepage = 'https://github.com/LinnikD/tarantool-auth.git',
-    license  = 'BSD',
+    homepage = 'https://github.com/mailru/tarantool-auth.git',
+    license  = 'MIT',
 }
 dependencies = {
     'lua >= 5.1'

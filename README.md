@@ -238,7 +238,7 @@ error.SOCIAL_AUTH_ERROR = '15'
 ```
 
 ## Run tests:
-To perform tests run this in directory with media-auth module:
+To perform tests run this in directory with tarantool-auth module:
 ```
-$ tarantool auth/run_tests.lua
+$ tarantool test/auth.test.lua
 ```
