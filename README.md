@@ -31,8 +31,8 @@ $ tarantoolctl enter tarantool-auth
 
 Use auth api:
 ```
-tarantool> ok, activation_code = auth.registration('example@mail.ru')
-tarantool> ok, user = auth.registration('example@mail.ru', activation_code, 'Pa$$wOrD')
+tarantool> ok, user = auth.registration('example@mail.ru')
+tarantool> ok, user = auth.complete_registration('example@mail.ru', user.code, 'Pa$$wOrD')
 tarantool> ok, user = auth.set_profile(user['id'], {first_name='name', laste_name='surname'})
 tarantool> ok, user = auth.auth('example@mail.ru', 'Pa$$wOrD')
 tarantool> session =  user['session']
@@ -71,11 +71,11 @@ return {
 
 #### auth.registration(email)
 ```
-tarantool> ok, code = auth.registration('aaa@mail.ru')
-tarantool> code
+tarantool> ok, user = auth.registration('aaa@mail.ru')
+tarantool> user.code
 - 022c1ff1f0b171e51cb6c6e32aefd6ab
 ```
-Creates user, return code for email confirmation.
+Creates user, return user with code for email confirmation.
 
 #### auth.complete_registration(email, code, password)
 ```

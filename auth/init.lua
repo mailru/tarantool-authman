@@ -35,7 +35,7 @@ function auth.api(config)
                 return response.error(error.USER_ALREADY_EXISTS)
             else
                 local code = user.generate_activation_code(user_tuple[user.ID])
-                return response.ok(code)
+                return response.ok(user.serialize(user_tuple, {code=code}))
             end
         end
 
@@ -46,7 +46,7 @@ function auth.api(config)
         })
 
         local code = user.generate_activation_code(user_tuple[user.ID])
-        return response.ok(code)
+        return response.ok(user.serialize(user_tuple, {code=code}))
     end
 
     function api.complete_registration(email, code, raw_password)

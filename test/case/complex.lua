@@ -25,8 +25,8 @@ function test_register_social_and_common()
         last_name = v.USER_LAST_NAME
     }
 
-    ok, code = auth.registration(v.USER_EMAIL)
-    ok, common_user = auth.complete_registration(v.USER_EMAIL, code, '123123')
+    ok, common_user = auth.registration(v.USER_EMAIL)
+    ok, common_user = auth.complete_registration(v.USER_EMAIL, common_user.code, '123123')
     ok, common_user = auth.set_profile(common_user['id'], profile)
 
     ok, social_user = auth.social_auth('vk', v.VALID_CODE)
@@ -50,8 +50,8 @@ end
 function test_auth_social_and_common()
     local ok, code, common_user, common_session, social_user, social_session, expected
 
-    ok, code = auth.registration(v.USER_EMAIL)
-    ok, common_user = auth.complete_registration(v.USER_EMAIL, code, '123123')
+    ok, common_user = auth.registration(v.USER_EMAIL)
+    ok, common_user = auth.complete_registration(v.USER_EMAIL, common_user.code, '123123')
     ok, common_user = auth.auth(v.USER_EMAIL, '123123')
     common_session = common_user['session']
 

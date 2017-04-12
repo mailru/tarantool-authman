@@ -22,8 +22,8 @@ function exports.teardown() end
 
 function test_set_profile_success()
     local user_profile, ok, user, code, expected
-    ok, code = auth.registration('test@test.ru')
-    ok, user = auth.complete_registration('test@test.ru', code, '123')
+    ok, user = auth.registration('test@test.ru')
+    ok, user = auth.complete_registration('test@test.ru', user.code, '123')
     user_profile = {last_name='test_last', first_name='test_first' }
 
     ok, user = auth.set_profile(user['id'], user_profile)
@@ -54,8 +54,8 @@ end
 
 function test_set_profile_user_not_active()
     local got, expected, user_profile, ok, code, user, id
-    ok, code = auth.registration('test@test.ru')
-    ok, user = auth.complete_registration('test@test.ru', code, '123')
+    ok, user = auth.registration('test@test.ru')
+    ok, user = auth.complete_registration('test@test.ru', user.code, '123')
     id = user['id']
 
     user_space:update(id, {{'=', 4, false}})
@@ -68,8 +68,8 @@ end
 
 function test_get_profile_success()
     local user_profile, ok, user, code, expected
-    ok, code = auth.registration('test@test.ru')
-    ok, user = auth.complete_registration('test@test.ru', code, '123')
+    ok, user = auth.registration('test@test.ru')
+    ok, user = auth.complete_registration('test@test.ru', user.code, '123')
     user_profile = {last_name='test_last', first_name='test_first' }
 
     ok, user = auth.set_profile(user['id'], user_profile)

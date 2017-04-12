@@ -13,10 +13,10 @@ local user_space = require('auth.model.user').model(config).get_space()
 function exports.setup() end
 
 function exports.before()
-    local ok, code
-    ok, code = auth.registration('test@test.ru')
-    auth.complete_registration('test@test.ru', code, '123')
-    ok, code = auth.registration('not_active@test.ru')
+    local ok, user
+    ok, user = auth.registration('test@test.ru')
+    auth.complete_registration('test@test.ru', user.code, '123')
+    ok, user = auth.registration('not_active@test.ru')
 end
 
 function exports.after()
