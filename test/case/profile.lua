@@ -97,15 +97,52 @@ function test_get_profile_user_not_found()
     test:is_deeply(got, expected, 'test_set_user_not_found')
 end
 
+function test_delete_user_success()
+    local user_profile, ok, user, code, expected, got, id
+    ok, user = auth.registration('test@test.ru')
+    ok, user = auth.complete_registration('test@test.ru', user.code, '123')
+    user_profile = {last_name='test_last', first_name='test_first' }
+
+    ok, user = auth.delete_user(user['id'])
+    id = user['id']
+    user['id'] = nil
+    expected = {email = 'test@test.ru', is_active = true}
+    test:is(ok, true, 'test_delete_user_success user deleted')
+    test:is_deeply(user, expected, 'test_delete_user_success profile returned')
+
+    got = {auth.get_profile(id), }
+    expected = {response.error(error.USER_NOT_FOUND), }
+    test:is_deeply(got, expected, 'test_delete_user_success user not found')
+end
+
+function test_delete_user_invalid_id()
+    local got, expected, user_profile
+
+    got = {auth.delete_user(''), }
+    expected = {response.error(error.INVALID_PARAMS), }
+    test:is_deeply(got, expected, 'test_delete_user_invalid_id')
+end
+
+function test_delete_user_user_not_found()
+    local got, expected, user_profile
+
+    got = {auth.delete_user('not exists'), }
+    expected = {response.error(error.USER_NOT_FOUND), }
+    test:is_deeply(got, expected, 'test_delete_user_user_not_found')
+end
+
 exports.tests = {
     test_set_profile_success,
     test_get_profile_success,
+    test_delete_user_success,
 
     test_set_profile_invalid_id,
     test_set_profile_user_not_found,
     test_set_profile_user_not_active,
     test_get_profile_invalid_id,
-    test_get_profile_user_not_found
+    test_get_profile_user_not_found,
+    test_delete_user_invalid_id,
+    test_delete_user_user_not_found,
 }
 
 return exports

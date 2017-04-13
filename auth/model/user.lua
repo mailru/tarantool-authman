@@ -65,6 +65,12 @@ function user.model(config)
         end
     end
 
+    function model.delete(user_id)
+        if validator.not_empty_string(user_id) then
+            return model.get_space():delete({user_id})
+        end
+    end
+
     function model.create(user_tuple)
         local user_id = uuid.str()
         local email = validator.string(user_tuple[model.EMAIL]) and user_tuple[model.EMAIL] or ''

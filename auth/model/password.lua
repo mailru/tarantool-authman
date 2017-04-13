@@ -36,6 +36,12 @@ function password.model(config)
         end
     end
 
+    function model.delete_by_user_id(user_id)
+        if validator.not_empty_string(user_id) then
+            return model.get_space().index[model.USER_ID_INDEX]:delete({user_id})
+        end
+    end
+
     function model.hash(password, salt)
         return digest.sha256(string.format('%s%s', salt, password))
     end

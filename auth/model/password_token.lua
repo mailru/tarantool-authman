@@ -1,6 +1,7 @@
 local password_token = {}
 
 local digest = require('digest')
+local validator = require('auth.validator')
 
 -----
 -- token (user_id, code)
@@ -21,6 +22,12 @@ function password_token.model(config)
 
     function model.get_by_user_id(user_id)
         return model.get_space():get(user_id)
+    end
+
+    function model.delete(user_id)
+        if validator.not_empty_string(user_id) then
+            return model.get_space():delete({user_id})
+        end
     end
 
     function model.generate(user_id)

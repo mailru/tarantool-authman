@@ -113,6 +113,19 @@ tarantool> user
 ```
 Set user profile first_name and last_name
 
+#### auth.delete_user(user_id)
+```
+tarantool> auth.delete_user(id)
+---
+- is_active: true
+  email: aaa@mail.ru
+  profile: {'first_name': 'name', last_name='surname'}
+  id: bcb6e00a-1148-4b7d-9ab1-9a9a3b21ce2a
+...
+
+```
+Delete user from space
+
 #### auth.auth(email, password)
 ```
 tarantool> ok, user = auth.auth('aaa@mail.ru', '123')

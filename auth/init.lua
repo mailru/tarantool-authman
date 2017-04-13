@@ -126,6 +126,24 @@ function auth.api(config)
         return response.ok(user.serialize(user_tuple))
     end
 
+    function api.delete_user(user_id)
+        if not validator.not_empty_string(user_id) then
+            return response.error(error.INVALID_PARAMS)
+        end
+
+        local user_tuple = user.get_by_id(user_id)
+        if user_tuple == nil then
+            return response.error(error.USER_NOT_FOUND)
+        end
+
+        user.delete(user_id)
+        password.delete_by_user_id(user_id)
+        social.delete_by_user_id(user_id)
+        password_token.delete(user_id)
+
+        return response.ok(user.serialize(user_tuple))
+    end
+
     function api.auth(email, raw_password)
         email = utils.lower(email)
 

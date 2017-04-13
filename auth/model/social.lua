@@ -52,6 +52,18 @@ function social.model(config)
         return model.get_space().index[model.SOCIAL_INDEX]:get({social_id, provider})
     end
 
+    function model.delete_by_user_id(user_id)
+        if validator.not_empty_string(user_id) then
+            local social_list = model.get_space().index[model.USER_ID_INDEX]:select({user_id})
+            for _, social_tuple in ipairs(social_list) do
+                model.get_space().index[model.USER_ID_INDEX]:delete({
+                    social_tuple[model.USER_ID], social_tuple[model.PROVIDER]
+                })
+            end
+            return social_list
+        end
+    end
+
     function model.create(social_tuple)
         local id = uuid.str()
         return model.get_space():insert({

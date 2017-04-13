@@ -47,6 +47,8 @@ function session.model(config)
         return session_tuple ~= nil
     end
 
+    -- TODO drop sessions by user_id
+
     function model.decode(encoded_session_data)
         local session_data_json, session_data, ok, msg
         ok, msg = pcall(function()
