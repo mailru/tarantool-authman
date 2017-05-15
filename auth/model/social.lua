@@ -13,7 +13,7 @@ function social.model(config)
     local model = {}
     local user = require('auth.model.user').model(config)
 
-    model.SPACE_NAME = 'auth_social_credential'
+    model.SPACE_NAME = config.spaces.social.name
 
     model.PRIMARY_INDEX = 'primary'
     model.USER_ID_INDEX = 'user'

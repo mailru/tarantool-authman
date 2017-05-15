@@ -10,8 +10,8 @@ local utils = require('auth.utils.utils')
 -----
 function user.model(config)
     local model = {}
+    model.SPACE_NAME = config.spaces.user.name
 
-    model.SPACE_NAME = 'auth_user'
     model.PRIMARY_INDEX = 'primary'
     model.EMAIL_INDEX = 'email_index'
 

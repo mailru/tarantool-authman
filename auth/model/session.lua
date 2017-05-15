@@ -11,7 +11,7 @@ local json = require('json')
 function session.model(config)
     local model = {}
 
-    model.SPACE_NAME = 'auth_sesssion'
+    model.SPACE_NAME = config.spaces.session.name
 
     model.PRIMARY_INDEX = 'primary'
 

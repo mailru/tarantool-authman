@@ -12,7 +12,7 @@ local utils = require('auth.utils.utils')
 function password.model(config)
     local model = {}
 
-    model.SPACE_NAME = 'auth_password_credential'
+    model.SPACE_NAME = config.spaces.password.name
 
     model.PRIMARY_INDEX = 'primary'
     model.USER_ID_INDEX = 'user'

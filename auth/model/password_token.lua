@@ -9,7 +9,7 @@ local validator = require('auth.validator')
 function password_token.model(config)
     local model = {}
 
-    model.SPACE_NAME = 'auth_password_token'
+    model.SPACE_NAME = config.spaces.password_token.name
 
     model.PRIMARY_INDEX = 'primary'
 

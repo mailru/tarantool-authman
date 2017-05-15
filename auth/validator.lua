@@ -18,10 +18,19 @@ local config_default_values = {
     session_update_timedelta = 2 * 24 * 60 * 60,
     social_check_time = 60 * 60 * 24,
 }
+
 local config_default_secrets = {
     activation_secret = uuid.str(),
     session_secret = uuid.str(),
     restore_secret = uuid.str(),
+}
+
+local config_default_space_names = {
+    password = 'auth_password_credential',
+    password_token = 'auth_password_token',
+    session = 'auth_sesssion',
+    social = 'auth_social_credential',
+    user = 'auth_user',
 }
 
 function validator.string(str)
@@ -73,6 +82,19 @@ function validator.config(config)
         if param_value == nil or not validator.not_empty_string(param_value) then
             config[param_name] = value
             log.warn('Use %s for %s', value, param_name)
+        end
+    end
+
+    if not validator.table(config.spaces) then
+        config.spaces = {}
+    end
+
+    for param_name, value in pairs(config_default_space_names) do
+        if not (validator.table(config.spaces[param_name]) and
+            validator.not_empty_string(config.spaces[param_name].name)) then
+
+            config.spaces[param_name] = {}
+            config.spaces[param_name].name = value
         end
     end
 

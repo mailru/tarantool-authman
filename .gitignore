@@ -3,7 +3,7 @@
 *.vymeta
 *.xlog
 t.lua
-config
+config/config.lua
 tarantool.log
 packpack
 old-tarantool-auth.spec

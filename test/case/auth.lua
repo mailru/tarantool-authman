@@ -3,12 +3,15 @@ local tap = require('tap')
 local fiber = require('fiber')
 local response = require('auth.response')
 local error = require('auth.error')
-local db = require('auth.db')
-local config = require('test.config')
+local validator = require('auth.validator')
 
-local test = tap.test('auth_test')
+-- model configuration
+local config = validator.config(require('test.config'))
+local db = require('auth.db').configurate(config)
 local auth = require('auth').api(config)
 local user_space = require('auth.model.user').model(config).get_space()
+
+local test = tap.test('auth_test')
 
 function exports.setup() end
 

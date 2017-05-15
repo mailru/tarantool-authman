@@ -2,15 +2,20 @@ local exports = {}
 local tap = require('tap')
 local response = require('auth.response')
 local error = require('auth.error')
-local db = require('auth.db')
-local config = require('test.config')
+local validator = require('auth.validator')
 
+-- model configuration
+local config = validator.config(require('test.config'))
+local db = require('auth.db').configurate(config)
 local auth = require('auth').api(config)
+
 local test = tap.test('registration_test')
 
 function exports.setup() end
 
-function exports.before() db.truncate_spaces() end
+function exports.before()
+    db.truncate_spaces()
+end
 
 function exports.after() end
 

@@ -11,6 +11,7 @@ box.cfg {
     wal_dir = test_db_path,
     snap_dir = test_db_path,
     vinyl_dir = test_db_path,
+    memtx_dir = test_db_path,
 }
 
 local TEST_CASES = {

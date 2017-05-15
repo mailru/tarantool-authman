@@ -10,14 +10,13 @@ function auth.api(config)
     local api = {}
 
     config = validator.config(config)
-
     local user = require('auth.model.user').model(config)
     local password = require('auth.model.password').model(config)
     local password_token = require('auth.model.password_token').model(config)
     local social = require('auth.model.social').model(config)
     local session = require('auth.model.session').model(config)
 
-    db.create_database()
+    db.configurate(config).create_database()
 
     -----------------
     -- API methods --
