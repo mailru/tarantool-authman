@@ -7,6 +7,7 @@ return {
     session_lifetime = 60 * 60 * 24 * 14,
     session_update_timedelta = 60 * 60 * 24 * 7,
     social_check_time = 60 * 60 * 24,
+    request_timeout = 3,
 
     spaces = {
         password = {

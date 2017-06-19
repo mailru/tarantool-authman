@@ -17,6 +17,7 @@ local config_default_values = {
     session_lifetime = 7 * 24 * 60 * 60,
     session_update_timedelta = 2 * 24 * 60 * 60,
     social_check_time = 60 * 60 * 24,
+    request_timeout = 3,
 }
 
 local config_default_secrets = {

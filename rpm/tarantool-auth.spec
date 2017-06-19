@@ -1,5 +1,5 @@
 Name: tarantool-auth
-Version: 0.1.4
+Version: 0.1.5
 Release: 1
 Summary: Tarantool auth module
 Group: Applications/Databases
@@ -9,8 +9,7 @@ URL: https://github.com/mailru/tarantool-auth
 Source0: https://github.com/mailru/%{name}/archive/%{version}/%{name}-%{version}.tar.gz
 
 BuildArch: noarch
-Requires: tarantool >= 1.7.0
-Requires: tarantool-curl >= 2.2.7
+Requires: tarantool >= 1.7.4.168
 
 %description
 auth lib for tarantool

@@ -1,2 +1,1 @@
-tarantool>=1.7
-tarantool-curl
+tarantool>=1.7.4.168
