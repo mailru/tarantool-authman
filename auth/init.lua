@@ -21,7 +21,7 @@ function auth.api(config)
     -----------------
     -- API methods --
     -----------------
-    function api.registration(email)
+    function api.registration(email, user_id)
         email = utils.lower(email)
 
         if not validator.email(email) then
@@ -38,11 +38,16 @@ function auth.api(config)
             end
         end
 
-        user_tuple = user.create({
+        user_tuple = {
             [user.EMAIL] = email,
             [user.TYPE] = user.COMMON_TYPE,
             [user.IS_ACTIVE] = false,
-        })
+        }
+        if validator.not_empty_string(user_id) then
+            user_tuple[user.ID] = user_id
+        end
+
+        user_tuple = user.create(user_tuple)
 
         local code = user.generate_activation_code(user_tuple[user.ID])
         return response.ok(user.serialize(user_tuple, {code=code}))

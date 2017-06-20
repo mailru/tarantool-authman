@@ -72,7 +72,12 @@ function user.model(config)
     end
 
     function model.create(user_tuple)
-        local user_id = uuid.str()
+        local user_id
+        if user_tuple[model.ID] then
+            user_id = user_tuple[model.ID]
+        else
+            user_id = uuid.str()
+        end
         local email = validator.string(user_tuple[model.EMAIL]) and user_tuple[model.EMAIL] or ''
         return model.get_space():insert{
             user_id,
@@ -99,6 +104,14 @@ function user.model(config)
             user_tuple = model.create(user_tuple)
         end
         return user_tuple
+    end
+
+    function model.set_new_id(user_id, new_user_id)
+        local user_tuple = model.get_by_id(user_id)
+        model.delete(user_id)
+
+        model.create_or_update()
+        return model.get_space():update(user_id, {{'=', model.ID, new_user_id}})
     end
 
     function model.generate_activation_code(user_id)
