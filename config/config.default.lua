@@ -9,10 +9,7 @@ return {
     social_check_time = 60 * 60 * 24,
     request_timeout = 3,
 
-    password = {
-        min_length = 6,
-        min_char_group_count = 2,
-    },
+    password_strength = 'moderate',
 
     spaces = {
         password = {

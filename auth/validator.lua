@@ -13,6 +13,16 @@ local social_required = {
     'client_id', 'client_secret', 'redirect_uri',
 }
 
+local password_strength = {
+    none = true,
+    whocares = true,
+    easy = true,
+    common = true,
+    moderate = true,
+    violence = true,
+    nightmare = true,
+}
+
 local config_default_values = {
     session_lifetime = 7 * 24 * 60 * 60,
     session_update_timedelta = 2 * 24 * 60 * 60,
@@ -68,19 +78,14 @@ function validator.config(config)
         log.warn('Config is not a table. Use default instead.')
     end
 
-    local param_name, param_value, is_valid
+    if not (validator.not_empty_string(config.password_strength)
+            or password_strength[config.password_strength]) then
 
-    if validator.table(config.password) then
-        if not validator.positive_number(config.password.min_length) then
-            config.password.min_length = nil
-        end
-
-        if not validator.positive_number(config.password.min_char_group_count) then
-            config.password.min_char_group_count = nil
-        end
-    else
-        config.password = nil
+        config.password_strength = 'common'
+        log.warn('Use common for password_strength')
     end
+
+    local param_name, param_value, is_valid
 
     for param_name, value in pairs(config_default_values) do
         param_value = config[param_name]

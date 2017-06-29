@@ -12,6 +12,37 @@ local CHAR_GROUP_PATTERNS = {
     '[!@#&_=;:,/\\|`~ %?%+%-%.%^%%%$%*]',  -- ! @ # & _ = ; : , / \ | ` ~ ? + - . ^ % $ *
 }
 
+local STRENGTH = {
+    none = {
+        min_len = 0,
+        min_group = 0,
+    },
+    whocares = {
+        min_len = 2,
+        min_group = 1,
+    },
+    easy = {
+        min_len = 6,
+        min_group = 2,
+    },
+    common = {   -- default pattern
+        min_len = 8,
+        min_group = 3,
+    },
+    moderate = {
+        min_len = 12,
+        min_group = 3,
+    },
+    violence = {
+        min_len = 16,
+        min_group = 4,
+    },
+    nightmare = {
+        min_len = 24,
+        min_group = 4,
+    },
+}
+
 -----
 -- password (id, user_id, password)
 -----
@@ -89,22 +120,14 @@ function password.model(config)
     end
 
     function model.strong_enough(password)
-        if not validator.not_empty_string(password) then
+        local min_len = STRENGTH[config.password_strength]['min_len']
+        local min_group = STRENGTH[config.password_strength]['min_group']
+
+        if min_len ~= nil and string.len(password) < min_len then
             return false
         end
 
-        if config.password == nil then
-            return true
-        end
-
-        local min_length = config.password.min_length
-        local min_char_group_count = config.password.min_char_group_count
-
-        if min_length ~= nil and string.len(password) < min_length then
-            return false
-        end
-
-        if min_char_group_count ~= nil then
+        if min_group ~= nil then
             local char_group_count = 0
             for _, pattern in pairs(CHAR_GROUP_PATTERNS) do
                 if string.match(password, pattern) then
@@ -112,7 +135,7 @@ function password.model(config)
                 end
             end
 
-            if char_group_count < min_char_group_count then
+            if char_group_count < min_group then
                 return false
             end
         end

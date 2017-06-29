@@ -49,6 +49,10 @@ return {
     session_update_timedelta = 2 * 24 * 60* 60,
     social_check_time = 60 * 60* 24,
 
+    -- password_strength can be: 
+    -- none, whocares, easy, common, moderate, violence, nightmare,
+    password_strength = 'common', -- default value
+
     facebook = {
         client_id = '',
         client_secret = '',

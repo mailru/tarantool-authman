@@ -9,10 +9,7 @@ return {
     session_update_timedelta = 2,
     social_check_time = 2,
 
-    password = {
-        min_length = 6,
-        min_char_group_count = 2,
-    },
+    password_strength = 'easy',
 
     facebook = {
         client_id = '1813230128941062',
