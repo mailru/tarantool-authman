@@ -60,7 +60,7 @@ function auth.api(config)
             return response.error(error.INVALID_PARAMS)
         end
 
-        if not validator.password(raw_password) then
+        if not password.strong_enough(raw_password) then
             return response.error(error.WEAK_PASSWORD)
         end
 
@@ -300,7 +300,7 @@ function auth.api(config)
             return response.error(error.USER_NOT_ACTIVE)
         end
 
-        if not validator.password(raw_password) then
+        if not password.strong_enough(raw_password) then
             return response.error(error.WEAK_PASSWORD)
         end
 

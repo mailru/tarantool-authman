@@ -30,7 +30,7 @@ function test_register_social_and_common()
     }
 
     ok, common_user = auth.registration(v.USER_EMAIL)
-    ok, common_user = auth.complete_registration(v.USER_EMAIL, common_user.code, '123123')
+    ok, common_user = auth.complete_registration(v.USER_EMAIL, common_user.code, v.USER_PASSWORD)
     ok, common_user = auth.set_profile(common_user['id'], profile)
 
     ok, social_user = auth.social_auth('vk', v.VALID_CODE)
@@ -55,8 +55,8 @@ function test_auth_social_and_common()
     local ok, code, common_user, common_session, social_user, social_session, expected
 
     ok, common_user = auth.registration(v.USER_EMAIL)
-    ok, common_user = auth.complete_registration(v.USER_EMAIL, common_user.code, '123123')
-    ok, common_user = auth.auth(v.USER_EMAIL, '123123')
+    ok, common_user = auth.complete_registration(v.USER_EMAIL, common_user.code, v.USER_PASSWORD)
+    ok, common_user = auth.auth(v.USER_EMAIL, v.USER_PASSWORD)
     common_session = common_user['session']
 
     ok, social_user = auth.social_auth('vk', v.VALID_CODE)
@@ -72,10 +72,21 @@ function test_auth_social_and_common()
 end
 
 
+function test_complex_password()
+    local ok, code, user, session, password, expected
+    password = '123_this pa$$word % CoMpLeX as HeLL...яйца'
+    ok, user = auth.registration(v.USER_EMAIL)
+    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, password)
+    ok, user = auth.auth(v.USER_EMAIL, password)
+
+    test:is(ok, true, 'test_complex_password')
+end
+
 
 exports.tests = {
     test_register_social_and_common,
     test_auth_social_and_common,
+    test_complex_password,
 }
 
 return exports

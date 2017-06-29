@@ -3,6 +3,7 @@ local tap = require('tap')
 local response = require('auth.response')
 local error = require('auth.error')
 local validator = require('auth.validator')
+local v = require('test.values')
 
 -- model configuration
 local config = validator.config(require('test.config'))
@@ -18,7 +19,7 @@ function exports.setup() end
 function exports.before()
     local ok, user
     ok, user = auth.registration('test@test.ru')
-    auth.complete_registration('test@test.ru', user.code, '123')
+    auth.complete_registration('test@test.ru', user.code, v.USER_PASSWORD)
     ok, user = auth.registration('not_active@test.ru')
 end
 
@@ -86,6 +87,23 @@ function test_complete_restore_password_user_not_found()
     test:is_deeply(got, expected, 'test_complete_restore_password_user_not_found')
 end
 
+function test_complete_restore_passsword_weak()
+    local ok, token, id, session, got, expected
+    ok, token = auth.restore_password('test@test.ru')
+
+    got = {auth.complete_restore_password('test@test.ru', token, 'weak'), }
+    expected = {response.error(error.WEAK_PASSWORD), }
+    test:is_deeply(got, expected, 'test_complete_restore_passsword_weak 1')
+
+    got = {auth.complete_restore_password('test@test.ru', token, '123123123'), }
+    expected = {response.error(error.WEAK_PASSWORD), }
+    test:is_deeply(got, expected, 'test_complete_restore_passsword_weak 2')
+
+    got = {auth.complete_restore_password('test@test.ru', token, 'слабый'), }
+    expected = {response.error(error.WEAK_PASSWORD), }
+    test:is_deeply(got, expected, 'test_complete_restore_passsword_weak 3')
+end
+
 function test_complete_restore_password_user_not_active()
     local ok, token, id, session, got, expected
     ok, token = auth.restore_password('test@test.ru')
@@ -112,7 +130,7 @@ function test_complete_restore_password_auth_with_old_password()
     local ok, token, user, got, expected
     ok, token = auth.restore_password('test@test.ru')
     ok, user = auth.complete_restore_password('test@test.ru', token, 'new_pwd')
-    got = {auth.auth('test@test.ru', '123'), }
+    got = {auth.auth('test@test.ru', v.USER_PASSWORD), }
     expected = {response.error(error.WRONG_PASSWORD), }
     test:is_deeply(got, expected, 'test_complete_restore_password_auth_with_old_password')
 end
@@ -133,6 +151,7 @@ exports.tests = {
     test_restore_password_user_not_found,
     test_restore_password_user_not_active,
     test_complete_restore_password_user_not_found,
+    test_complete_restore_passsword_weak,
     test_complete_restore_password_user_not_active,
     test_complete_restore_password_wrong_token,
     test_complete_restore_password_auth_with_old_password,

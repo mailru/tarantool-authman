@@ -3,6 +3,7 @@ local tap = require('tap')
 local response = require('auth.response')
 local error = require('auth.error')
 local validator = require('auth.validator')
+local v = require('test.values')
 
 -- model configuration
 local config = validator.config(require('test.config'))
@@ -26,7 +27,7 @@ function exports.teardown() end
 function test_set_profile_success()
     local user_profile, ok, user, code, expected
     ok, user = auth.registration('test@test.ru')
-    ok, user = auth.complete_registration('test@test.ru', user.code, '123')
+    ok, user = auth.complete_registration('test@test.ru', user.code, v.USER_PASSWORD)
     user_profile = {last_name='test_last', first_name='test_first' }
 
     ok, user = auth.set_profile(user['id'], user_profile)
@@ -58,7 +59,7 @@ end
 function test_set_profile_user_not_active()
     local got, expected, user_profile, ok, code, user, id
     ok, user = auth.registration('test@test.ru')
-    ok, user = auth.complete_registration('test@test.ru', user.code, '123')
+    ok, user = auth.complete_registration('test@test.ru', user.code, v.USER_PASSWORD)
     id = user['id']
 
     user_space:update(id, {{'=', 4, false}})
@@ -72,7 +73,7 @@ end
 function test_get_profile_success()
     local user_profile, ok, user, code, expected
     ok, user = auth.registration('test@test.ru')
-    ok, user = auth.complete_registration('test@test.ru', user.code, '123')
+    ok, user = auth.complete_registration('test@test.ru', user.code, v.USER_PASSWORD)
     user_profile = {last_name='test_last', first_name='test_first' }
 
     ok, user = auth.set_profile(user['id'], user_profile)
@@ -103,7 +104,7 @@ end
 function test_delete_user_success()
     local user_profile, ok, user, code, expected, got, id
     ok, user = auth.registration('test@test.ru')
-    ok, user = auth.complete_registration('test@test.ru', user.code, '123')
+    ok, user = auth.complete_registration('test@test.ru', user.code, v.USER_PASSWORD)
     user_profile = {last_name='test_last', first_name='test_first' }
 
     ok, user = auth.delete_user(user['id'])

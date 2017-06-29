@@ -5,6 +5,12 @@ local uuid = require('uuid')
 local validator = require('auth.validator')
 local utils = require('auth.utils.utils')
 
+local CHAR_GROUP_PATTERNS = {
+    '[%l]',   -- lower case
+    '[%u]',   -- upper case
+    '[%d]',   -- didgets
+    '[!@#&_=;:,/\\|`~ %?%+%-%.%^%%%$%*]',  -- ! @ # & _ = ; : , / \ | ` ~ ? + - . ^ % $ *
+}
 
 -----
 -- password (id, user_id, password)
@@ -80,6 +86,38 @@ function password.model(config)
             password_tuple[model.ID] = exists_password_tuple[model.ID]
             return model.update(password_tuple)
         end
+    end
+
+    function model.strong_enough(password)
+        if not validator.not_empty_string(password) then
+            return false
+        end
+
+        if config.password == nil then
+            return true
+        end
+
+        local min_length = config.password.min_length
+        local min_char_group_count = config.password.min_char_group_count
+
+        if min_length ~= nil and string.len(password) < min_length then
+            return false
+        end
+
+        if min_char_group_count ~= nil then
+            local char_group_count = 0
+            for _, pattern in pairs(CHAR_GROUP_PATTERNS) do
+                if string.match(password, pattern) then
+                    char_group_count = char_group_count + 1
+                end
+            end
+
+            if char_group_count < min_char_group_count then
+                return false
+            end
+        end
+
+        return true
     end
 
     return model

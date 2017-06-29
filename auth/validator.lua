@@ -70,6 +70,18 @@ function validator.config(config)
 
     local param_name, param_value, is_valid
 
+    if validator.table(config.password) then
+        if not validator.positive_number(config.password.min_length) then
+            config.password.min_length = nil
+        end
+
+        if not validator.positive_number(config.password.min_char_group_count) then
+            config.password.min_char_group_count = nil
+        end
+    else
+        config.password = nil
+    end
+
     for param_name, value in pairs(config_default_values) do
         param_value = config[param_name]
         if param_value == nil or not validator.positive_number(param_value) then

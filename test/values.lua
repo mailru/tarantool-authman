@@ -3,6 +3,7 @@ return {
     HTTP_401 = 401,
 
     USER_EMAIL = 'test@test.ru',
+    USER_PASSWORD = '123Asd',
 
     USER_FIRST_NAME = 'first_name',
     USER_LAST_NAME = 'last_name',

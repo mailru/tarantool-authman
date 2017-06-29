@@ -9,8 +9,6 @@ os.execute('mkdir -p ' .. test_db_path)
 box.cfg {
     listen = config.port,
     wal_dir = test_db_path,
-    snap_dir = test_db_path,
-    vinyl_dir = test_db_path,
     memtx_dir = test_db_path,
 }
 
@@ -38,3 +36,4 @@ end
 
 run()
 os.execute('rm -rf '.. test_db_path)
+os.exit()
