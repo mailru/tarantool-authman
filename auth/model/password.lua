@@ -27,7 +27,7 @@ local STRENGTH = {
     },
     common = {   -- default pattern
         min_len = 8,
-        min_group = 3,
+        min_group = 2,
     },
     moderate = {
         min_len = 12,
