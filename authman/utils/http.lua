@@ -1,5 +1,5 @@
 local http = {}
-local utils = require('auth.utils.utils')
+local utils = require('authman.utils.utils')
 local curl_http = require('http.client')
 
 function http.api(config)

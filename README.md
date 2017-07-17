@@ -1,9 +1,9 @@
-# tarantool-auth
+# tarantool-authman
 
 Requires tarantool >= 1.7.4.168
 
 ## Quickstart
-Create tarantool instance file /etc/tarantool/intanses.availible/tarantool-auth.lua:
+Create tarantool instance file /etc/tarantool/intanses.availible/tarantool-authman.lua:
 ```
 box.cfg {
     listen = 3302,
@@ -13,7 +13,7 @@ box.cfg {
 local config = {
    -- configuration table, details below
 }
-auth = require('auth').api(config)
+auth = require('authman').api(config)
 
 ```
 Create symlink in /etc/tarantool/intanses.enabled:

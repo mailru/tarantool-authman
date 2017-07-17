@@ -2,16 +2,16 @@ local social = {}
 
 local json = require('json')
 local uuid = require('uuid')
-local utils = require('auth.utils.utils')
-local validator = require('auth.validator')
+local utils = require('authman.utils.utils')
+local validator = require('authman.validator')
 
 -----
 -- social (id, user_id, social_type, social_id, token)
 -----
 function social.model(config)
     local model = {}
-    local user = require('auth.model.user').model(config)
-    local http = require('auth.utils.http').api(config)
+    local user = require('authman.model.user').model(config)
+    local http = require('authman.utils.http').api(config)
 
     model.SPACE_NAME = config.spaces.social.name
 

@@ -1,4 +1,0 @@
-auth/*.lua usr/share/tarantool/auth/
-auth/utils/*.lua usr/share/tarantool/auth/util/
-auth/model/*.lua usr/share/tarantool/auth/model/
-

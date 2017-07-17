@@ -1,4 +1,4 @@
-Source: tarantool-auth
+Source: tarantool-authman
 Priority: optional
 Section: database
 Maintainer: Denis Linnik <lindeni@mail.ru>
@@ -9,7 +9,7 @@ Homepage: https://github.com/mailru/tarantool-auth
 Vcs-Git: git:/github.com/mailru/tarantool-auth.git
 Vcs-Browser: https://github.com/mailru/tarantool-auth
 
-Package: tarantool-auth
+Package: tarantool-authman
 Architecture: all
 Depends: tarantool (>= 1.6.8.0),
          ${misc:Depends}

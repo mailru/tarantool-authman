@@ -2,8 +2,8 @@ local password = {}
 
 local digest = require('digest')
 local uuid = require('uuid')
-local validator = require('auth.validator')
-local utils = require('auth.utils.utils')
+local validator = require('authman.validator')
+local utils = require('authman.utils.utils')
 
 local CHAR_GROUP_PATTERNS = {
     '[%l]',   -- lower case

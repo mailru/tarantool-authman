@@ -4,11 +4,11 @@ local db = {}
 function db.configurate(config)
     local api = {}
 
-    local user = require('auth.model.user').model(config)
-    local password = require('auth.model.password').model(config)
-    local password_token = require('auth.model.password_token').model(config)
-    local social = require('auth.model.social').model(config)
-    local session = require('auth.model.session').model(config)
+    local user = require('authman.model.user').model(config)
+    local password = require('authman.model.password').model(config)
+    local password_token = require('authman.model.password_token').model(config)
+    local social = require('authman.model.social').model(config)
+    local session = require('authman.model.session').model(config)
 
     function api.create_database()
         local user_space = box.schema.space.create(user.SPACE_NAME, {

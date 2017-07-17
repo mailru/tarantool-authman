@@ -1,5 +1,5 @@
 local response = {}
-local errors = require('auth.error')
+local errors = require('authman.error')
 
 ----
 -- Standart output format

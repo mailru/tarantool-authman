@@ -1,13 +1,13 @@
 local exports = {}
 local tap = require('tap')
-local db = require('auth.db')
-local validator = require('auth.validator')
+local db = require('authman.db')
+local validator = require('authman.validator')
 local v = require('test.values')
 
 -- model configuration
 local config = validator.config(require('test.config'))
-local db = require('auth.db').configurate(config)
-local auth = require('auth').api(config)
+local db = require('authman.db').configurate(config)
+local auth = require('authman').api(config)
 
 local test = tap.test('auth_test')
 

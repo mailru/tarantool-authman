@@ -1,20 +1,20 @@
 local auth = {}
-local response = require('auth.response')
-local error = require('auth.error')
-local validator = require('auth.validator')
-local db = require('auth.db')
-local utils = require('auth.utils.utils')
+local response = require('authman.response')
+local error = require('authman.error')
+local validator = require('authman.validator')
+local db = require('authman.db')
+local utils = require('authman.utils.utils')
 
 
 function auth.api(config)
     local api = {}
 
     config = validator.config(config)
-    local user = require('auth.model.user').model(config)
-    local password = require('auth.model.password').model(config)
-    local password_token = require('auth.model.password_token').model(config)
-    local social = require('auth.model.social').model(config)
-    local session = require('auth.model.session').model(config)
+    local user = require('authman.model.user').model(config)
+    local password = require('authman.model.password').model(config)
+    local password_token = require('authman.model.password_token').model(config)
+    local social = require('authman.model.social').model(config)
+    local session = require('authman.model.session').model(config)
 
     db.configurate(config).create_database()
 

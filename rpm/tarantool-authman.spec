@@ -1,4 +1,4 @@
-Name: tarantool-auth
+Name: tarantool-authman
 Version: 0.1.5
 Release: 1
 Summary: Tarantool auth module
@@ -18,13 +18,13 @@ auth lib for tarantool
 %prep
 %setup -q -n %{name}-%{version}
 
-%define luapkgdir %{_datadir}/tarantool/auth
+%define luapkgdir %{_datadir}/tarantool/authman
 
 %install
 rm -rf %{buildroot}/%{name}-%{version}
 
 %{__mkdir_p} %{buildroot}/%{luapkgdir}/
-cp -pR %{_builddir}/%{name}-%{version}/auth/* %{buildroot}/%{luapkgdir}/
+cp -pR %{_builddir}/%{name}-%{version}/authman/* %{buildroot}/%{luapkgdir}/
 cp -pR %{_builddir}/%{name}-%{version}/README.md %{buildroot}/%{luapkgdir}/README.md
 
 

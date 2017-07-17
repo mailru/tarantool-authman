@@ -1,6 +1,6 @@
 local utils = {}
 local digest = require('digest')
-local validator = require('auth.validator')
+local validator = require('authman.validator')
 
 function utils.format(string, tab)
     return (string:gsub('($%b{})', function(word) return tab[word:sub(3, -2)] or word end))

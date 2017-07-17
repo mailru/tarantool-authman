@@ -1,15 +1,15 @@
 local exports = {}
 local tap = require('tap')
 local fiber = require('fiber')
-local response = require('auth.response')
-local error = require('auth.error')
-local validator = require('auth.validator')
+local response = require('authman.response')
+local error = require('authman.error')
+local validator = require('authman.validator')
 local v = require('test.values')
 
 -- model configuration
 local config = validator.config(require('test.config'))
-local db = require('auth.db').configurate(config)
-local auth = require('auth').api(config)
+local db = require('authman.db').configurate(config)
+local auth = require('authman').api(config)
 
 local test = tap.test('auth_test')
 

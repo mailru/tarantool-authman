@@ -1,7 +1,7 @@
 local password_token = {}
 
 local digest = require('digest')
-local validator = require('auth.validator')
+local validator = require('authman.validator')
 
 -----
 -- token (user_id, code)

@@ -1,6 +1,6 @@
 local session = {}
 
-local utils = require('auth.utils.utils')
+local utils = require('authman.utils.utils')
 local digest = require('digest')
 local uuid = require('uuid')
 local json = require('json')
