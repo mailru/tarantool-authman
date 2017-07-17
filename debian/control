@@ -5,9 +5,9 @@ Maintainer: Denis Linnik <lindeni@mail.ru>
 Build-Depends: debhelper (>= 9),
                tarantool-dev (>= 1.6.8.0)
 Standards-Version: 3.9.6
-Homepage: https://github.com/mailru/tarantool-auth
-Vcs-Git: git:/github.com/mailru/tarantool-auth.git
-Vcs-Browser: https://github.com/mailru/tarantool-auth
+Homepage: https://github.com/mailru/tarantool-authman
+Vcs-Git: git:/github.com/mailru/tarantool-authman.git
+Vcs-Browser: https://github.com/mailru/tarantool-authman
 
 Package: tarantool-authman
 Architecture: all

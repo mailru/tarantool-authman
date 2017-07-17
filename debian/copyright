@@ -1,8 +1,8 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Debianized-By: Denis Linnik <lindeni@mail.ru>
-Upstream-Name: tarantool-auth
+Upstream-Name: tarantool-authman
 Upstream-Contact: support@tarantool.org
-Source: https://github.com/mailru/tarantool-auth
+Source: https://github.com/mailru/tarantool-authman
 
 Files: *
 Copyright: 2017 Denis Linnik

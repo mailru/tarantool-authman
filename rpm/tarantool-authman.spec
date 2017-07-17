@@ -5,7 +5,7 @@ Summary: Tarantool auth module
 Group: Applications/Databases
 License: BSD
 
-URL: https://github.com/mailru/tarantool-auth
+URL: https://github.com/mailru/tarantool-authman
 Source0: https://github.com/mailru/%{name}/archive/%{version}/%{name}-%{version}.tar.gz
 
 BuildArch: noarch

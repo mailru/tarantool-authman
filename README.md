@@ -18,13 +18,13 @@ auth = require('authman').api(config)
 ```
 Create symlink in /etc/tarantool/intanses.enabled:
 ```
-$ ln -s /etc/tarantool/instances.availible/tarantool-auth.lua .
+$ ln -s /etc/tarantool/instances.availible/tarantool-authman.lua .
 ```
 
 Run tarantool and connect to it:
 ```
-$ tarantoolctl start tarantool-auth
-$ tarantoolctl enter tarantool-auth
+$ tarantoolctl start tarantool-authman
+$ tarantoolctl enter tarantool-authman
 
 ```
 
@@ -254,7 +254,7 @@ error.SOCIAL_AUTH_ERROR = '15'
 ```
 
 ## Run tests:
-To perform tests run this in directory with tarantool-auth module:
+To perform tests run this in directory with tarantool-authman module:
 ```
 $ tarantool test/auth.test.lua
 ```
