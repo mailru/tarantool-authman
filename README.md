@@ -261,5 +261,5 @@ error.SOCIAL_AUTH_ERROR = '15'
 ## Run tests:
 To perform tests run this in directory with tarantool-authman module:
 ```
-$ tarantool test/auth.test.lua
+$ tarantool test/authman.test.lua
 ```
