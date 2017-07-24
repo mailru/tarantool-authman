@@ -7,6 +7,22 @@ Supports login with email/password and socials (facebook.com, vk.com, google.com
 
 Requires tarantool >= 1.7.4.168
 
+## Installation
+
+Using tarantoolctl:
+```
+$ tarantoolctl rocks install authman
+```
+
+Also available `.rpm` and `.deb` packages:
+```
+# CentOS
+$ yum install tarantool-authman
+
+# Ubuntu
+$ apt-get install tarantool-authman
+```
+
 ## Quickstart
 Create tarantool instance file /etc/tarantool/intanses.availible/tarantool-authman.lua:
 ```
