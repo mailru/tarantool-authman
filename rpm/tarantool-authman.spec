@@ -1,5 +1,5 @@
 Name: tarantool-authman
-Version: 0.1.5
+Version: 1.0.0
 Release: 1
 Summary: Tarantool auth module
 Group: Applications/Databases
