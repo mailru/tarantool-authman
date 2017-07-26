@@ -279,3 +279,4 @@ To perform tests run this in directory with tarantool-authman module:
 ```
 $ tarantool test/authman.test.lua
 ```
+
