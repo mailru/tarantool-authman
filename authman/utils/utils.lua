@@ -1,6 +1,12 @@
 local utils = {}
 local digest = require('digest')
+local fiber = require('fiber')
+local math = require('math')
 local validator = require('authman.validator')
+
+function utils.now()
+    return math.floor(fiber.time())
+end
 
 function utils.format(string, tab)
     return (string:gsub('($%b{})', function(word) return tab[word:sub(3, -2)] or word end))

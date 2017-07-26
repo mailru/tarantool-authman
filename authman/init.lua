@@ -17,6 +17,7 @@ function auth.api(config)
     local session = require('authman.model.session').model(config)
 
     db.configurate(config).create_database()
+    require('authman.migrations.migrations')(config)
 
     -----------------
     -- API methods --
@@ -87,6 +88,7 @@ function auth.api(config)
         user_tuple = user.update({
             [user.ID] = user_id,
             [user.IS_ACTIVE] = true,
+            [user.REGISTRATION_TS] = utils.now(),
         })
 
         return response.ok(user.serialize(user_tuple))
@@ -165,6 +167,7 @@ function auth.api(config)
         end
 
         local signed_session = session.create(user_tuple[user.ID], session.COMMON_SESSION_TYPE)
+        user.update_session_ts(user_tuple)
 
         return response.ok(user.serialize(user_tuple, {session = signed_session}))
     end
@@ -223,6 +226,8 @@ function auth.api(config)
                     user_tuple[user.ID], session.SOCIAL_SESSION_TYPE, social_tuple[social.ID]
                 )
 
+                user.update_session_ts(user_tuple)
+
             else
                 new_session = signed_session
             end
@@ -243,7 +248,7 @@ function auth.api(config)
 
             elseif session.need_common_update(session_data) then
                 new_session = session.create(session_data.user_id, session.COMMON_SESSION_TYPE)
-
+                user.update_session_ts(user_tuple)
             else
                 new_session = signed_session
             end
@@ -352,9 +357,11 @@ function auth.api(config)
             return response.error(error.SOCIAL_AUTH_ERROR)
         end
 
+        local now = utils.now()
         user_tuple[user.EMAIL] = utils.lower(user_tuple[user.EMAIL])
         user_tuple[user.IS_ACTIVE] = true
         user_tuple[user.TYPE] = user.SOCIAL_TYPE
+        user_tuple[user.SESSION_UPDATE_TS] = now
 
         social_tuple = social.get_by_social_id(social_id, provider)
         if social_tuple == nil then
@@ -363,7 +370,7 @@ function auth.api(config)
                 [social.USER_ID] = user_tuple[user.ID],
                 [social.PROVIDER] = provider,
                 [social.SOCIAL_ID] = social_id,
-                [social.TOKEN] = token
+                [social.TOKEN] = token,
             })
         else
             user_tuple[user.ID] = social_tuple[social.USER_ID]
@@ -371,7 +378,7 @@ function auth.api(config)
             social_tuple = social.update({
                 [social.ID] = social_tuple[social.ID],
                 [social.USER_ID] = user_tuple[user.ID],
-                [social.TOKEN] = token
+                [social.TOKEN] = token,
             })
         end
 

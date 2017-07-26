@@ -20,6 +20,8 @@ function user.model(config)
     model.TYPE = 3
     model.IS_ACTIVE = 4
     model.PROFILE = 5
+    model.REGISTRATION_TS = 6    -- date of auth.registration or auth.complete_registration
+    model.SESSION_UPDATE_TS = 7  -- date of auth.auth, auth.social_auth or auth.check_auth if session was updated
 
     model.PROFILE_FIRST_NAME = 'first_name'
     model.PROFILE_LAST_NAME = 'last_name'
@@ -72,6 +74,9 @@ function user.model(config)
     end
 
     function model.create(user_tuple)
+        -- create is registration
+        user_tuple[model.REGISTRATION_TS] = utils.now()
+
         local user_id
         if user_tuple[model.ID] then
             user_id = user_tuple[model.ID]
@@ -84,7 +89,9 @@ function user.model(config)
             email,
             user_tuple[model.TYPE],
             user_tuple[model.IS_ACTIVE],
-            user_tuple[model.PROFILE]
+            user_tuple[model.PROFILE],
+            user_tuple[model.REGISTRATION_TS],
+            user_tuple[model.SESSION_UPDATE_TS],
         }
     end
 
@@ -116,6 +123,14 @@ function user.model(config)
 
     function model.generate_activation_code(user_id)
         return digest.md5_hex(string.format('%s%s', config.activation_secret, user_id))
+    end
+
+    function model.update_session_ts(user_tuple)
+        if not validator.table(user_tuple) then
+            user_tuple = user_tuple:totable()
+        end
+        user_tuple[model.SESSION_UPDATE_TS] = utils.now()
+        model.update(user_tuple)
     end
 
     return model
