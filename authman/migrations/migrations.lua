@@ -11,7 +11,7 @@ return function(config)
             local now = utils.now()
             for _, tuple in user.get_space():pairs(nil, {iterator=box.index.ALL}) do
                 local user_tuple = tuple:totable()
-                user_tuple[user.REGISTARTION_TS] = now
+                user_tuple[user.REGISTRATION_TS] = now
                 user_tuple[user.SESSION_UPDATE_TS] = now
                 user.get_space():replace(user_tuple)
 
