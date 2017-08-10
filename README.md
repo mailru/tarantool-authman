@@ -60,7 +60,7 @@ tarantool> ok, user = auth.check_auth(session) -- user can get new session
 ```
 
 ## Configuration
-Exaple of my_config.lua module, fill empty strings with your values:
+Example of my_config.lua module, fill empty strings with your values:
 ```
 return {
     activation_secret = '',
