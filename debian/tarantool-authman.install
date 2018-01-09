@@ -1,5 +1,5 @@
 authman/*.lua usr/share/tarantool/authman/
-authman/utils/*.lua usr/share/tarantool/authman/util/
+authman/utils/*.lua usr/share/tarantool/authman/utils
 authman/model/*.lua usr/share/tarantool/authman/model/
 authman/migrations/*.lua usr/share/tarantool/authman/migrations/
 
