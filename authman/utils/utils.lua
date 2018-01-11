@@ -45,4 +45,12 @@ function utils.lower(string)
     end
 end
 
+function utils.gen_random_key(key_len)
+    return string.hex(digest.urandom(key_len or 10))
+end
+
+function utils.salted_hash(str, salt)
+    return digest.sha256(string.format('%s%s', salt, str))
+end
+
 return utils

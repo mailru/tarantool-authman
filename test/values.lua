@@ -18,5 +18,21 @@ return {
     VALID_TOKEN_NO_PROFILE = 'valid_token_no_profile',
 
     INVALID_CODE_TOKEN = 'invalid_code_token',
-    INVALID_TOKEN = 'invalid_token'
+    INVALID_TOKEN = 'invalid_token',
+
+    APPLICATION_NAME = 'app name',
+    VALID_APPLICATION_TYPES = {'server', 'browser', 'native', 'mobile'},
+
+    OAUTH_CONSUMER_REDIRECT_URLS = 'https://test.ru/test1?test=1 https://test.ru/test2?test=2',
+    OAUTH_CONSUMER_REDIRECT_URL = 'https://test.ru/test1?test=1',
+    OAUTH_CODE = 'oauth_code',
+    OAUTH_CONSUMER_KEY = 'oauth_consumer_key',
+    OAUTH_SCOPE = 'oauth_scope',
+    OAUTH_STATE = 'oauth_state',
+    OAUTH_EXPIRES_IN = 1514452737,
+    OAUTH_CREATED_AT = 1514452137,
+    OAUTH_CODE_CHALLENGE = 'oauth_code_challenge',
+    OAUTH_CODE_CHALLENGE_METHOD = 'oauth_code_challenge_method',
+    OAUTH_ACCESS_TOKEN = 'oauth_access_token',
+    OAUTH_REFRESH_TOKEN = 'oauth_refresh_token',
 }

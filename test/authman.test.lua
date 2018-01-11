@@ -13,12 +13,16 @@ box.cfg {
 }
 
 local TEST_CASES = {
+--[[
     'test.case.registration',
     'test.case.auth',
     'test.case.restore_password',
     'test.case.profile',
     'test.case.social',
     'test.case.complex'
+--]]
+    'test.case.application',
+    'test.case.oauth',
 }
 
 function run()

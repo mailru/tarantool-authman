@@ -9,6 +9,13 @@ local enabled_providers = {
     vk = true
 }
 
+local application_types = {
+    server = true,
+    browser = true,
+    mobile = true,
+    native = true,
+}
+
 local social_required = {
     'client_id', 'client_secret', 'redirect_uri',
 }
@@ -28,6 +35,7 @@ local config_default_values = {
     session_update_timedelta = 2 * 24 * 60 * 60,
     social_check_time = 60 * 60 * 24,
     request_timeout = 3,
+    max_applications = 10,
 }
 
 local config_default_secrets = {
@@ -42,6 +50,10 @@ local config_default_space_names = {
     session = 'auth_sesssion',
     social = 'auth_social_credential',
     user = 'auth_user',
+    application = 'auth_application',
+    oauth_consumer = 'auth_oauth_consumer',
+    oauth_code = 'auth_oauth_code',
+    oauth_token = 'auth_oauth_token',
 }
 
 function validator.string(str)
@@ -70,6 +82,10 @@ end
 
 function validator.password(pwd)
     return validator.not_empty_string(pwd)
+end
+
+function validator.application_type(app_type)
+    return application_types[app_type]
 end
 
 function validator.config(config)
