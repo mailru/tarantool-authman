@@ -521,40 +521,6 @@ function auth.api(config)
         return response.ok(application.serialize(app, oauth_consumer.serialize(consumer)))
     end
 
-    function api.get_oauth_consumer(consumer_key)
-        if not validator.not_empty_string(consumer_key) then
-            return response.error(error.INVALID_PARAMS)
-        end
-
-        local consumer = oauth_consumer.get_by_id(consumer_key)
-        if consumer == nil then
-            return response.error(error.OAUTH_CONSUMER_NOT_FOUND)
-        end
-
-        local app = application.get_by_id(consumer[oauth_consumer.APPLICATION_ID])
-        if app == nil then
-            return response.error(error.APPLICATION_NOT_FOUND)
-        end
-        return response.ok(application.serialize(app, oauth_consumer.serialize(consumer)))
-    end
-
-    function api.reset_consumer_secret(consumer_key)
-        if not validator.not_empty_string(consumer_key) then
-            return response.error(error.INVALID_PARAMS)
-        end
-
-        local consumer = oauth_consumer.get_by_id(consumer_key)
-
-        if consumer == nil then
-            return response.error(error.OAUTH_CONSUMER_NOT_FOUND)
-        end
-
-        local consumer_secret = oauth_consumer.generate_consumer_secret()
-        local c = oauth_consumer.update_consumer_secret(consumer_key, consumer_secret, consumer[oauth_consumer.APPLICATION_ID])
-
-        return response.ok(consumer_secret)
-    end
-
     function api.get_application(app_id)
         if not validator.not_empty_string(app_id) then
             return response.error(error.INVALID_PARAMS)
@@ -589,6 +555,40 @@ function auth.api(config)
         end
 
         return response.ok(result)
+    end
+
+    function api.get_oauth_consumer(consumer_key)
+        if not validator.not_empty_string(consumer_key) then
+            return response.error(error.INVALID_PARAMS)
+        end
+
+        local consumer = oauth_consumer.get_by_id(consumer_key)
+        if consumer == nil then
+            return response.error(error.OAUTH_CONSUMER_NOT_FOUND)
+        end
+
+        local app = application.get_by_id(consumer[oauth_consumer.APPLICATION_ID])
+        if app == nil then
+            return response.error(error.APPLICATION_NOT_FOUND)
+        end
+        return response.ok(application.serialize(app, oauth_consumer.serialize(consumer)))
+    end
+
+    function api.reset_oauth_consumer_secret(consumer_key)
+        if not validator.not_empty_string(consumer_key) then
+            return response.error(error.INVALID_PARAMS)
+        end
+
+        local consumer = oauth_consumer.get_by_id(consumer_key)
+
+        if consumer == nil then
+            return response.error(error.OAUTH_CONSUMER_NOT_FOUND)
+        end
+
+        local consumer_secret = oauth_consumer.generate_consumer_secret()
+        local c = oauth_consumer.update_consumer_secret(consumer_key, consumer_secret, consumer[oauth_consumer.APPLICATION_ID])
+
+        return response.ok(consumer_secret)
     end
 
     function api.save_oauth_code(code, consumer_key, redirect_url, scope, state, expires_in, created_at, code_challenge, code_challenge_method)

@@ -355,7 +355,7 @@ function test_delete_user()
     test:is_deeply(got, expected, 'test_delete_user; application not found')
 end
 
-function test_reset_consumer_secret()
+function test_reset_oauth_consumer_secret()
 
     local ok, user = auth.registration(v.USER_EMAIL)
     ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
@@ -365,15 +365,15 @@ function test_reset_consumer_secret()
     local _, app = auth.add_application(user.id, v.APPLICATION_NAME, v.VALID_APPLICATION_TYPES[1], v.OAUTH_CONSUMER_REDIRECT_URLS)
 
     local got
-    got = {auth.reset_consumer_secret(app.consumer_key)}
-    test:is(got[1], true, 'test_reset_consumer_secret; ok')
+    got = {auth.reset_oauth_consumer_secret(app.consumer_key)}
+    test:is(got[1], true, 'test_reset_oauth_consumer_secret; ok')
 
     local new_secret = got[2]
-    test:isstring(new_secret, 'test_reset_consumer_secret; consumer secret is string')
-    test:is(new_secret:len(), 64, 'test_reset_consumer_secret; consumer secret length')
+    test:isstring(new_secret, 'test_reset_oauth_consumer_secret; consumer secret is string')
+    test:is(new_secret:len(), 64, 'test_reset_oauth_consumer_secret; consumer secret length')
 
     got = {auth.get_application(app.id)}
-    test:is(got[2].consumer_secret_hash, utils.salted_hash(new_secret, app.id), 'test_reset_consumer_secret; consumer secret hash')
+    test:is(got[2].consumer_secret_hash, utils.salted_hash(new_secret, app.id), 'test_reset_oauth_consumer_secret; consumer secret hash')
 end
 
 
@@ -405,7 +405,7 @@ exports.tests = {
     test_enable_application_invalid_params,
     test_enable_application_not_found,
     test_delete_user,
-    test_reset_consumer_secret,
+    test_reset_oauth_consumer_secret,
 }
 
 
