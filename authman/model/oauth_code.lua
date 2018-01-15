@@ -14,6 +14,7 @@ function code.model(config)
 
     model.PRIMARY_INDEX = 'primary'
     model.CONSUMER_INDEX = 'consumer'
+    model.EXPIRES_INDEX = 'expires'
 
     model.CODE = 1
     model.CONSUMER_KEY = 2
@@ -81,6 +82,24 @@ function code.model(config)
             end
             return token_list
         end
+    end
+
+    function model.delete_expired(expiration_ts)
+        local total = 0
+        local total_deleted = 0
+        for _, t in model.get_space().index[model.PRIMARY_INDEX]:pairs(nil, {iterator = box.index.ALL}) do
+
+            if t[model.CREATED_AT] + t[model.EXPIRES_IN] <= expiration_ts then
+                model.get_space():delete({t[model.CODE]})
+                total_deleted = total_deleted + 1
+            end
+            total = total + 1
+            if math.fmod(total, 500) == 0 then
+                fiber.yield()
+            end
+        end
+
+        return total_deleted
     end
 
     return model

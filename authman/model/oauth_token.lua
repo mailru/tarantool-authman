@@ -70,6 +70,24 @@ function token.model(config)
         end
     end
 
+    function model.delete_expired(expiration_ts)
+        local total = 0
+        local total_deleted = 0
+        for _, t in model.get_space().index[model.PRIMARY_INDEX]:pairs(nil, {iterator = box.index.ALL}) do
+
+            if t[model.CREATED_AT] + t[model.EXPIRES_IN] <= expiration_ts then
+                model.get_space():delete({t[model.ACCESS_TOKEN]})
+                total_deleted = total_deleted + 1
+            end
+            total = total + 1
+            if math.fmod(total, 500) == 0 then
+                fiber.yield()
+            end
+        end
+
+        return total_deleted
+    end
+
     function model.delete_by_refresh(refresh_token)
         if validator.not_empty_string(refresh_token) then
             return model.get_space().index[model.REFRESH_INDEX]:delete(refresh_token)

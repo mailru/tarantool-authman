@@ -656,6 +656,20 @@ function auth.api(config)
         return response.ok(oauth_code.serialize(code_tuple, {consumer = consumer}))
     end
 
+    function api.delete_expired_oauth_codes(expiration_ts)
+        if not validator.positive_number(expiration_ts) then
+            return response.error(error.INVALID_PARAMS)
+        end
+        return response.ok(oauth_code.delete_expired(expiration_ts))
+    end
+
+    function api.delete_expired_oauth_tokens(expiration_ts)
+        if not validator.positive_number(expiration_ts) then
+            return response.error(error.INVALID_PARAMS)
+        end
+        return response.ok(oauth_token.delete_expired(expiration_ts))
+    end
+
     function api.save_oauth_access(access_token, consumer_key, refresh_token, redirect_url, scope, expires_in, created_at)
 
         local token_tuple = {

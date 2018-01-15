@@ -11,6 +11,7 @@ local db = require('authman.db').configurate(config)
 local auth = require('authman').api(config)
 local oauth_code = require('authman.model.oauth_code').model(config)
 local oauth_token = require('authman.model.oauth_token').model(config)
+local utils = require('authman.utils.utils')
 
 local test = tap.test('application_test')
 
@@ -297,6 +298,25 @@ function test_delete_oauth_access_success()
     test:is_deeply(got, expected, 'test_delete_oauth_access_success; not found')
 end
 
+function test_delete_oauth_access_not_found()
+
+    local got = {auth.delete_oauth_access(v.OAUTH_ACCESS_TOKEN)}
+    local expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
+
+    test:is_deeply(got, expected, 'test_delete_oauth_access_not_found')
+end
+
+function test_delete_oauth_access_invalid_params()
+
+    local ok, code = auth.save_oauth_access(unpack(oauth_token_tuple))
+
+    local got = {auth.delete_oauth_access()}
+    local expected = {response.error(error.INVALID_PARAMS)}
+
+    test:is_deeply(got, expected, 'test_delete_oauth_access_invalid_params')
+end
+
+
 function test_get_oauth_refresh_success()
 
     local ok, user = auth.registration(v.USER_EMAIL)
@@ -347,6 +367,24 @@ function test_delete_oauth_refresh_success()
     expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
 
     test:is_deeply(got, expected, 'test_delete_oauth_refresh_success; not found')
+end
+
+function test_delete_oauth_refresh_not_found()
+
+    local got = {auth.delete_oauth_refresh(v.OAUTH_REFRESH_TOKEN)}
+    local expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
+
+    test:is_deeply(got, expected, 'test_delete_oauth_refresh_not_found')
+end
+
+function test_delete_oauth_refresh_invalid_params()
+
+    local ok, code = auth.save_oauth_access(unpack(oauth_token_tuple))
+
+    local got = {auth.delete_oauth_refresh()}
+    local expected = {response.error(error.INVALID_PARAMS)}
+
+    test:is_deeply(got, expected, 'test_delete_oauth_refresh_invalid_params')
 end
 
 function test_delete_user()
@@ -408,6 +446,94 @@ function test_delete_application()
     test:is_deeply(got, expected, 'test_delete_application; oauth token deleted')
 end
 
+function test_delete_expired_oauth_codes()
+
+    local current_ts = utils.now()
+    local expires_in = 10
+    local codes = {}
+
+    local ok, user = auth.registration(v.USER_EMAIL)
+    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+
+    local ok, app = auth.add_application(user.id, v.APPLICATION_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+
+    for i, created_at in ipairs{ current_ts - 11, current_ts - 10, current_ts - 9} do
+
+        local t = { unpack(oauth_code_tuple) }
+        t[oauth_code.CODE] = string.format("%s%d", t[oauth_code.CODE], i)
+        t[oauth_code.CONSUMER_KEY] = app.consumer_key
+        t[oauth_code.CREATED_AT] = created_at
+        t[oauth_code.EXPIRES_IN] = expires_in
+
+        local ok, code = auth.save_oauth_code(unpack(t))
+        table.insert(codes, code)
+    end
+
+    local got, expected
+    got = {auth.delete_expired_oauth_codes(current_ts)}
+    expected = {true, 2}
+
+    test:is_deeply(got, expected, 'test_delete_expired_oauth_codes; deleted')
+
+    got = {auth.get_oauth_code(codes[1].code)}
+    expected = {response.error(error.OAUTH_CODE_NOT_FOUND)}
+    test:is_deeply(got, expected, 'test_delete_expired_oauth_codes; code 1 not found')
+
+    got = {auth.get_oauth_code(codes[2].code)}
+    expected = {response.error(error.OAUTH_CODE_NOT_FOUND)}
+    test:is_deeply(got, expected, 'test_delete_expired_oauth_codes; code 2 not found')
+
+    got = {auth.get_oauth_code(codes[3].code)}
+    expected = {true, codes[3]}
+    got[2].consumer = nil
+    test:is_deeply(got, expected, 'test_delete_expired_oauth_codes; code 3 found')
+end
+
+function test_delete_expired_oauth_tokens()
+
+    local current_ts = utils.now()
+    local expires_in = 10
+    local tokens = {}
+
+    local ok, user = auth.registration(v.USER_EMAIL)
+    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+
+    local ok, app = auth.add_application(user.id, v.APPLICATION_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+
+    for i, created_at in ipairs{ current_ts - 11, current_ts - 10, current_ts - 9} do
+
+        local t = { unpack(oauth_token_tuple) }
+        t[oauth_token.ACCESS_TOKEN] = string.format("%s%d", t[oauth_token.ACCESS_TOKEN], i)
+        t[oauth_token.REFRESH_TOKEN] = string.format("%s%d", t[oauth_token.REFRESH_TOKEN], i)
+        t[oauth_token.CONSUMER_KEY] = app.consumer_key
+        t[oauth_token.CREATED_AT] = created_at
+        t[oauth_token.EXPIRES_IN] = expires_in
+
+        local ok, token = auth.save_oauth_access(unpack(t))
+        table.insert(tokens, token)
+    end
+
+    local got, expected
+    got = {auth.delete_expired_oauth_tokens(current_ts)}
+    expected = {true, 2}
+
+    test:is_deeply(got, expected, 'test_delete_expired_oauth_tokens; deleted')
+
+    got = {auth.get_oauth_access(tokens[1].access_token)}
+    expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
+    test:is_deeply(got, expected, 'test_delete_expired_oauth_tokens; token 1 not found')
+
+    got = {auth.get_oauth_access(tokens[2].access_token)}
+    expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
+    test:is_deeply(got, expected, 'test_delete_expired_oauth_tokens; token 2 not found')
+
+    got = {auth.get_oauth_access(tokens[3].access_token)}
+    expected = {true, tokens[3]}
+    got[2].consumer = nil
+    test:is_deeply(got, expected, 'test_delete_expired_oauth_tokens; token 3 found')
+end
+
+
 
 
 
@@ -428,10 +554,16 @@ exports.tests = {
     test_get_oauth_access_not_found,
     test_get_oauth_access_invalid_params,
     test_delete_oauth_access_success,
+    test_delete_oauth_access_not_found,
+    test_delete_oauth_access_invalid_params,
     test_get_oauth_refresh_success,
     test_delete_oauth_refresh_success,
+    test_delete_oauth_refresh_not_found,
+    test_delete_oauth_refresh_invalid_params,
     test_delete_user,
     test_delete_application,
+    test_delete_expired_oauth_codes,
+    test_delete_expired_oauth_tokens,
 }
 
 
