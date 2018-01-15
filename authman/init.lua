@@ -151,6 +151,19 @@ function auth.api(config)
         social.delete_by_user_id(user_id)
         password_token.delete(user_id)
 
+        local deleted_apps = application.delete_by_user_id(user_id)
+
+        if deleted_apps ~= nil then
+            for _, app in ipairs(deleted_apps) do
+                local consumer = oauth_consumer.delete_by_application_id(app[application.ID])
+
+                if consumer ~= nil then
+                    oauth_code.delete_by_consumer_key(consumer[oauth_consumer.ID])
+                    oauth_token.delete_by_consumer_key(consumer[oauth_consumer.ID])
+                end
+            end
+        end
+
         return response.ok(user.serialize(user_tuple))
     end
 
@@ -414,7 +427,7 @@ function auth.api(config)
             return response.error(error.INVALID_PARAMS)
         end
 
-        local user_apps = application.get_user_apps(user_id)
+        local user_apps = application.get_by_user_id(user_id)
 
         if #user_apps >= config.max_applications then
             return response.error(error.MAX_APPLICATIONS_REACHED)
@@ -454,6 +467,26 @@ function auth.api(config)
         )
     end
 
+    function api.delete_application(app_id)
+        if not validator.not_empty_string(app_id) then
+            return response.error(error.INVALID_PARAMS)
+        end
+
+        local consumer = oauth_consumer.delete_by_application_id(app_id)
+
+        if consumer ~= nil then
+            oauth_code.delete_by_consumer_key(consumer[oauth_consumer.ID])
+            oauth_token.delete_by_consumer_key(consumer[oauth_consumer.ID])
+        end
+
+        local app = application.delete(app_id)
+        if app == nil then
+            return response.error(error.APPLICATION_NOT_FOUND)
+        end
+
+        return response.ok(application.serialize(app, oauth_consumer.serialize(consumer)))
+    end
+
     function api.get_oauth_consumer(consumer_key)
         if not validator.not_empty_string(consumer_key) then
             return response.error(error.INVALID_PARAMS)
@@ -469,6 +502,23 @@ function auth.api(config)
             return response.error(error.APPLICATION_NOT_FOUND)
         end
         return response.ok(application.serialize(app, oauth_consumer.serialize(consumer)))
+    end
+
+    function api.reset_consumer_secret(consumer_key)
+        if not validator.not_empty_string(consumer_key) then
+            return response.error(error.INVALID_PARAMS)
+        end
+
+        local consumer = oauth_consumer.get_by_id(consumer_key)
+
+        if consumer == nil then
+            return response.error(error.OAUTH_CONSUMER_NOT_FOUND)
+        end
+
+        local consumer_secret = oauth_consumer.generate_consumer_secret()
+        local c = oauth_consumer.update_consumer_secret(consumer_key, consumer_secret, consumer[oauth_consumer.APPLICATION_ID])
+
+        return response.ok(consumer_secret)
     end
 
     function api.get_application(app_id)
@@ -496,7 +546,7 @@ function auth.api(config)
 
         local result = {}
 
-        local user_apps = application.get_user_apps(user_id)
+        local user_apps = application.get_by_user_id(user_id)
         if user_apps ~= nil and #user_apps ~= 0 then
             for i, app in pairs(user_apps) do
                 consumer = oauth_consumer.get_by_application_id(app[application.ID])

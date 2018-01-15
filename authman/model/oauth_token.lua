@@ -76,9 +76,15 @@ function token.model(config)
         end
     end
 
-    function model.delete_by_consumer_key(consumer_key)
+    function model.get_by_consumer_key(consumer_key)
         if validator.not_empty_string(consumer_key) then
-            token_list = model.get_space().index[model.CONSUMER_INDEX]:select({consumer_key})
+            return model.get_space().index[model.CONSUMER_INDEX]:select({consumer_key})
+        end
+    end
+
+    function model.delete_by_consumer_key(consumer_key)
+        token_list = model.get_by_consumer_key(consumer_key)
+        if token_list ~= nil then
             for i, tuple in  ipairs(token_list) do
                 model.get_space():delete({tuple[model.ACCESS_TOKEN]})
             end

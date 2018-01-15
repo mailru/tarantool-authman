@@ -78,9 +78,14 @@ function consumer.model(config)
         return utils.gen_random_key(model.CONSUMER_SECRET_LEN) 
     end
 
-    function model.delete_by_application_id(application_id)
-        if validator.not_empty_string(application_id) then
-            return model.get_space().index[model.APPLICATION_ID_INDEX]:delete({application_id})
+    function model.update_consumer_secret(consumer_key, consumer_secret, app_id)
+        local consumer_secret_hash = utils.salted_hash(consumer_secret, app_id)
+        return model.get_space():update(consumer_key, {{'=', model.SECRET_HASH, consumer_secret_hash}})
+    end
+
+    function model.delete_by_application_id(app_id)
+        if validator.not_empty_string(app_id) then
+            return model.get_space().index[model.APPLICATION_ID_INDEX]:delete(app_id)
         end
     end
 

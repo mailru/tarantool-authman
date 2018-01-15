@@ -5,6 +5,7 @@ local error = require('authman.error')
 local validator = require('authman.validator')
 local v = require('test.values')
 local uuid = require('uuid')
+local utils = require('authman.utils.utils')
 
 -- model configuration
 local config = validator.config(require('test.config'))
@@ -35,15 +36,19 @@ function test_add_application_success()
         local ok, app = auth.add_application(user.id, app_name, app_type, v.OAUTH_CONSUMER_REDIRECT_URLS)
 
         test:is(ok, true, string.format('test_add_application_success; application type: %s', app_type))
-        test:isstring(app.consumer_key, 'test_registration_succes oauth consumer key returned')
-        test:is(app.consumer_key:len(), 32, 'test_registration_succes oauth consumer key length')
-        test:isstring(app.consumer_secret, 'test_registration_succes oauth consumer secret returned')
-        test:is(app.consumer_secret:len(), 64, 'test_registration_succes oauth consumer secret length')
-        test:is(app.redirect_urls, v.OAUTH_CONSUMER_REDIRECT_URLS, 'test_registration_succes oauth consumer redirect urls returned')
-        test:is(app.name, app_name, 'test_registration_succes app name returned')
-        test:is(app.type, app_type, 'test_registration_succes app type returned')
-        test:is(app.user_id, user.id, 'test_registration_succes consumer app user_id returned')
-        test:is(app.is_active, true, 'test_registration_succes consumer app is_active returned')
+        test:isstring(app.consumer_key, 'test_registration_success oauth consumer key returned')
+        test:is(app.consumer_key:len(), 32, 'test_registration_success oauth consumer key length')
+        test:isstring(app.consumer_secret, 'test_registration_success oauth consumer secret returned')
+        test:is(app.consumer_secret:len(), 64, 'test_registration_success oauth consumer secret length')
+        test:is(app.redirect_urls, v.OAUTH_CONSUMER_REDIRECT_URLS, 'test_registration_success oauth consumer redirect urls returned')
+        test:is(app.name, app_name, 'test_registration_success app name returned')
+        test:is(app.type, app_type, 'test_registration_success app type returned')
+        test:is(app.user_id, user.id, 'test_registration_success consumer app user_id returned')
+        test:is(app.is_active, true, 'test_registration_success consumer app is_active returned')
+
+        local got = {auth.get_application(app.id)}
+        test:is(got[2].consumer_secret_hash, utils.salted_hash(app.consumer_secret, app.id), 'test_registration_success consumer secret hash returned')
+        
     end 
 end
 
@@ -249,6 +254,89 @@ function test_get_user_applications_empty_user_id()
     test:is_deeply(got, expected, 'test_get_user_applications_empty_user_id')
 end
 
+function test_delete_application_success()
+
+    local expected, got
+
+    local ok, user = auth.registration(v.USER_EMAIL)
+    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+
+    expected = {auth.add_application(user.id, v.APPLICATION_NAME, v.VALID_APPLICATION_TYPES[1], v.OAUTH_CONSUMER_REDIRECT_URLS)}
+
+    local app_id = expected[2].id
+    local consumer_key = expected[2].consumer_key
+
+    got = {auth.delete_application(app_id)}
+
+    expected[2].consumer_secret = nil
+    got[2].consumer_secret_hash = nil
+    got[2].application_id = nil
+
+    test:is_deeply(got, expected, 'test_delete_application_success; deleted')
+
+    expected = {response.error(error.OAUTH_CONSUMER_NOT_FOUND)}
+    got = {auth.get_oauth_consumer(consumer_key)}
+    test:is_deeply(got, expected, 'test_delete_application_success; consumer not found')
+
+    expected = {response.error(error.APPLICATION_NOT_FOUND)}
+    got = {auth.get_application(app_id)}
+    test:is_deeply(got, expected, 'test_delete_application_success; application not found')
+end
+
+function test_delete_application_invalid_params()
+    local expected = {response.error(error.INVALID_PARAMS)}
+    local got = {auth.delete_application("")}
+    test:is_deeply(got, expected, 'test_delete_application_invalid_params')
+end
+
+function test_delete_application_not_found()
+    local expected = {response.error(error.APPLICATION_NOT_FOUND)}
+    local got = {auth.delete_application("not exists")}
+    test:is_deeply(got, expected, 'test_delete_application_not_found')
+end
+
+function test_delete_user()
+
+    local expected, got
+
+    local ok, user = auth.registration(v.USER_EMAIL)
+    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+
+    local _, app = auth.add_application(user.id, v.APPLICATION_NAME, v.VALID_APPLICATION_TYPES[1], v.OAUTH_CONSUMER_REDIRECT_URLS)
+
+    auth.delete_user(user.id)
+
+    expected = {response.error(error.OAUTH_CONSUMER_NOT_FOUND)}
+    got = {auth.get_oauth_consumer(app.consumer_key)}
+    test:is_deeply(got, expected, 'test_delete_user; consumer not found')
+
+    expected = {response.error(error.APPLICATION_NOT_FOUND)}
+    got = {auth.get_application(app.id)}
+    test:is_deeply(got, expected, 'test_delete_user; application not found')
+end
+
+function test_reset_consumer_secret()
+
+    local ok, user = auth.registration(v.USER_EMAIL)
+    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+
+    local expected, got
+
+    local _, app = auth.add_application(user.id, v.APPLICATION_NAME, v.VALID_APPLICATION_TYPES[1], v.OAUTH_CONSUMER_REDIRECT_URLS)
+
+    local got
+    got = {auth.reset_consumer_secret(app.consumer_key)}
+    test:is(got[1], true, 'test_reset_consumer_secret; ok')
+
+    local new_secret = got[2]
+    test:isstring(new_secret, 'test_reset_consumer_secret; consumer secret is string')
+    test:is(new_secret:len(), 64, 'test_reset_consumer_secret; consumer secret length')
+
+    got = {auth.get_application(app.id)}
+    test:is(got[2].consumer_secret_hash, utils.salted_hash(new_secret, app.id), 'test_reset_consumer_secret; consumer secret hash')
+end
+
+
 
 
 exports.tests = {
@@ -268,6 +356,11 @@ exports.tests = {
     test_get_oauth_consumer_empty_consumer_key,
     test_get_user_applications_success,
     test_get_user_applications_empty_user_id,
+    test_delete_application_success,
+    test_delete_application_invalid_params,
+    test_delete_application_not_found,
+    test_delete_user,
+    test_reset_consumer_secret,
 }
 
 

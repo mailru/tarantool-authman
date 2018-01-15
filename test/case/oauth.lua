@@ -349,6 +349,65 @@ function test_delete_oauth_refresh_success()
     test:is_deeply(got, expected, 'test_delete_oauth_refresh_success; not found')
 end
 
+function test_delete_user()
+
+    local got, expected
+
+    local ok, user = auth.registration(v.USER_EMAIL)
+    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+
+    local ok, app = auth.add_application(user.id, v.APPLICATION_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    local ok, consumer = auth.get_oauth_consumer(app.consumer_key)
+
+    local c = { unpack(oauth_code_tuple) }
+    c[oauth_code.CONSUMER_KEY] = app.consumer_key
+    auth.save_oauth_code(unpack(c))
+
+    local t = { unpack(oauth_token_tuple) }
+    t[oauth_token.CONSUMER_KEY] = app.consumer_key
+    auth.save_oauth_access(unpack(t))
+
+    auth.delete_user(user.id)
+
+    got = {auth.get_oauth_code(c[oauth_code.CODE])}
+    expected = {response.error(error.OAUTH_CODE_NOT_FOUND)}
+    test:is_deeply(got, expected, 'test_delete_user; oauth code deleted')
+
+    got = {auth.get_oauth_access(t[oauth_token.ACCESS_TOKEN])}
+    expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
+    test:is_deeply(got, expected, 'test_delete_user; oauth token deleted')
+end
+
+
+function test_delete_application()
+
+    local got, expected
+
+    local ok, user = auth.registration(v.USER_EMAIL)
+    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+
+    local ok, app = auth.add_application(user.id, v.APPLICATION_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    local ok, consumer = auth.get_oauth_consumer(app.consumer_key)
+
+    local c = { unpack(oauth_code_tuple) }
+    c[oauth_code.CONSUMER_KEY] = app.consumer_key
+    auth.save_oauth_code(unpack(c))
+
+    local t = { unpack(oauth_token_tuple) }
+    t[oauth_token.CONSUMER_KEY] = app.consumer_key
+    auth.save_oauth_access(unpack(t))
+
+    auth.delete_application(app.id)
+
+    got = {auth.get_oauth_code(c[oauth_code.CODE])}
+    expected = {response.error(error.OAUTH_CODE_NOT_FOUND)}
+    test:is_deeply(got, expected, 'test_delete_application; oauth code deleted')
+
+    got = {auth.get_oauth_access(t[oauth_token.ACCESS_TOKEN])}
+    expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
+    test:is_deeply(got, expected, 'test_delete_application; oauth token deleted')
+end
+
 
 
 
@@ -371,6 +430,8 @@ exports.tests = {
     test_delete_oauth_access_success,
     test_get_oauth_refresh_success,
     test_delete_oauth_refresh_success,
+    test_delete_user,
+    test_delete_application,
 }
 
 

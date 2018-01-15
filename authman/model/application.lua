@@ -63,9 +63,20 @@ function application.model(config)
 
     end
 
-    function model.get_user_apps(user_id)
+    function model.get_by_user_id(user_id)
         if validator.not_empty_string(user_id) then
             return model.get_space().index[model.USER_ID_INDEX]:select({user_id})
+        end
+    end
+
+    function model.delete_by_user_id(user_id)
+
+        app_list = model.get_by_user_id(user_id)
+        if app_list ~= nil then
+            for i, tuple in ipairs(app_list) do
+                model.get_space():delete({tuple[model.ID]})
+            end
+            return app_list
         end
     end
 
@@ -79,6 +90,13 @@ function application.model(config)
         if validator.not_empty_string(id) then
             return model.get_space():delete({id})
         end
+    end
+
+    function model.update(app_tuple)
+        local id, fields
+        id = app_tuple[model.ID]
+        fields = utils.format_update(app_tuple)
+        return model.get_space():update(id, fields)
     end
 
     return model

@@ -67,6 +67,22 @@ function code.model(config)
         end
     end
 
+    function model.get_by_consumer_key(consumer_key)
+        if validator.not_empty_string(consumer_key) then
+            return model.get_space().index[model.CONSUMER_INDEX]:select({consumer_key})
+        end
+    end
+
+    function model.delete_by_consumer_key(consumer_key)
+        code_list = model.get_by_consumer_key(consumer_key)
+        if code_list ~= nil then
+            for i, tuple in  ipairs(code_list) do
+                model.get_space():delete({tuple[model.CODE]})
+            end
+            return token_list
+        end
+    end
+
     return model
 end
 
