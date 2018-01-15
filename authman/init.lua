@@ -467,6 +467,40 @@ function auth.api(config)
         )
     end
 
+    function api.disable_application(app_id)
+        if not validator.not_empty_string(app_id) then
+            return response.error(error.INVALID_PARAMS)
+        end
+
+        app = application.update({
+            [application.ID] = app_id,
+            [application.IS_ACTIVE] = false,
+        })
+
+        if app == nil then
+            return response.error(error.APPLICATION_NOT_FOUND)
+        end
+
+        return response.ok(application.serialize(app))
+    end
+
+    function api.enable_application(app_id)
+        if not validator.not_empty_string(app_id) then
+            return response.error(error.INVALID_PARAMS)
+        end
+
+        app = application.update({
+            [application.ID] = app_id,
+            [application.IS_ACTIVE] = true,
+        })
+
+        if app == nil then
+            return response.error(error.APPLICATION_NOT_FOUND)
+        end
+
+        return response.ok(application.serialize(app))
+    end
+
     function api.delete_application(app_id)
         if not validator.not_empty_string(app_id) then
             return response.error(error.INVALID_PARAMS)

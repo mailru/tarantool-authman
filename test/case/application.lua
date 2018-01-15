@@ -295,6 +295,46 @@ function test_delete_application_not_found()
     test:is_deeply(got, expected, 'test_delete_application_not_found')
 end
 
+function test_toggle_application_success()
+
+    local got
+
+    local _, user = auth.registration(v.USER_EMAIL)
+    _, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+
+    local _, app = auth.add_application(user.id, v.APPLICATION_NAME, v.VALID_APPLICATION_TYPES[1], v.OAUTH_CONSUMER_REDIRECT_URLS)
+
+    got = {auth.disable_application(app.id)}
+    test:is(got[2].is_active, false, 'test_toggle_application_success; disabled')
+
+    got = {auth.enable_application(app.id)}
+    test:is(got[2].is_active, true, 'test_toggle_application_success; enabled')
+end
+
+function test_disable_application_invalid_params()
+    local expected = {response.error(error.INVALID_PARAMS)}
+    local got = {auth.disable_application("")}
+    test:is_deeply(got, expected, 'test_disable_application_invalid_params')
+end
+
+function test_disable_application_not_found()
+    local expected = {response.error(error.APPLICATION_NOT_FOUND)}
+    local got = {auth.disable_application("not exists")}
+    test:is_deeply(got, expected, 'test_disable_application_not_found')
+end
+
+function test_enable_application_invalid_params()
+    local expected = {response.error(error.INVALID_PARAMS)}
+    local got = {auth.enable_application("")}
+    test:is_deeply(got, expected, 'test_enable_application_invalid_params')
+end
+
+function test_enable_application_not_found()
+    local expected = {response.error(error.APPLICATION_NOT_FOUND)}
+    local got = {auth.enable_application("not exists")}
+    test:is_deeply(got, expected, 'test_enable_application_not_found')
+end
+
 function test_delete_user()
 
     local expected, got
@@ -359,6 +399,11 @@ exports.tests = {
     test_delete_application_success,
     test_delete_application_invalid_params,
     test_delete_application_not_found,
+    test_toggle_application_success,
+    test_disable_application_invalid_params,
+    test_disable_application_not_found,
+    test_enable_application_invalid_params,
+    test_enable_application_not_found,
     test_delete_user,
     test_reset_consumer_secret,
 }
