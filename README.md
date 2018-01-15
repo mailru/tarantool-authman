@@ -321,7 +321,6 @@ Given application id return OAuth client info
 ```
 tarantool> ok, apps = auth.get_user_applications('268a8464-e39d-4f82-b55f-e68197c6c3f2')
 tarantool> apps
-```
 - - consumer_key: 9169b664839bca439ca11fe4274838b2
     id: 1cd3806a-4221-4ff2-aa7c-e5d076c4c1a7
     is_active: true
