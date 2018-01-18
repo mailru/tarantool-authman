@@ -1,4 +1,4 @@
-## OAuth2 API methods
+## OAuth2 related API methods
 
 #### auth.oauth.add_app(user_id, app_name, app_type, redirect_urls)
 ```

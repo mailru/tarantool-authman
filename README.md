@@ -242,7 +242,7 @@ tarantool> user
 ```
 Sign in user, return user table (with session)
 
-## OAuth2 API documentation
+## Documentation for OAuth2 related API
 
 [OAuth2](doc/oauth2.md)
 
