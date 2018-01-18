@@ -18,7 +18,9 @@ local TEST_CASES = {
     'test.case.restore_password',
     'test.case.profile',
     'test.case.social',
-    'test.case.complex'
+    'test.case.complex',
+    'test.case.oauth.app',
+    'test.case.oauth.oauth',
 }
 
 function run()

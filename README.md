@@ -4,6 +4,8 @@
 
 This module provides api for registration and login users in your site (or any other system).
 Supports login with email/password and socials (facebook.com, vk.com, google.com).
+It also provides api that helps to build OAuth2 authentication service,
+i.e. methods to manage OAuth entities such as OAuth client, authorization code and access token.
 
 Requires tarantool >= 1.7.4.168
 
@@ -240,6 +242,11 @@ tarantool> user
 ```
 Sign in user, return user table (with session)
 
+## Documentation for OAuth2 related API
+
+[OAuth2](doc/oauth2.md)
+
+
 ## Handling errors:
 
 If first parametr (ok - bool) is false then error is occured. Error description will be stored in second param like:
@@ -271,7 +278,12 @@ error.IMPROPERLY_CONFIGURED = '12'
 error.WRONG_PROVIDER = '13'
 error.WEAK_PASSWORD = '14'
 error.SOCIAL_AUTH_ERROR = '15'
-
+error.OAUTH_APP_ALREADY_EXISTS = '16'
+error.OAUTH_APP_NOT_FOUND = '17'
+error.OAUTH_CONSUMER_NOT_FOUND = '18'
+error.OAUTH_MAX_APPS_REACHED = '19'
+error.OAUTH_CODE_NOT_FOUND = '20'
+error.OAUTH_ACCESS_TOKEN_NOT_FOUND = '21'
 ```
 
 ## Run tests:
