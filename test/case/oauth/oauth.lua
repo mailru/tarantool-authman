@@ -9,11 +9,11 @@ local v = require('test.values')
 local config = validator.config(require('test.config'))
 local db = require('authman.db').configurate(config)
 local auth = require('authman').api(config)
-local oauth_code = require('authman.model.oauth_code').model(config)
-local oauth_token = require('authman.model.oauth_token').model(config)
+local oauth_code = require('authman.model.oauth.code').model(config)
+local oauth_token = require('authman.model.oauth.token').model(config)
 local utils = require('authman.utils.utils')
 
-local test = tap.test('application_test')
+local test = tap.test('oauth_test')
 
 local oauth_code_tuple = {
     v.OAUTH_CODE,
@@ -48,9 +48,9 @@ function exports.after() end
 
 function exports.teardown() end
 
-function test_save_oauth_code_success()
+function test_save_code_success()
 
-    local got = {auth.save_oauth_code(unpack(oauth_code_tuple))}
+    local got = {auth.oauth.save_code(unpack(oauth_code_tuple))}
 
     local expected = {true, {
         code = v.OAUTH_CODE,
@@ -64,10 +64,10 @@ function test_save_oauth_code_success()
         code_challenge_method = v.OAUTH_CODE_CHALLENGE_METHOD,
     }}
 
-    test:is_deeply(got, expected, 'test_save_oauth_code_success')
+    test:is_deeply(got, expected, 'test_save_code_success')
 end
 
-function test_save_oauth_code_invalid_params()
+function test_save_code_invalid_params()
 
     for _, f in pairs({oauth_code.CODE, oauth_code.CONSUMER_KEY, oauth_code.REDIRECT_URL, 
                             oauth_code.SCOPE, oauth_code.EXPIRES_IN, oauth_code.CREATED_AT}) do
@@ -76,26 +76,26 @@ function test_save_oauth_code_invalid_params()
     
         t[f] = nil
     
-        local got = {auth.save_oauth_code(unpack(t))}
+        local got = {auth.oauth.save_code(unpack(t))}
         local expected = {response.error(error.INVALID_PARAMS)}
-        test:is_deeply(got, expected, string.format('test_save_oauth_code_invalid_params; field %d', f))
+        test:is_deeply(got, expected, string.format('test_save_code_invalid_params; field %d', f))
     end
 end
 
-function test_get_oauth_code_success()
+function test_get_code_success()
 
     local ok, user = auth.registration(v.USER_EMAIL)
     ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
 
-    local ok, app = auth.add_application(user.id, v.APPLICATION_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    local ok, consumer = auth.get_oauth_consumer(app.consumer_key)
+    local ok, app = auth.oauth.add_app(user.id, v.OAUTH_APP_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    local ok, consumer = auth.oauth.get_consumer(app.consumer_key)
 
     local t = { unpack(oauth_code_tuple) }
     t[oauth_code.CONSUMER_KEY] = app.consumer_key
 
-    local ok, code = auth.save_oauth_code(unpack(t))
+    local ok, code = auth.oauth.save_code(unpack(t))
 
-    local got = {auth.get_oauth_code(oauth_code_tuple[oauth_code.CODE])}
+    local got = {auth.oauth.get_code(oauth_code_tuple[oauth_code.CODE])}
 
     local expected = {true, {
         code = v.OAUTH_CODE,
@@ -110,43 +110,43 @@ function test_get_oauth_code_success()
         consumer = consumer,
     }}
 
-    test:is_deeply(got, expected, 'test_get_oauth_code_success')
+    test:is_deeply(got, expected, 'test_get_code_success')
 end
 
-function test_get_oauth_code_x_consumer_not_found()
+function test_get_code_x_consumer_not_found()
 
-    local ok, code = auth.save_oauth_code(unpack(oauth_code_tuple))
+    local ok, code = auth.oauth.save_code(unpack(oauth_code_tuple))
 
-    local got = {auth.get_oauth_code(oauth_code_tuple[oauth_code.CODE])}
+    local got = {auth.oauth.get_code(oauth_code_tuple[oauth_code.CODE])}
     local expected = {response.error(error.OAUTH_CONSUMER_NOT_FOUND)}
 
-    test:is_deeply(got, expected, 'test_get_oauth_code_x_consumer_not_found')
+    test:is_deeply(got, expected, 'test_get_code_x_consumer_not_found')
 end
 
 
-function test_get_oauth_code_invalid_params()
+function test_get_code_invalid_params()
 
-    local ok, code = auth.save_oauth_code(unpack(oauth_code_tuple))
+    local ok, code = auth.oauth.save_code(unpack(oauth_code_tuple))
 
-    local got = {auth.get_oauth_code()}
+    local got = {auth.oauth.get_code()}
     local expected = {response.error(error.INVALID_PARAMS)}
 
-    test:is_deeply(got, expected, 'test_get_oauth_code_invalid_params')
+    test:is_deeply(got, expected, 'test_get_code_invalid_params')
 end
 
-function test_get_oauth_code_not_found()
+function test_get_code_not_found()
 
-    local got = {auth.get_oauth_code(v.OAUTH_CODE)}
+    local got = {auth.oauth.get_code(v.OAUTH_CODE)}
     local expected = {response.error(error.OAUTH_CODE_NOT_FOUND)}
 
-    test:is_deeply(got, expected, 'test_get_oauth_code_not_found')
+    test:is_deeply(got, expected, 'test_get_code_not_found')
 end
 
-function test_delete_oauth_code_success()
+function test_delete_code_success()
 
-    local ok, code = auth.save_oauth_code(unpack(oauth_code_tuple))
+    local ok, code = auth.oauth.save_code(unpack(oauth_code_tuple))
 
-    local got = {auth.delete_oauth_code(oauth_code_tuple[oauth_code.CODE])}
+    local got = {auth.oauth.delete_code(oauth_code_tuple[oauth_code.CODE])}
 
     local expected = {true, {
         code = v.OAUTH_CODE,
@@ -160,35 +160,35 @@ function test_delete_oauth_code_success()
         code_challenge_method = v.OAUTH_CODE_CHALLENGE_METHOD,
     }}
 
-    test:is_deeply(got, expected, 'test_delete_oauth_code_success; deleted')
+    test:is_deeply(got, expected, 'test_delete_code_success; deleted')
 
-    got = {auth.get_oauth_code(oauth_code_tuple[oauth_code.CODE])}
+    got = {auth.oauth.get_code(oauth_code_tuple[oauth_code.CODE])}
     expected = {response.error(error.OAUTH_CODE_NOT_FOUND)}
 
-    test:is_deeply(got, expected, 'test_delete_oauth_code_success; not found')
+    test:is_deeply(got, expected, 'test_delete_code_success; not found')
 end
 
-function test_delete_oauth_code_invalid_params()
+function test_delete_code_invalid_params()
 
-    local ok, code = auth.save_oauth_code(unpack(oauth_code_tuple))
+    local ok, code = auth.oauth.save_code(unpack(oauth_code_tuple))
 
-    local got = {auth.delete_oauth_code()}
+    local got = {auth.oauth.delete_code()}
     local expected = {response.error(error.INVALID_PARAMS)}
 
-    test:is_deeply(got, expected, 'test_delete_oauth_code_invalid_params')
+    test:is_deeply(got, expected, 'test_delete_code_invalid_params')
 end
 
-function test_delete_oauth_code_not_found()
+function test_delete_code_not_found()
 
-    local got = {auth.delete_oauth_code(v.OAUTH_CODE)}
+    local got = {auth.oauth.delete_code(v.OAUTH_CODE)}
     local expected = {response.error(error.OAUTH_CODE_NOT_FOUND)}
 
-    test:is_deeply(got, expected, 'test_delete_oauth_code_not_found')
+    test:is_deeply(got, expected, 'test_delete_code_not_found')
 end
 
-function test_save_oauth_access_success()
+function test_save_access_success()
 
-    local got = {auth.save_oauth_access(unpack(oauth_token_tuple))}
+    local got = {auth.oauth.save_access(unpack(oauth_token_tuple))}
 
     local expected = {true, {
         access_token = v.OAUTH_ACCESS_TOKEN,
@@ -200,10 +200,10 @@ function test_save_oauth_access_success()
         created_at = v.OAUTH_CREATED_AT,
     }}
 
-    test:is_deeply(got, expected, 'test_save_oauth_token_success')
+    test:is_deeply(got, expected, 'test_save_token_success')
 end
 
-function test_save_oauth_access_invalid_params()
+function test_save_access_invalid_params()
 
     for _, f in pairs({oauth_token.ACCESS_TOKEN, oauth_token.CONSUMER_KEY,
                         oauth_token.REFRESH_TOKEN, oauth_token.REDIRECT_URL, oauth_token.SCOPE}) do
@@ -212,26 +212,26 @@ function test_save_oauth_access_invalid_params()
     
         t[f] = nil
     
-        local got = {auth.save_oauth_access(unpack(t))}
+        local got = {auth.oauth.save_access(unpack(t))}
         local expected = {response.error(error.INVALID_PARAMS)}
-        test:is_deeply(got, expected, string.format('test_save_oauth_access_invalid_params; field %d', f))
+        test:is_deeply(got, expected, string.format('test_save_access_invalid_params; field %d', f))
     end
 end
 
-function test_get_oauth_access_success()
+function test_get_access_success()
 
     local ok, user = auth.registration(v.USER_EMAIL)
     ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
 
-    local ok, app = auth.add_application(user.id, v.APPLICATION_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    local ok, consumer = auth.get_oauth_consumer(app.consumer_key)
+    local ok, app = auth.oauth.add_app(user.id, v.OAUTH_APP_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    local ok, consumer = auth.oauth.get_consumer(app.consumer_key)
 
     local t = { unpack(oauth_token_tuple) }
     t[oauth_token.CONSUMER_KEY] = app.consumer_key
 
-    local ok, token = auth.save_oauth_access(unpack(t))
+    local ok, token = auth.oauth.save_access(unpack(t))
 
-    local got = {auth.get_oauth_access(oauth_token_tuple[oauth_token.ACCESS_TOKEN])}
+    local got = {auth.oauth.get_access(oauth_token_tuple[oauth_token.ACCESS_TOKEN])}
     local expected = {true, {
         access_token = v.OAUTH_ACCESS_TOKEN,
         consumer_key = app.consumer_key, 
@@ -243,42 +243,42 @@ function test_get_oauth_access_success()
         consumer = consumer,
     }}
 
-    test:is_deeply(got, expected, 'test_get_oauth_access_success')
+    test:is_deeply(got, expected, 'test_get_access_success')
 end
 
-function test_get_oauth_access_x_consumer_not_found()
+function test_get_access_x_consumer_not_found()
 
-    local ok, code = auth.save_oauth_access(unpack(oauth_token_tuple))
+    local ok, code = auth.oauth.save_access(unpack(oauth_token_tuple))
 
-    local got = {auth.get_oauth_access(oauth_token_tuple[oauth_token.ACCESS_TOKEN])}
+    local got = {auth.oauth.get_access(oauth_token_tuple[oauth_token.ACCESS_TOKEN])}
     local expected = {response.error(error.OAUTH_CONSUMER_NOT_FOUND)}
 
-    test:is_deeply(got, expected, 'test_get_oauth_access_x_consumer_not_found')
+    test:is_deeply(got, expected, 'test_get_access_x_consumer_not_found')
 end
 
-function test_get_oauth_access_not_found()
+function test_get_access_not_found()
 
-    local got = {auth.get_oauth_access(v.OAUTH_ACCESS_TOKEN)}
+    local got = {auth.oauth.get_access(v.OAUTH_ACCESS_TOKEN)}
     local expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
 
-    test:is_deeply(got, expected, 'test_get_oauth_access_not_found')
+    test:is_deeply(got, expected, 'test_get_access_not_found')
 end
 
-function test_get_oauth_access_invalid_params()
+function test_get_access_invalid_params()
 
-    local ok, code = auth.save_oauth_access(unpack(oauth_token_tuple))
+    local ok, code = auth.oauth.save_access(unpack(oauth_token_tuple))
 
-    local got = {auth.get_oauth_access()}
+    local got = {auth.oauth.get_access()}
     local expected = {response.error(error.INVALID_PARAMS)}
 
-    test:is_deeply(got, expected, 'test_get_oauth_access_invalid_params')
+    test:is_deeply(got, expected, 'test_get_access_invalid_params')
 end
 
-function test_delete_oauth_access_success()
+function test_delete_access_success()
 
-    local ok, access = auth.save_oauth_access(unpack(oauth_token_tuple))
+    local ok, access = auth.oauth.save_access(unpack(oauth_token_tuple))
 
-    local got = {auth.delete_oauth_access(oauth_token_tuple[oauth_token.ACCESS_TOKEN])}
+    local got = {auth.oauth.delete_access(oauth_token_tuple[oauth_token.ACCESS_TOKEN])}
 
     local expected = {true, {
         access_token = v.OAUTH_ACCESS_TOKEN,
@@ -290,47 +290,47 @@ function test_delete_oauth_access_success()
         created_at = v.OAUTH_CREATED_AT,
     }}
 
-    test:is_deeply(got, expected, 'test_delete_oauth_access_success; deleted')
+    test:is_deeply(got, expected, 'test_delete_access_success; deleted')
 
-    got = {auth.get_oauth_access(oauth_token_tuple[oauth_token.ACCESS_TOKEN])}
+    got = {auth.oauth.get_access(oauth_token_tuple[oauth_token.ACCESS_TOKEN])}
     expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
 
-    test:is_deeply(got, expected, 'test_delete_oauth_access_success; not found')
+    test:is_deeply(got, expected, 'test_delete_access_success; not found')
 end
 
-function test_delete_oauth_access_not_found()
+function test_delete_access_not_found()
 
-    local got = {auth.delete_oauth_access(v.OAUTH_ACCESS_TOKEN)}
+    local got = {auth.oauth.delete_access(v.OAUTH_ACCESS_TOKEN)}
     local expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
 
-    test:is_deeply(got, expected, 'test_delete_oauth_access_not_found')
+    test:is_deeply(got, expected, 'test_delete_access_not_found')
 end
 
-function test_delete_oauth_access_invalid_params()
+function test_delete_access_invalid_params()
 
-    local ok, code = auth.save_oauth_access(unpack(oauth_token_tuple))
+    local ok, code = auth.oauth.save_access(unpack(oauth_token_tuple))
 
-    local got = {auth.delete_oauth_access()}
+    local got = {auth.oauth.delete_access()}
     local expected = {response.error(error.INVALID_PARAMS)}
 
-    test:is_deeply(got, expected, 'test_delete_oauth_access_invalid_params')
+    test:is_deeply(got, expected, 'test_delete_access_invalid_params')
 end
 
 
-function test_get_oauth_refresh_success()
+function test_get_refresh_success()
 
     local ok, user = auth.registration(v.USER_EMAIL)
     ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
 
-    local ok, app = auth.add_application(user.id, v.APPLICATION_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    local ok, consumer = auth.get_oauth_consumer(app.consumer_key)
+    local ok, app = auth.oauth.add_app(user.id, v.OAUTH_APP_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    local ok, consumer = auth.oauth.get_consumer(app.consumer_key)
 
     local t = { unpack(oauth_token_tuple) }
     t[oauth_token.CONSUMER_KEY] = app.consumer_key
 
-    local ok, token = auth.save_oauth_access(unpack(t))
+    local ok, token = auth.oauth.save_access(unpack(t))
 
-    local got = {auth.get_oauth_refresh(oauth_token_tuple[oauth_token.REFRESH_TOKEN])}
+    local got = {auth.oauth.get_refresh(oauth_token_tuple[oauth_token.REFRESH_TOKEN])}
     local expected = {true, {
         access_token = v.OAUTH_ACCESS_TOKEN,
         consumer_key = app.consumer_key, 
@@ -342,14 +342,14 @@ function test_get_oauth_refresh_success()
         consumer = consumer,
     }}
 
-    test:is_deeply(got, expected, 'test_get_oauth_refresh_success')
+    test:is_deeply(got, expected, 'test_get_refresh_success')
 end
 
-function test_delete_oauth_refresh_success()
+function test_delete_refresh_success()
 
-    local ok, access = auth.save_oauth_access(unpack(oauth_token_tuple))
+    local ok, access = auth.oauth.save_access(unpack(oauth_token_tuple))
 
-    local got = {auth.delete_oauth_refresh(oauth_token_tuple[oauth_token.REFRESH_TOKEN])}
+    local got = {auth.oauth.delete_refresh(oauth_token_tuple[oauth_token.REFRESH_TOKEN])}
 
     local expected = {true, {
         access_token = v.OAUTH_ACCESS_TOKEN,
@@ -361,30 +361,30 @@ function test_delete_oauth_refresh_success()
         created_at = v.OAUTH_CREATED_AT,
     }}
 
-    test:is_deeply(got, expected, 'test_delete_oauth_refresh_success; deleted')
+    test:is_deeply(got, expected, 'test_delete_refresh_success; deleted')
 
-    got = {auth.get_oauth_refresh(oauth_token_tuple[oauth_token.REFRESH_TOKEN])}
+    got = {auth.oauth.get_refresh(oauth_token_tuple[oauth_token.REFRESH_TOKEN])}
     expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
 
-    test:is_deeply(got, expected, 'test_delete_oauth_refresh_success; not found')
+    test:is_deeply(got, expected, 'test_delete_refresh_success; not found')
 end
 
-function test_delete_oauth_refresh_not_found()
+function test_delete_refresh_not_found()
 
-    local got = {auth.delete_oauth_refresh(v.OAUTH_REFRESH_TOKEN)}
+    local got = {auth.oauth.delete_refresh(v.OAUTH_REFRESH_TOKEN)}
     local expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
 
-    test:is_deeply(got, expected, 'test_delete_oauth_refresh_not_found')
+    test:is_deeply(got, expected, 'test_delete_refresh_not_found')
 end
 
-function test_delete_oauth_refresh_invalid_params()
+function test_delete_refresh_invalid_params()
 
-    local ok, code = auth.save_oauth_access(unpack(oauth_token_tuple))
+    local ok, code = auth.oauth.save_access(unpack(oauth_token_tuple))
 
-    local got = {auth.delete_oauth_refresh()}
+    local got = {auth.oauth.delete_refresh()}
     local expected = {response.error(error.INVALID_PARAMS)}
 
-    test:is_deeply(got, expected, 'test_delete_oauth_refresh_invalid_params')
+    test:is_deeply(got, expected, 'test_delete_refresh_invalid_params')
 end
 
 function test_delete_user()
@@ -394,59 +394,59 @@ function test_delete_user()
     local ok, user = auth.registration(v.USER_EMAIL)
     ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
 
-    local ok, app = auth.add_application(user.id, v.APPLICATION_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    local ok, consumer = auth.get_oauth_consumer(app.consumer_key)
+    local ok, app = auth.oauth.add_app(user.id, v.OAUTH_APP_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    local ok, consumer = auth.oauth.get_consumer(app.consumer_key)
 
     local c = { unpack(oauth_code_tuple) }
     c[oauth_code.CONSUMER_KEY] = app.consumer_key
-    auth.save_oauth_code(unpack(c))
+    auth.oauth.save_code(unpack(c))
 
     local t = { unpack(oauth_token_tuple) }
     t[oauth_token.CONSUMER_KEY] = app.consumer_key
-    auth.save_oauth_access(unpack(t))
+    auth.oauth.save_access(unpack(t))
 
     auth.delete_user(user.id)
 
-    got = {auth.get_oauth_code(c[oauth_code.CODE])}
+    got = {auth.oauth.get_code(c[oauth_code.CODE])}
     expected = {response.error(error.OAUTH_CODE_NOT_FOUND)}
     test:is_deeply(got, expected, 'test_delete_user; oauth code deleted')
 
-    got = {auth.get_oauth_access(t[oauth_token.ACCESS_TOKEN])}
+    got = {auth.oauth.get_access(t[oauth_token.ACCESS_TOKEN])}
     expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
     test:is_deeply(got, expected, 'test_delete_user; oauth token deleted')
 end
 
 
-function test_delete_application()
+function test_delete_app()
 
     local got, expected
 
     local ok, user = auth.registration(v.USER_EMAIL)
     ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
 
-    local ok, app = auth.add_application(user.id, v.APPLICATION_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    local ok, consumer = auth.get_oauth_consumer(app.consumer_key)
+    local ok, app = auth.oauth.add_app(user.id, v.OAUTH_APP_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    local ok, consumer = auth.oauth.get_consumer(app.consumer_key)
 
     local c = { unpack(oauth_code_tuple) }
     c[oauth_code.CONSUMER_KEY] = app.consumer_key
-    auth.save_oauth_code(unpack(c))
+    auth.oauth.save_code(unpack(c))
 
     local t = { unpack(oauth_token_tuple) }
     t[oauth_token.CONSUMER_KEY] = app.consumer_key
-    auth.save_oauth_access(unpack(t))
+    auth.oauth.save_access(unpack(t))
 
-    auth.delete_application(app.id)
+    auth.oauth.delete_app(app.id)
 
-    got = {auth.get_oauth_code(c[oauth_code.CODE])}
+    got = {auth.oauth.get_code(c[oauth_code.CODE])}
     expected = {response.error(error.OAUTH_CODE_NOT_FOUND)}
-    test:is_deeply(got, expected, 'test_delete_application; oauth code deleted')
+    test:is_deeply(got, expected, 'test_delete_app; oauth code deleted')
 
-    got = {auth.get_oauth_access(t[oauth_token.ACCESS_TOKEN])}
+    got = {auth.oauth.get_access(t[oauth_token.ACCESS_TOKEN])}
     expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
-    test:is_deeply(got, expected, 'test_delete_application; oauth token deleted')
+    test:is_deeply(got, expected, 'test_delete_app; oauth token deleted')
 end
 
-function test_delete_expired_oauth_codes()
+function test_delete_expired_codes()
 
     local current_ts = utils.now()
     local expires_in = 10
@@ -455,7 +455,7 @@ function test_delete_expired_oauth_codes()
     local ok, user = auth.registration(v.USER_EMAIL)
     ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
 
-    local ok, app = auth.add_application(user.id, v.APPLICATION_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    local ok, app = auth.oauth.add_app(user.id, v.OAUTH_APP_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
 
     for i, created_at in ipairs{ current_ts - 11, current_ts - 10, current_ts - 9} do
 
@@ -465,31 +465,31 @@ function test_delete_expired_oauth_codes()
         t[oauth_code.CREATED_AT] = created_at
         t[oauth_code.EXPIRES_IN] = expires_in
 
-        local ok, code = auth.save_oauth_code(unpack(t))
+        local ok, code = auth.oauth.save_code(unpack(t))
         table.insert(codes, code)
     end
 
     local got, expected
-    got = {auth.delete_expired_oauth_codes(current_ts)}
+    got = {auth.oauth.delete_expired_codes(current_ts)}
     expected = {true, 2}
 
-    test:is_deeply(got, expected, 'test_delete_expired_oauth_codes; deleted')
+    test:is_deeply(got, expected, 'test_delete_expired_codes; deleted')
 
-    got = {auth.get_oauth_code(codes[1].code)}
+    got = {auth.oauth.get_code(codes[1].code)}
     expected = {response.error(error.OAUTH_CODE_NOT_FOUND)}
-    test:is_deeply(got, expected, 'test_delete_expired_oauth_codes; code 1 not found')
+    test:is_deeply(got, expected, 'test_delete_expired_codes; code 1 not found')
 
-    got = {auth.get_oauth_code(codes[2].code)}
+    got = {auth.oauth.get_code(codes[2].code)}
     expected = {response.error(error.OAUTH_CODE_NOT_FOUND)}
-    test:is_deeply(got, expected, 'test_delete_expired_oauth_codes; code 2 not found')
+    test:is_deeply(got, expected, 'test_delete_expired_codes; code 2 not found')
 
-    got = {auth.get_oauth_code(codes[3].code)}
+    got = {auth.oauth.get_code(codes[3].code)}
     expected = {true, codes[3]}
     got[2].consumer = nil
-    test:is_deeply(got, expected, 'test_delete_expired_oauth_codes; code 3 found')
+    test:is_deeply(got, expected, 'test_delete_expired_codes; code 3 found')
 end
 
-function test_delete_expired_oauth_tokens()
+function test_delete_expired_tokens()
 
     local current_ts = utils.now()
     local expires_in = 10
@@ -498,7 +498,7 @@ function test_delete_expired_oauth_tokens()
     local ok, user = auth.registration(v.USER_EMAIL)
     ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
 
-    local ok, app = auth.add_application(user.id, v.APPLICATION_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    local ok, app = auth.oauth.add_app(user.id, v.OAUTH_APP_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
 
     for i, created_at in ipairs{ current_ts - 11, current_ts - 10, current_ts - 9} do
 
@@ -509,28 +509,28 @@ function test_delete_expired_oauth_tokens()
         t[oauth_token.CREATED_AT] = created_at
         t[oauth_token.EXPIRES_IN] = expires_in
 
-        local ok, token = auth.save_oauth_access(unpack(t))
+        local ok, token = auth.oauth.save_access(unpack(t))
         table.insert(tokens, token)
     end
 
     local got, expected
-    got = {auth.delete_expired_oauth_tokens(current_ts)}
+    got = {auth.oauth.delete_expired_tokens(current_ts)}
     expected = {true, 2}
 
-    test:is_deeply(got, expected, 'test_delete_expired_oauth_tokens; deleted')
+    test:is_deeply(got, expected, 'test_delete_expired_tokens; deleted')
 
-    got = {auth.get_oauth_access(tokens[1].access_token)}
+    got = {auth.oauth.get_access(tokens[1].access_token)}
     expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
-    test:is_deeply(got, expected, 'test_delete_expired_oauth_tokens; token 1 not found')
+    test:is_deeply(got, expected, 'test_delete_expired_tokens; token 1 not found')
 
-    got = {auth.get_oauth_access(tokens[2].access_token)}
+    got = {auth.oauth.get_access(tokens[2].access_token)}
     expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
-    test:is_deeply(got, expected, 'test_delete_expired_oauth_tokens; token 2 not found')
+    test:is_deeply(got, expected, 'test_delete_expired_tokens; token 2 not found')
 
-    got = {auth.get_oauth_access(tokens[3].access_token)}
+    got = {auth.oauth.get_access(tokens[3].access_token)}
     expected = {true, tokens[3]}
     got[2].consumer = nil
-    test:is_deeply(got, expected, 'test_delete_expired_oauth_tokens; token 3 found')
+    test:is_deeply(got, expected, 'test_delete_expired_tokens; token 3 found')
 end
 
 
@@ -538,32 +538,32 @@ end
 
 
 exports.tests = {
-    test_save_oauth_code_success,
-    test_save_oauth_code_invalid_params,
-    test_get_oauth_code_success,
-    test_get_oauth_code_x_consumer_not_found,
-    test_get_oauth_code_invalid_params,
-    test_get_oauth_code_not_found,
-    test_delete_oauth_code_success,
-    test_delete_oauth_code_invalid_params,
-    test_delete_oauth_code_not_found,
-    test_save_oauth_access_success,
-    test_save_oauth_access_invalid_params,
-    test_get_oauth_access_success,
-    test_get_oauth_access_x_consumer_not_found,
-    test_get_oauth_access_not_found,
-    test_get_oauth_access_invalid_params,
-    test_delete_oauth_access_success,
-    test_delete_oauth_access_not_found,
-    test_delete_oauth_access_invalid_params,
-    test_get_oauth_refresh_success,
-    test_delete_oauth_refresh_success,
-    test_delete_oauth_refresh_not_found,
-    test_delete_oauth_refresh_invalid_params,
+    test_save_code_success,
+    test_save_code_invalid_params,
+    test_get_code_success,
+    test_get_code_x_consumer_not_found,
+    test_get_code_invalid_params,
+    test_get_code_not_found,
+    test_delete_code_success,
+    test_delete_code_invalid_params,
+    test_delete_code_not_found,
+    test_save_access_success,
+    test_save_access_invalid_params,
+    test_get_access_success,
+    test_get_access_x_consumer_not_found,
+    test_get_access_not_found,
+    test_get_access_invalid_params,
+    test_delete_access_success,
+    test_delete_access_not_found,
+    test_delete_access_invalid_params,
+    test_get_refresh_success,
+    test_delete_refresh_success,
+    test_delete_refresh_not_found,
+    test_delete_refresh_invalid_params,
     test_delete_user,
-    test_delete_application,
-    test_delete_expired_oauth_codes,
-    test_delete_expired_oauth_tokens,
+    test_delete_app,
+    test_delete_expired_codes,
+    test_delete_expired_tokens,
 }
 
 

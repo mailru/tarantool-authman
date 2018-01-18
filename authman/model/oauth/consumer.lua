@@ -6,7 +6,7 @@ local uuid = require('uuid')
 
 
 -----
--- oauth_consumer (id, secret, application_id, redirect_urls)
+-- oauth_consumer (id, secret, app_id, redirect_urls)
 -----
 function consumer.model(config)
 
@@ -14,11 +14,11 @@ function consumer.model(config)
     model.SPACE_NAME = config.spaces.oauth_consumer.name
 
     model.PRIMARY_INDEX = 'primary'
-    model.APPLICATION_ID_INDEX = 'application'
+    model.APP_ID_INDEX = 'app'
 
     model.ID = 1
     model.SECRET_HASH = 2
-    model.APPLICATION_ID = 3
+    model.APP_ID = 3
     model.REDIRECT_URLS = 4 -- blank space separated list
 
     model.CONSUMER_SECRET_LEN = 32
@@ -35,7 +35,7 @@ function consumer.model(config)
         local result = {
             consumer_key = consumer_tuple[model.ID],
             consumer_secret_hash = consumer_tuple[model.SECRET_HASH],
-            application_id = consumer_tuple[model.APPLICATION_ID],
+            app_id = consumer_tuple[model.APP_ID],
             redirect_urls = consumer_tuple[model.REDIRECT_URLS],
         }
         if data ~= nil then
@@ -64,9 +64,9 @@ function consumer.model(config)
         end
     end
 
-    function model.get_by_application_id(app_id)
+    function model.get_by_app_id(app_id)
         if validator.not_empty_string(app_id) then
-            return model.get_space().index[model.APPLICATION_ID_INDEX]:get(app_id)
+            return model.get_space().index[model.APP_ID_INDEX]:get(app_id)
         end
     end
 
@@ -83,9 +83,9 @@ function consumer.model(config)
         return model.get_space():update(consumer_key, {{'=', model.SECRET_HASH, consumer_secret_hash}})
     end
 
-    function model.delete_by_application_id(app_id)
+    function model.delete_by_app_id(app_id)
         if validator.not_empty_string(app_id) then
-            return model.get_space().index[model.APPLICATION_ID_INDEX]:delete(app_id)
+            return model.get_space().index[model.APP_ID_INDEX]:delete(app_id)
         end
     end
 

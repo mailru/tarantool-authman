@@ -8,7 +8,7 @@ return {
     session_update_timedelta = 60 * 60 * 24 * 7,
     social_check_time = 60 * 60 * 24,
     request_timeout = 3,
-    max_applications = 10,
+    oauth_max_apps = 10,
 
     password_strength = 'moderate',
 
@@ -28,8 +28,8 @@ return {
         user = {
             name = 'auth_user',
         },
-        application = {
-            name = 'auth_application',
+        oauth_app = {
+            name = 'auth_oauth_app',
         },
         oauth_consumer = {
             name = 'auth_oauth_consumer',

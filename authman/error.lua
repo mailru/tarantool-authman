@@ -15,10 +15,10 @@ error.IMPROPERLY_CONFIGURED = '12'
 error.WRONG_PROVIDER = '13'
 error.WEAK_PASSWORD = '14'
 error.SOCIAL_AUTH_ERROR = '15'
-error.APPLICATION_ALREADY_EXISTS = '16'
-error.APPLICATION_NOT_FOUND = '17'
+error.OAUTH_APP_ALREADY_EXISTS = '16'
+error.OAUTH_APP_NOT_FOUND = '17'
 error.OAUTH_CONSUMER_NOT_FOUND = '18'
-error.MAX_APPLICATIONS_REACHED = '19'
+error.OAUTH_MAX_APPS_REACHED = '19'
 error.OAUTH_CODE_NOT_FOUND = '20'
 error.OAUTH_ACCESS_TOKEN_NOT_FOUND = '21'
 
@@ -38,10 +38,10 @@ error.CODES = {
     [error.WRONG_PROVIDER] = 'Wrong social provider',
     [error.WEAK_PASSWORD] = 'Password to weak',
     [error.SOCIAL_AUTH_ERROR] = 'Error during getting user info',
-    [error.APPLICATION_ALREADY_EXISTS] = 'Application already exists',
-    [error.APPLICATION_NOT_FOUND] = 'Application not found',
+    [error.OAUTH_APP_ALREADY_EXISTS] = 'oauth app already exists',
+    [error.OAUTH_APP_NOT_FOUND] = 'oauth app not found',
     [error.OAUTH_CONSUMER_NOT_FOUND] = 'OAUTH consumer not found',
-    [error.MAX_APPLICATIONS_REACHED] = 'Max applications limit reached',
+    [error.OAUTH_MAX_APPS_REACHED] = 'Max oauth apps limit reached',
     [error.OAUTH_CODE_NOT_FOUND] = 'OAUTH authorization code not found',
     [error.OAUTH_ACCESS_TOKEN_NOT_FOUND] = 'OAUTH access token not found',
 }

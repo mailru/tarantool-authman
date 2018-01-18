@@ -19,8 +19,8 @@ local TEST_CASES = {
     'test.case.profile',
     'test.case.social',
     'test.case.complex',
-    'test.case.application',
-    'test.case.oauth',
+    'test.case.oauth.app',
+    'test.case.oauth.oauth',
 }
 
 function run()

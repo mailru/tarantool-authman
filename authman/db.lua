@@ -9,10 +9,10 @@ function db.configurate(config)
     local password_token = require('authman.model.password_token').model(config)
     local social = require('authman.model.social').model(config)
     local session = require('authman.model.session').model(config)
-    local application = require('authman.model.application').model(config)
-    local oauth_consumer = require('authman.model.oauth_consumer').model(config)
-    local oauth_code = require('authman.model.oauth_code').model(config)
-    local oauth_token = require('authman.model.oauth_token').model(config)
+    local oauth_app = require('authman.model.oauth.app').model(config)
+    local oauth_consumer = require('authman.model.oauth.consumer').model(config)
+    local oauth_code = require('authman.model.oauth.code').model(config)
+    local oauth_token = require('authman.model.oauth.token').model(config)
 
     function api.create_database()
         local user_space = box.schema.space.create(user.SPACE_NAME, {
@@ -84,18 +84,18 @@ function db.configurate(config)
             if_not_exists = true
         })
 
-        local app_space = box.schema.space.create(application.SPACE_NAME, {
+        local app_space = box.schema.space.create(oauth_app.SPACE_NAME, {
             if_not_exists = true
         })
-        app_space:create_index(application.PRIMARY_INDEX, {
+        app_space:create_index(oauth_app.PRIMARY_INDEX, {
             type = 'hash',
-            parts = {application.ID, 'string'},
+            parts = {oauth_app.ID, 'string'},
             if_not_exists = true
         })
-        app_space:create_index(application.USER_ID_INDEX, {
+        app_space:create_index(oauth_app.USER_ID_INDEX, {
             type = 'tree',
             unique = true,
-            parts = {application.USER_ID, 'string', application.NAME, 'string'},
+            parts = {oauth_app.USER_ID, 'string', oauth_app.NAME, 'string'},
             if_not_exists = true
         })
 
@@ -108,10 +108,10 @@ function db.configurate(config)
             parts = {oauth_consumer.ID, 'string'},
             if_not_exists = true
         })
-        oauth_consumer_space:create_index(oauth_consumer.APPLICATION_ID_INDEX, {
+        oauth_consumer_space:create_index(oauth_consumer.APP_ID_INDEX, {
             type = 'tree',
             unique = true,
-            parts = {oauth_consumer.APPLICATION_ID, 'string'},
+            parts = {oauth_consumer.APP_ID, 'string'},
             if_not_exists = true
         })
 
@@ -160,7 +160,7 @@ function db.configurate(config)
         password.get_space():truncate()
         social.get_space():truncate()
         session.get_space():truncate()
-        application.get_space():truncate()
+        oauth_app.get_space():truncate()
         oauth_consumer.get_space():truncate()
         oauth_code.get_space():truncate()
         oauth_token.get_space():truncate()

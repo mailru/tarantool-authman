@@ -20,9 +20,8 @@ return {
     INVALID_CODE_TOKEN = 'invalid_code_token',
     INVALID_TOKEN = 'invalid_token',
 
-    APPLICATION_NAME = 'app name',
-    VALID_APPLICATION_TYPES = {'server', 'browser', 'native', 'mobile'},
-
+    OAUTH_APP_NAME = 'app name',
+    OAUTH_VALID_APP_TYPES = {'server', 'browser', 'native', 'mobile'},
     OAUTH_CONSUMER_REDIRECT_URLS = 'https://test.ru/test1?test=1 https://test.ru/test2?test=2',
     OAUTH_CONSUMER_REDIRECT_URL = 'https://test.ru/test1?test=1',
     OAUTH_CODE = 'oauth_code',

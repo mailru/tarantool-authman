@@ -1,4 +1,4 @@
-local application = {}
+local app = {}
 
 local uuid = require('uuid')
 local validator =  require('authman.validator')
@@ -6,12 +6,16 @@ local utils = require('authman.utils.utils')
 
 
 -----
--- application (uuid, user_uuid, type, is_active, domain, redirect_url, secret)
+-- app (uuid, user_uuid, type, is_active, domain, redirect_url, secret)
 -----
-function application.model(config)
+function app.model(config)
+
+    local oauth_consumer = require('authman.model.oauth.consumer').model(config)
+    local oauth_code = require('authman.model.oauth.code').model(config)
+    local oauth_token = require('authman.model.oauth.token').model(config)
 
     local model = {}
-    model.SPACE_NAME = config.spaces.application.name
+    model.SPACE_NAME = config.spaces.oauth_app.name
 
     model.PRIMARY_INDEX = 'primary'
     model.USER_ID_INDEX = 'user'
@@ -50,7 +54,7 @@ function application.model(config)
         app_tuple[model.REGISTRATION_TS] = utils.now()
 
         local app_id = uuid.str()
-        local app_type = validator.application_type(app_tuple[model.TYPE]) and app_tuple[model.TYPE] or 'browser'
+        local app_type = validator.oauth_app_type(app_tuple[model.TYPE]) and app_tuple[model.TYPE] or 'browser'
 
         return model.get_space():insert{
             app_id,
@@ -74,6 +78,12 @@ function application.model(config)
         app_list = model.get_by_user_id(user_id)
         if app_list ~= nil then
             for i, tuple in ipairs(app_list) do
+                local consumer = oauth_consumer.delete_by_app_id(tuple[model.ID])
+
+                if consumer ~= nil then
+                    oauth_code.delete_by_consumer_key(consumer[oauth_consumer.ID])
+                    oauth_token.delete_by_consumer_key(consumer[oauth_consumer.ID])
+                end
                 model.get_space():delete({tuple[model.ID]})
             end
             return app_list
@@ -102,4 +112,4 @@ function application.model(config)
     return model
 end
 
-return application
+return app
