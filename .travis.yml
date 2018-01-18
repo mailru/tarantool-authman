@@ -21,24 +21,9 @@ env:
       - OS=ubuntu DIST=precise
       - OS=ubuntu DIST=trusty
       - OS=ubuntu DIST=xenial
-      - OS=ubuntu DIST=yakkety
       - OS=debian DIST=wheezy
       - OS=debian DIST=jessie
       - OS=debian DIST=stretch
-
-#matrix:
-#    allow_failures:
-#      - env: OS=el DIST=6
-#      - env: OS=el DIST=7
-#      - env: OS=fedora DIST=24
-#      - env: OS=fedora DIST=25
-#      - env: OS=ubuntu DIST=precise
-#      - env: OS=ubuntu DIST=trusty
-#      - env: OS=ubuntu DIST=xenial
-#      - env: OS=ubuntu DIST=yakkety
-#      - env: OS=debian DIST=wheezy
-#      - env: OS=debian DIST=jessie
-#      - env: OS=debian DIST=stretch
 
 script:
   - git describe --long
