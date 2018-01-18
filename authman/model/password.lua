@@ -80,7 +80,7 @@ function password.model(config)
     end
 
     function model.hash(password, salt)
-        return digest.sha256(string.format('%s%s', salt, password))
+        return utils.salted_hash(password, salt)
     end
 
     function model.is_valid(raw_password, user_id)

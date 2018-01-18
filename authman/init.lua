@@ -15,6 +15,10 @@ function auth.api(config)
     local password_token = require('authman.model.password_token').model(config)
     local social = require('authman.model.social').model(config)
     local session = require('authman.model.session').model(config)
+    local oauth_app = require('authman.model.oauth.app').model(config)
+    local oauth = require('authman.oauth.oauth')(config)
+
+    api.oauth = oauth
 
     db.configurate(config).create_database()
     require('authman.migrations.migrations')(config)
@@ -146,6 +150,7 @@ function auth.api(config)
         password.delete_by_user_id(user_id)
         social.delete_by_user_id(user_id)
         password_token.delete(user_id)
+        oauth_app.delete_by_user_id(user_id)
 
         return response.ok(user.serialize(user_tuple))
     end
