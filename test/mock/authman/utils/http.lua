@@ -14,8 +14,6 @@ function http.api(config)
 
     local api = {}
 
-    local timeout = config.request_timeout
-
     function api.request(method, url, params, param_values)
 
         if string.match(url, 'vk.com') ~= nil then

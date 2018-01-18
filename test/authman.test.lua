@@ -3,7 +3,8 @@ local config = require('test.config')
 local test_db_path = config.test_database_dir
 
 -- mock
-package.path = "./test/mock/?.lua;" .. package.path
+package.loaded['authman.utils.http'] = require('test.mock.authman.utils.http')
+
 os.execute('mkdir -p ' .. test_db_path)
 
 box.cfg {
@@ -23,7 +24,7 @@ local TEST_CASES = {
     'test.case.oauth.oauth',
 }
 
-function run()
+local function run()
     for case_index = 1, #TEST_CASES do
         local case = require(TEST_CASES[case_index])
         case.setup()
@@ -37,5 +38,6 @@ function run()
 end
 
 run()
+
 os.execute('rm -rf '.. test_db_path)
 os.exit()

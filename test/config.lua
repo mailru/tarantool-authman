@@ -11,6 +11,9 @@ return {
 
     password_strength = 'easy',
 
+    request_timeout = 3,
+    oauth_max_apps = 10,
+
     facebook = {
         client_id = '1813230128941062',
         client_secret = 'some secret here',
