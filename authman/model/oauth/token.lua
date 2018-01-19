@@ -101,7 +101,7 @@ function token.model(config)
     end
 
     function model.delete_by_consumer_key(consumer_key)
-        token_list = model.get_by_consumer_key(consumer_key)
+        local token_list = model.get_by_consumer_key(consumer_key)
         if token_list ~= nil then
             for i, tuple in  ipairs(token_list) do
                 model.get_space():delete({tuple[model.ACCESS_TOKEN]})
