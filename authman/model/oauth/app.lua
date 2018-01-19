@@ -75,7 +75,7 @@ function app.model(config)
 
     function model.delete_by_user_id(user_id)
 
-        app_list = model.get_by_user_id(user_id)
+        local app_list = model.get_by_user_id(user_id)
         if app_list ~= nil then
             for i, tuple in ipairs(app_list) do
                 local consumer = oauth_consumer.delete_by_app_id(tuple[model.ID])

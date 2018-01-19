@@ -75,12 +75,12 @@ function code.model(config)
     end
 
     function model.delete_by_consumer_key(consumer_key)
-        code_list = model.get_by_consumer_key(consumer_key)
+        local code_list = model.get_by_consumer_key(consumer_key)
         if code_list ~= nil then
             for i, tuple in  ipairs(code_list) do
                 model.get_space():delete({tuple[model.CODE]})
             end
-            return token_list
+            return code_list
         end
     end
 

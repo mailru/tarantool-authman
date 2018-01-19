@@ -73,7 +73,7 @@ return function(config)
             return response.error(error.INVALID_PARAMS)
         end
 
-        app = oauth_app.update({
+        local app = oauth_app.update({
             [oauth_app.ID] = app_id,
             [oauth_app.IS_ACTIVE] = false,
         })
@@ -90,7 +90,7 @@ return function(config)
             return response.error(error.INVALID_PARAMS)
         end
 
-        app = oauth_app.update({
+        local app = oauth_app.update({
             [oauth_app.ID] = app_id,
             [oauth_app.IS_ACTIVE] = true,
         })
@@ -150,7 +150,7 @@ return function(config)
         local user_apps = oauth_app.get_by_user_id(user_id)
         if user_apps ~= nil and #user_apps ~= 0 then
             for i, app in pairs(user_apps) do
-                consumer = oauth_consumer.get_by_app_id(app[oauth_app.ID])
+                local consumer = oauth_consumer.get_by_app_id(app[oauth_app.ID])
                 result[i] = oauth_app.serialize(app, oauth_consumer.serialize(consumer))
             end
         end
