@@ -11,7 +11,7 @@ return function(config)
     local oauth_code = require('authman.model.oauth.code').model(config)
     local oauth_token = require('authman.model.oauth.token').model(config)
 
-    function api.add_app(user_id, app_name, app_type, redirect_urls)
+    function api.add_app(user_id, app_name, app_type, redirect_urls, is_trusted)
 
         local user_tuple = user.get_by_id(user_id)
         if user_tuple == nil then
@@ -47,6 +47,7 @@ return function(config)
             [oauth_app.NAME] = app_name,
             [oauth_app.TYPE] = app_type,
             [oauth_app.IS_ACTIVE] = true,
+            [oauth_app.IS_TRUSTED] = is_trusted or false,
         }
 
         local app = oauth_app.create(app_tuple)
@@ -192,7 +193,7 @@ return function(config)
         return response.ok(consumer_secret)
     end
 
-    function api.save_code(code, consumer_key, redirect_url, scope, state, expires_in, created_at, code_challenge, code_challenge_method)
+    function api.save_code(code, consumer_key, redirect_url, scope, state, expires_in, created_at, code_challenge, code_challenge_method, resource_owner)
 
         local code_tuple = {
             [oauth_code.CODE] = code,
@@ -204,6 +205,7 @@ return function(config)
             [oauth_code.CREATED_AT] = created_at,
             [oauth_code.CODE_CHALLENGE] = code_challenge,
             [oauth_code.CODE_CHALLENGE_METHOD] = code_challenge_method,
+            [oauth_code.RESOURCE_OWNER] = resource_owner or "",
         }
 
         for _, v in pairs({oauth_code.CODE, oauth_code.CONSUMER_KEY, oauth_code.REDIRECT_URL, oauth_code.SCOPE}) do
@@ -271,7 +273,7 @@ return function(config)
         return response.ok(oauth_token.delete_expired(expiration_ts))
     end
 
-    function api.save_access(access_token, consumer_key, refresh_token, redirect_url, scope, expires_in, created_at)
+    function api.save_access(access_token, consumer_key, refresh_token, redirect_url, scope, expires_in, created_at, resource_owner)
 
         local token_tuple = {
             [oauth_token.ACCESS_TOKEN] = access_token,
@@ -281,6 +283,7 @@ return function(config)
             [oauth_token.SCOPE] = scope,
             [oauth_token.EXPIRES_IN] = expires_in,
             [oauth_token.CREATED_AT] = created_at,
+            [oauth_token.RESOURCE_OWNER] = resource_owner or "",
         }
 
         for _, v in pairs({oauth_token.ACCESS_TOKEN, oauth_token.CONSUMER_KEY,

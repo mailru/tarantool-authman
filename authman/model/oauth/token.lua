@@ -23,6 +23,7 @@ function token.model(config)
     model.SCOPE = 5
     model.EXPIRES_IN = 6
     model.CREATED_AT = 7
+    model.RESOURCE_OWNER = 8
 
     function model.get_space()
         return box.space[model.SPACE_NAME]
@@ -38,6 +39,7 @@ function token.model(config)
             scope = token_tuple[model.SCOPE],
             expires_in = token_tuple[model.EXPIRES_IN],
             created_at = token_tuple[model.CREATED_AT],
+            resource_owner = token_tuple[model.RESOURCE_OWNER],
         }
         if data ~= nil then
             for k,v in pairs(data) do

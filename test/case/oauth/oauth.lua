@@ -25,6 +25,7 @@ local oauth_code_tuple = {
     v.OAUTH_CREATED_AT,
     v.OAUTH_CODE_CHALLENGE,
     v.OAUTH_CODE_CHALLENGE_METHOD,
+    v.OAUTH_RESOURCE_OWNER,
 }
 
 local oauth_token_tuple = {
@@ -35,6 +36,7 @@ local oauth_token_tuple = {
     v.OAUTH_SCOPE,
     v.OAUTH_EXPIRES_IN,
     v.OAUTH_CREATED_AT,
+    v.OAUTH_RESOURCE_OWNER,
 }
 
 
@@ -62,6 +64,7 @@ function test_save_code_success()
         created_at = v.OAUTH_CREATED_AT,
         code_challenge = v.OAUTH_CODE_CHALLENGE,
         code_challenge_method = v.OAUTH_CODE_CHALLENGE_METHOD,
+        resource_owner = v.OAUTH_RESOURCE_OWNER,
     }}
 
     test:is_deeply(got, expected, 'test_save_code_success')
@@ -108,6 +111,7 @@ function test_get_code_success()
         code_challenge = v.OAUTH_CODE_CHALLENGE,
         code_challenge_method = v.OAUTH_CODE_CHALLENGE_METHOD,
         consumer = consumer,
+        resource_owner = v.OAUTH_RESOURCE_OWNER,
     }}
 
     test:is_deeply(got, expected, 'test_get_code_success')
@@ -158,6 +162,7 @@ function test_delete_code_success()
         created_at = v.OAUTH_CREATED_AT,
         code_challenge = v.OAUTH_CODE_CHALLENGE,
         code_challenge_method = v.OAUTH_CODE_CHALLENGE_METHOD,
+        resource_owner = v.OAUTH_RESOURCE_OWNER,
     }}
 
     test:is_deeply(got, expected, 'test_delete_code_success; deleted')
@@ -198,6 +203,7 @@ function test_save_access_success()
         scope = v.OAUTH_SCOPE,
         expires_in = v.OAUTH_EXPIRES_IN,
         created_at = v.OAUTH_CREATED_AT,
+        resource_owner = v.OAUTH_RESOURCE_OWNER,
     }}
 
     test:is_deeply(got, expected, 'test_save_token_success')
@@ -241,6 +247,7 @@ function test_get_access_success()
         expires_in = v.OAUTH_EXPIRES_IN,
         created_at = v.OAUTH_CREATED_AT,
         consumer = consumer,
+        resource_owner = v.OAUTH_RESOURCE_OWNER,
     }}
 
     test:is_deeply(got, expected, 'test_get_access_success')
@@ -288,6 +295,7 @@ function test_delete_access_success()
         scope = v.OAUTH_SCOPE,
         expires_in = v.OAUTH_EXPIRES_IN,
         created_at = v.OAUTH_CREATED_AT,
+        resource_owner = v.OAUTH_RESOURCE_OWNER,
     }}
 
     test:is_deeply(got, expected, 'test_delete_access_success; deleted')
@@ -340,6 +348,7 @@ function test_get_refresh_success()
         expires_in = v.OAUTH_EXPIRES_IN,
         created_at = v.OAUTH_CREATED_AT,
         consumer = consumer,
+        resource_owner = v.OAUTH_RESOURCE_OWNER,
     }}
 
     test:is_deeply(got, expected, 'test_get_refresh_success')
@@ -359,6 +368,7 @@ function test_delete_refresh_success()
         scope = v.OAUTH_SCOPE,
         expires_in = v.OAUTH_EXPIRES_IN,
         created_at = v.OAUTH_CREATED_AT,
+        resource_owner = v.OAUTH_RESOURCE_OWNER,
     }}
 
     test:is_deeply(got, expected, 'test_delete_refresh_success; deleted')
