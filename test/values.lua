@@ -34,4 +34,5 @@ return {
     OAUTH_CODE_CHALLENGE_METHOD = 'oauth_code_challenge_method',
     OAUTH_ACCESS_TOKEN = 'oauth_access_token',
     OAUTH_REFRESH_TOKEN = 'oauth_refresh_token',
+    OAUTH_RESOURCE_OWNER = 'resource_owner'
 }

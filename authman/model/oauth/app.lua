@@ -26,6 +26,7 @@ function app.model(config)
     model.TYPE = 4
     model.IS_ACTIVE = 5
     model.REGISTRATION_TS = 6
+    model.IS_TRUSTED = 7
 
     function model.get_space()
         return box.space[model.SPACE_NAME]
@@ -39,6 +40,7 @@ function app.model(config)
             name = app_tuple[model.NAME],
             type = app_tuple[model.TYPE],
             is_active = app_tuple[model.IS_ACTIVE],
+            is_trusted = app_tuple[model.IS_TRUSTED],
         }
         if data ~= nil then
             for k,v in pairs(data) do
@@ -55,7 +57,6 @@ function app.model(config)
 
         local app_id = uuid.str()
         local app_type = validator.oauth_app_type(app_tuple[model.TYPE]) and app_tuple[model.TYPE] or 'browser'
-
         return model.get_space():insert{
             app_id,
             app_tuple[model.USER_ID],
@@ -63,6 +64,7 @@ function app.model(config)
             app_tuple[model.TYPE],
             app_tuple[model.IS_ACTIVE],
             app_tuple[model.REGISTRATION_TS],
+            app_tuple[model.IS_TRUSTED],
         }
 
     end

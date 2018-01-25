@@ -32,8 +32,9 @@ function test_add_app_success()
     for i, app_type in pairs(v.OAUTH_VALID_APP_TYPES) do
 
         local app_name = string.format("%s %d", v.OAUTH_APP_NAME, i)
+        local app_is_trusted = i%2 and true or false
 
-        local ok, app = auth.oauth.add_app(user.id, app_name, app_type, v.OAUTH_CONSUMER_REDIRECT_URLS)
+        local ok, app = auth.oauth.add_app(user.id, app_name, app_type, v.OAUTH_CONSUMER_REDIRECT_URLS, app_is_trusted)
 
         test:is(ok, true, string.format('test_add_app_success; app type: %s', app_type))
         test:isstring(app.consumer_key, 'test_registration_success oauth consumer key returned')
@@ -45,6 +46,7 @@ function test_add_app_success()
         test:is(app.type, app_type, 'test_registration_success app type returned')
         test:is(app.user_id, user.id, 'test_registration_success consumer app user_id returned')
         test:is(app.is_active, true, 'test_registration_success consumer app is_active returned')
+        test:is(app.is_trusted, app_is_trusted, 'test_registration_success consumer app is_trusted returned')
 
         local got = {auth.oauth.get_app(app.id)}
         test:is(got[2].consumer_secret_hash, utils.salted_hash(app.consumer_secret, app.id), 'test_registration_success consumer secret hash returned')

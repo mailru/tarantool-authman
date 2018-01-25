@@ -24,7 +24,8 @@ function code.model(config)
     model.EXPIRES_IN = 6
     model.CREATED_AT = 7
     model.CODE_CHALLENGE = 8
-    model.CODE_CHALLENGE_METHOD = 9 
+    model.CODE_CHALLENGE_METHOD = 9
+    model.RESOURCE_OWNER = 10
 
     function model.get_space()
         return box.space[model.SPACE_NAME]
@@ -42,6 +43,7 @@ function code.model(config)
             created_at = code_tuple[model.CREATED_AT],
             code_challenge = code_tuple[model.CODE_CHALLENGE],
             code_challenge_method = code_tuple[model.CODE_CHALLENGE_METHOD],
+            resource_owner = code_tuple[model.RESOURCE_OWNER],
         }
         if data ~= nil then
             for k,v in pairs(data) do
