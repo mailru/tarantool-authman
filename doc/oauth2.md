@@ -1,8 +1,8 @@
 ## OAuth2 related API methods
 
-#### auth.oauth.add_app(user_id, app_name, app_type, redirect_urls)
+#### auth.oauth.add_app(user_id, app_name, app_type, redirect_urls, is_trusted)
 ```
-tarantool> ok, app = auth.oauth.add_app('268a8464-e39d-4f82-b55f-e68197c6c3f2', 'test app', 'browser', 'https://example.com/1 https://example.com/2')
+tarantool> ok, app = auth.oauth.add_app('268a8464-e39d-4f82-b55f-e68197c6c3f2', 'test app', 'browser', 'https://example.com/1 https://example.com/2', false)
 tarantool> app
 - is_active: true
   redirect_urls: https://example.com/1 https://example.com/2
@@ -12,8 +12,10 @@ tarantool> app
   consumer_secret: 41eef0fc10f9a62a1b301a7f1db703e076271b01f148efcdc3dcb3a69a78101c
   name: test app
   type: browser
+  is_trusted: false
 ```
 Register new OAuth client. Return OAuth client table. Valid application types are "server", "browser", "mobile", "native".
+Optional is_trusted parameter indicates that app is approved to be authorized by all resource owners.
 
 #### auth.oauth.disable_app(app_id)
 ```
@@ -118,9 +120,9 @@ tarantool> secret
 ```
 Given consumer key generate and save new consumer secret. Return new consumer secret.
 
-#### auth.oauth.save_code(code, consumer_key, redirect_url, scope, state, expires_in, created_at, code_challenge, code_challenge_method)
+#### auth.oauth.save_code(code, consumer_key, redirect_url, scope, state, expires_in, created_at, code_challenge, code_challenge_method, resource_owner)
 ```
-tarantool> ok, code = auth.oauth.save_code('some code', '9169b664839bca439ca11fe4274838b2', 'https://example.com/1', 'read', 'some state', 600, 1514452159, 'code challenge', 'code challenge method')
+tarantool> ok, code = auth.oauth.save_code('some code', '9169b664839bca439ca11fe4274838b2', 'https://example.com/1', 'read', 'some state', 600, 1514452159, 'code challenge', 'code challenge method', 'user_id or resource owner')
 tarantool> code
 ---
 - expires_in: 600
@@ -187,9 +189,9 @@ tarantool> deleted_cnt
 ```
 Given timestamp delete OAuth authorization codes having expiration time lt than this timestamp
 
-#### auth.oauth.save_access(access_token, consumer_key, refresh_token, redirect_url, scope, expires_in, created_at)
+#### auth.oauth.save_access(access_token, consumer_key, refresh_token, redirect_url, scope, expires_in, created_at, resource_owner)
 ```
-tarantool> ok, access = auth.oauth.save_access('some token', '9169b664839bca439ca11fe4274838b2', 'some refresh token', 'https://example.com/1', 'read', 3600, 1514452760)
+tarantool> ok, access = auth.oauth.save_access('some token', '9169b664839bca439ca11fe4274838b2', 'some refresh token', 'https://example.com/1', 'read', 3600, 1514452760, 'user_id of resource owner')
 tarantool> access
 ---
 - refresh_token: some refresh token
