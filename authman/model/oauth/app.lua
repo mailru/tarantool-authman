@@ -6,7 +6,7 @@ local utils = require('authman.utils.utils')
 
 
 -----
--- app (uuid, user_uuid, type, is_active, domain, redirect_url, secret)
+-- app (uuid, user_uuid, type, is_active, registration_ts, is_trusted)
 -----
 function app.model(config)
 

@@ -435,7 +435,6 @@ function test_delete_app()
     ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
 
     local ok, app = auth.oauth.add_app(user.id, v.OAUTH_APP_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    local ok, consumer = auth.oauth.get_consumer(app.consumer_key)
 
     local c = { unpack(oauth_code_tuple) }
     c[oauth_code.CONSUMER_KEY] = app.consumer_key
@@ -543,6 +542,35 @@ function test_delete_expired_tokens()
     test:is_deeply(got, expected, 'test_delete_expired_tokens; token 3 found')
 end
 
+function test_delete_user_authorizations()
+
+    local got, expected
+
+    local ok, user = auth.registration(v.USER_EMAIL)
+    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+
+    local ok, app = auth.oauth.add_app(user.id, v.OAUTH_APP_NAME, 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+
+    auth.oauth.add_consumer_scopes(app.consumer_key, v.OAUTH_RESOURCE_OWNER, {v.OAUTH_SCOPE})
+
+    local c = { unpack(oauth_code_tuple) }
+    c[oauth_code.CONSUMER_KEY] = app.consumer_key
+    auth.oauth.save_code(unpack(c))
+
+    local t = { unpack(oauth_token_tuple) }
+    t[oauth_token.CONSUMER_KEY] = app.consumer_key
+    auth.oauth.save_access(unpack(t))
+
+    auth.oauth.delete_user_authorizations(v.OAUTH_RESOURCE_OWNER, app.consumer_key)
+
+    got = {auth.oauth.get_code(c[oauth_code.CODE])}
+    expected = {response.error(error.OAUTH_CODE_NOT_FOUND)}
+    test:is_deeply(got, expected, 'test_delete_user_authorizations; oauth code deleted')
+
+    got = {auth.oauth.get_access(t[oauth_token.ACCESS_TOKEN])}
+    expected = {response.error(error.OAUTH_ACCESS_TOKEN_NOT_FOUND)}
+    test:is_deeply(got, expected, 'test_delete_user_authorizations; oauth token deleted')
+end
 
 
 
@@ -574,6 +602,7 @@ exports.tests = {
     test_delete_app,
     test_delete_expired_codes,
     test_delete_expired_tokens,
+    test_delete_user_authorizations,
 }
 
 

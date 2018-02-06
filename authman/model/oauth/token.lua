@@ -96,14 +96,18 @@ function token.model(config)
         end
     end
 
-    function model.get_by_consumer_key(consumer_key)
+    function model.get_by_consumer_key(consumer_key, resource_owner)
         if validator.not_empty_string(consumer_key) then
-            return model.get_space().index[model.CONSUMER_INDEX]:select({consumer_key})
+            local query = {consumer_key}
+            if validator.not_empty_string(resource_owner) then
+                query[2] = resource_owner
+            end
+            return model.get_space().index[model.CONSUMER_INDEX]:select(query)
         end
     end
 
-    function model.delete_by_consumer_key(consumer_key)
-        local token_list = model.get_by_consumer_key(consumer_key)
+    function model.delete_by_consumer_key(consumer_key, resource_owner)
+        local token_list = model.get_by_consumer_key(consumer_key, resource_owner)
         if token_list ~= nil then
             for i, tuple in  ipairs(token_list) do
                 model.get_space():delete({tuple[model.ACCESS_TOKEN]})

@@ -22,6 +22,8 @@ local TEST_CASES = {
     'test.case.complex',
     'test.case.oauth.app',
     'test.case.oauth.oauth',
+    'test.case.oauth.scope',
+    'test.case.oauth.redirect',
 }
 
 local function run()

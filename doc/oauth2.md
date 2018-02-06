@@ -293,4 +293,88 @@ tarantool> refresh
 ```
 Delete OAuth refresh token. Return token table w/o consumer
 
+#### auth.oauth.add_consumer_scopes(consumer_key, user_id, scopes)
+```
+tarantool> ok, consumer_scopes = auth.oauth.add_consumer_scopes('06b043c219752541ab50e82627148161', '958e93a7-e6ca-471d-836e-21086c399c6d', {'read', 'write'})
+tarantool> consumer_scopes
+---
+- - user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+    consumer_key: 06b043c219752541ab50e82627148161
+    name: read
+  - user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+    consumer_key: 06b043c219752541ab50e82627148161
+    name: write
+```
+Given consumer_key, user_id and list of scopes extend scopes granted by the user to the consumer. Return a list of scopes granted by the user to the consumer.
 
+#### auth.oauth.get_user_authorizations(user_id, consumer_key)
+```
+tarantool> ok, user_authorizations = app.auth.oauth.get_user_authorizations('958e93a7-e6ca-471d-836e-21086c399c6d', '06b043c219752541ab50e82627148161')
+tarantool> user_authorizations
+---
+- - user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+    consumer_key: 06b043c219752541ab50e82627148161
+    name: read
+  - user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+    consumer_key: 06b043c219752541ab50e82627148161
+    name: write
+```
+Given user_id and consumer_key (optional) return list of scopes granted by the user.
+
+#### auth.oauth.delete_user_authorizations(user_id, consumer_key)
+```
+tarantool> ok, deleted = app.auth.oauth.delete_user_authorizations('958e93a7-e6ca-471d-836e-21086c399c6d', '06b043c219752541ab50e82627148161')
+tarantool> deleted
+---
+- - user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+    consumer_key: 06b043c219752541ab50e82627148161
+    name: read
+  - user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+    consumer_key: 06b043c219752541ab50e82627148161
+    name: write
+```
+Given user_id and consumer_key delete all scopes granted by the user to the consumer. Return a list of deleted scopes.
+
+#### auth.oauth.save_redirect(consumer_key, user_id, redirect_url)
+```
+tarantool> ok, data = auth.oauth.save_redirect('06b043c219752541ab50e82627148161', '958e93a7-e6ca-471d-836e-21086c399c6d', 'http://test.ru/test1')
+tarantool> data
+---
+- user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+  consumer_key: 06b043c219752541ab50e82627148161
+  url: http://test.ru/test1
+```
+Add redirect to consumer's redirects list. Return redirect tuple.
+
+#### auth.oauth.get_user_redirects(user_id)
+```
+tarantool> ok, data = auth.oauth.get_user_redirects('958e93a7-e6ca-471d-836e-21086c399c6d')
+tarantool> data
+---
+- user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+  consumer_key: 06b043c219752541ab50e82627148161
+  url: http://test.ru/test1
+```
+Given user_id return list of user's redirects.
+
+#### auth.oauth.get_consumer_redirects(consumer_key, user_id)
+```
+tarantool> ok, data = auth.oauth.get_consumer_redirects('06b043c219752541ab50e82627148161')
+tarantool> data
+---
+- user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+  consumer_key: 06b043c219752541ab50e82627148161
+  url: http://test.ru/test1
+```
+Given consumer_key and user_id (optional) return list of consumer's redirects.
+
+#### auth.oauth.delete_user_redirects(user_id, consumer_key)
+```
+tarantool> ok, data = auth.oauth.delete_user_redirects('958e93a7-e6ca-471d-836e-21086c399c6d', '06b043c219752541ab50e82627148161')
+tarantool> data
+---
+- - user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+    consumer_key: 06b043c219752541ab50e82627148161
+    url: http://test.ru/test1
+```
+Given user_id and consumer_key delete user's redirects for the consumer. Return list of deleted redirects.

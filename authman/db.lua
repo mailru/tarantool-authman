@@ -13,6 +13,8 @@ function db.configurate(config)
     local oauth_consumer = require('authman.model.oauth.consumer').model(config)
     local oauth_code = require('authman.model.oauth.code').model(config)
     local oauth_token = require('authman.model.oauth.token').model(config)
+    local oauth_scope = require('authman.model.oauth.consumer.scope').model(config)
+    local oauth_redirect = require('authman.model.oauth.consumer.redirect').model(config)
 
     function api.create_database()
         local user_space = box.schema.space.create(user.SPACE_NAME, {
@@ -127,7 +129,7 @@ function db.configurate(config)
         oauth_code_space:create_index(oauth_code.CONSUMER_INDEX, {
             type = 'tree',
             unique = false,
-            parts = {oauth_code.CONSUMER_KEY, 'string'},
+            parts = {oauth_code.CONSUMER_KEY, 'string', oauth_code.RESOURCE_OWNER, 'string'},
             if_not_exists = true
         })
 
@@ -143,13 +145,47 @@ function db.configurate(config)
         oauth_token_space:create_index(oauth_token.CONSUMER_INDEX, {
             type = 'tree',
             unique = false,
-            parts = {oauth_token.CONSUMER_KEY, 'string'},
+            parts = {oauth_token.CONSUMER_KEY, 'string', oauth_token.RESOURCE_OWNER, 'string'},
             if_not_exists = true
         })
         oauth_token_space:create_index(oauth_token.REFRESH_INDEX, {
             type = 'tree',
             unique = true,
             parts = {oauth_token.REFRESH_TOKEN, 'string'},
+            if_not_exists = true
+        })
+
+        local oauth_scope_space = box.schema.space.create(oauth_scope.SPACE_NAME, {
+            if_not_exists = true
+        })
+
+        oauth_scope_space:create_index(oauth_scope.PRIMARY_INDEX, {
+            type = 'tree',
+            unique = true,
+            parts = {oauth_scope.USER_ID, 'string', oauth_scope.CONSUMER_KEY, 'string', oauth_scope.NAME, 'string'},
+            if_not_exists = true
+        })
+        oauth_scope_space:create_index(oauth_scope.CONSUMER_INDEX, {
+            type = 'tree',
+            unique = false,
+            parts = {oauth_scope.CONSUMER_KEY, 'string'},
+            if_not_exists = true
+        })
+
+        local oauth_redirect_space = box.schema.space.create(oauth_redirect.SPACE_NAME, {
+            if_not_exists = true
+        })
+
+        oauth_redirect_space:create_index(oauth_redirect.PRIMARY_INDEX, {
+            type = 'tree',
+            unique = true,
+            parts = {oauth_redirect.CONSUMER_KEY, 'string', oauth_redirect.USER_ID, 'string'},
+            if_not_exists = true
+        })
+        oauth_redirect_space:create_index(oauth_redirect.USER_ID_INDEX, {
+            type = 'tree',
+            unique = false,
+            parts = {oauth_redirect.USER_ID, 'string'},
             if_not_exists = true
         })
     end
@@ -164,6 +200,8 @@ function db.configurate(config)
         oauth_consumer.get_space():truncate()
         oauth_code.get_space():truncate()
         oauth_token.get_space():truncate()
+        oauth_scope.get_space():truncate()
+        oauth_redirect.get_space():truncate()
     end
 
     return api
