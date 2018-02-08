@@ -380,6 +380,70 @@ function test_reset_consumer_secret()
     test:is(got[2].consumer_secret_hash, utils.salted_hash(new_secret, app.id), 'test_reset_consumer_secret; consumer secret hash')
 end
 
+function test_list_apps()
+
+    local ok, user = auth.registration(v.USER_EMAIL)
+    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+
+    local added_apps = {}
+    local i = 1
+    while i <= 10 do
+
+        local app_name = string.format("%s %d", v.OAUTH_APP_NAME, i)
+        local ok, app = auth.oauth.add_app(user.id, app_name, 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+        app.consumer_secret = nil
+        added_apps[app.id] = app
+        i = i + 1
+    end
+
+    local tt = {
+        {offset = 0, limit = 1},
+        {offset = 1, limit = 2},
+        {offset = 3, limit = 5},
+        {offset = 9, limit = 1},
+    }
+
+    for _, tc in ipairs(tt) do
+        local got = {auth.oauth.list_apps(tc.offset, tc.limit)}
+        test:is_deeply(got[1], true, string.format("offset %d; limit %d; result is true", tc.offset, tc.limit))
+
+        for i, app in ipairs(got[2].data) do
+            app.app_id = nil
+            app.consumer_secret_hash = nil
+            test:is_deeply(added_apps[app.id], app, string.format("offset %d; limit %d; %d app is ok", tc.offset, tc.limit, i))
+            added_apps[app.id] = nil
+        end
+        test:is_deeply(got[2].pager, {offset = tc.offset, limit =  tc.limit, total = 10}, string.format("offset %d, limit %d; pager is ok", tc.offset, tc.limit))
+    end
+end
+
+function test_list_apps_invalid_offset_and_limit()
+
+    local ok, user = auth.registration(v.USER_EMAIL)
+    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+
+    local added_apps = {}
+    local i = 1
+    while i <= 10 do
+
+        local app_name = string.format("%s %d", v.OAUTH_APP_NAME, i)
+        local ok, app = auth.oauth.add_app(user.id, app_name, 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+        app.consumer_secret = nil
+        added_apps[app.id] = app
+        i = i + 1
+    end
+
+    local offset, limit = -1, -2
+
+    local got = {auth.oauth.list_apps(offset, limit)}
+    for i, app in ipairs(got[2].data) do
+        app.app_id = nil
+        app.consumer_secret_hash = nil
+        test:is_deeply(added_apps[app.id], app, string.format("%d app returned", i))
+        added_apps[app.id] = nil
+    end
+    test:is_deeply(got[2].pager, {offset = 0, limit =  10, total = 10}, string.format("offset %d, limit %d; pager is ok", offset, limit))
+end
 
 
 
@@ -410,6 +474,8 @@ exports.tests = {
     test_enable_app_not_found,
     test_delete_user,
     test_reset_consumer_secret,
+    test_list_apps,
+    test_list_apps_invalid_offset_and_limit
 }
 
 

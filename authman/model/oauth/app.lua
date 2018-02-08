@@ -69,6 +69,14 @@ function app.model(config)
 
     end
 
+    function model.list(offset, limit)
+        return model.get_space().index[model.PRIMARY_INDEX]:select(nil, {offset = offset, limit = limit, iterator = box.index.ALL})
+    end
+
+    function model.count_total()
+        return model.get_space():len()
+    end
+
     function model.get_by_user_id(user_id)
         if validator.not_empty_string(user_id) then
             return model.get_space().index[model.USER_ID_INDEX]:select({user_id})
