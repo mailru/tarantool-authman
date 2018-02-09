@@ -378,3 +378,39 @@ tarantool> data
     url: http://test.ru/test1
 ```
 Given user_id and consumer_key delete user's redirects for the consumer. Return list of deleted redirects.
+
+#### auth.oauth.list_apps(offset, limit)
+```
+tarantool> ok, data = auth.oauth.list_apps(0, 2)
+tarantool> data
+---
+- true
+- data:
+  - consumer_key: 175f0bae674aa64db615b86e162246df
+    id: 3a32c0e7-137f-436d-8049-f34c4164bb55
+    is_active: true
+    is_trusted: true
+    user_id: 5c2ec04d-1c0c-4966-a705-f358a9084345
+    type: browser
+    redirect_urls: http://test.com/test2
+    consumer_secret_hash: !!binary 7UeupUFjN58PpFw4fillc3/mTJVbk1nhfphBimJY5PU=
+    name: test app 2
+    app_id: 3a32c0e7-137f-436d-8049-f34c4164bb55
+  - consumer_key: e08ef89d66dea2488ab0189617b88e3d
+    id: 8b89066f-5603-46ab-8f38-85d4cc18e4ed
+    is_active: true
+    is_trusted: true
+    user_id: 5c2ec04d-1c0c-4966-a705-f358a9084345
+    type: browser
+    redirect_urls: http://test.com/test1
+    consumer_secret_hash: !!binary 7DCGKXT4MspO8zpMFr66Rq3gFO2G5CZGESzSH/5lqPk=
+    name: test app 1
+    app_id: 8b89066f-5603-46ab-8f38-85d4cc18e4ed
+  pager:
+    offset: 0
+    limit: 2
+    total: 2
+```
+Return table with 2 elements:
+    - data - list of app tuples
+    - pager - values for pagination
