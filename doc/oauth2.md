@@ -412,5 +412,5 @@ tarantool> data
     total: 2
 ```
 Return table with 2 elements:
-    - data - list of app tuples
-    - pager - values for pagination
+- data - list of app tuples
+- pager - values for pagination
