@@ -388,6 +388,11 @@ tarantool> data
 - data:
   - consumer_key: 175f0bae674aa64db615b86e162246df
     id: 3a32c0e7-137f-436d-8049-f34c4164bb55
+    user:
+      is_active: true
+      email: diez@devmail.ru
+      profile: null
+      id: 5c2ec04d-1c0c-4966-a705-f358a9084345
     is_active: true
     is_trusted: true
     user_id: 5c2ec04d-1c0c-4966-a705-f358a9084345
@@ -398,6 +403,11 @@ tarantool> data
     app_id: 3a32c0e7-137f-436d-8049-f34c4164bb55
   - consumer_key: e08ef89d66dea2488ab0189617b88e3d
     id: 8b89066f-5603-46ab-8f38-85d4cc18e4ed
+    user:
+      is_active: true
+      email: diez@devmail.ru
+      profile: null
+      id: 5c2ec04d-1c0c-4966-a705-f358a9084345
     is_active: true
     is_trusted: true
     user_id: 5c2ec04d-1c0c-4966-a705-f358a9084345

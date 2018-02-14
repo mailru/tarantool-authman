@@ -173,18 +173,10 @@ return function(config)
             limit = 10
         end
 
-        local data = {}
-
         local apps = oauth_app.list(offset, limit)
-        if apps ~= nil and #apps ~= 0 then
-            for i, app in pairs(apps) do
-                local consumer = oauth_consumer.get_by_app_id(app[oauth_app.ID])
-                data[i] = oauth_app.serialize(app, oauth_consumer.serialize(consumer))
-            end
-        end
-
         local total = oauth_app.count_total()
-        return response.ok({ data = data, pager = { total = total, offset = offset, limit = limit }})
+
+        return response.ok({ data = apps, pager = { total = total, offset = offset, limit = limit }})
     end
 
     function api.get_consumer(consumer_key)

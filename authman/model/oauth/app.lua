@@ -10,6 +10,7 @@ local utils = require('authman.utils.utils')
 -----
 function app.model(config)
 
+    local user = require('authman.model.user').model(config)
     local oauth_consumer = require('authman.model.oauth.consumer').model(config)
     local oauth_code = require('authman.model.oauth.code').model(config)
     local oauth_token = require('authman.model.oauth.token').model(config)
@@ -70,7 +71,25 @@ function app.model(config)
     end
 
     function model.list(offset, limit)
-        return model.get_space().index[model.PRIMARY_INDEX]:select(nil, {offset = offset, limit = limit, iterator = box.index.ALL})
+        local data = {}
+        local apps = model.get_space().index[model.PRIMARY_INDEX]:select(nil, {offset = offset, limit = limit, iterator = box.index.ALL})
+        if apps ~= nil and #apps ~= 0 then
+            local users = {}
+            for i, app in pairs(apps) do
+
+                local u = users[app[model.USER_ID]]
+                if not u then
+                    u = user.serialize(user.get_by_id(app[model.USER_ID]))
+                    users[app[model.USER_ID]] = u
+                end
+
+                local consumer_tuple = oauth_consumer.get_by_app_id(app[model.ID])
+                local extra_data = oauth_consumer.serialize(consumer_tuple, {user = u})
+                data[i] = model.serialize(app, extra_data)
+            end
+        end
+
+        return data
     end
 
     function model.count_total()

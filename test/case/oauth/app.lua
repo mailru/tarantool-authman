@@ -410,7 +410,9 @@ function test_list_apps()
         for i, app in ipairs(got[2].data) do
             app.app_id = nil
             app.consumer_secret_hash = nil
-            test:is_deeply(added_apps[app.id], app, string.format("offset %d; limit %d; %d app is ok", tc.offset, tc.limit, i))
+            local expected = added_apps[app.id]
+            expected.user = user
+            test:is_deeply(app, expected, string.format("offset %d; limit %d; %d app is ok", tc.offset, tc.limit, i))
             added_apps[app.id] = nil
         end
         test:is_deeply(got[2].pager, {offset = tc.offset, limit =  tc.limit, total = 10}, string.format("offset %d, limit %d; pager is ok", tc.offset, tc.limit))
@@ -439,7 +441,9 @@ function test_list_apps_invalid_offset_and_limit()
     for i, app in ipairs(got[2].data) do
         app.app_id = nil
         app.consumer_secret_hash = nil
-        test:is_deeply(added_apps[app.id], app, string.format("%d app returned", i))
+        local expected = added_apps[app.id]
+        expected.user = user
+        test:is_deeply(app, expected, string.format("%d app returned", i))
         added_apps[app.id] = nil
     end
     test:is_deeply(got[2].pager, {offset = 0, limit =  10, total = 10}, string.format("offset %d, limit %d; pager is ok", offset, limit))
