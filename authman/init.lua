@@ -5,7 +5,6 @@ local validator = require('authman.validator')
 local db = require('authman.db')
 local utils = require('authman.utils.utils')
 
-
 function auth.api(config)
     local api = {}
 

@@ -162,13 +162,13 @@ function db.configurate(config)
         oauth_scope_space:create_index(oauth_scope.PRIMARY_INDEX, {
             type = 'tree',
             unique = true,
-            parts = {oauth_scope.USER_ID, 'string', oauth_scope.CONSUMER_KEY, 'string', oauth_scope.NAME, 'string'},
+            parts = {oauth_scope.CONSUMER_KEY, 'string', oauth_scope.USER_ID, 'string', oauth_scope.NAME, 'string'},
             if_not_exists = true
         })
-        oauth_scope_space:create_index(oauth_scope.CONSUMER_INDEX, {
+        oauth_scope_space:create_index(oauth_scope.USER_ID_INDEX, {
             type = 'tree',
             unique = false,
-            parts = {oauth_scope.CONSUMER_KEY, 'string'},
+            parts = {oauth_scope.USER_ID, 'string'},
             if_not_exists = true
         })
 

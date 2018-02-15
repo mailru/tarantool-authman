@@ -22,15 +22,21 @@ function redirect.model(config)
         return box.space[model.SPACE_NAME]
     end
 
-    function model.serialize(redirect_tuple)
+    function model.serialize(redirect_tuple, data)
 
-        local data = {
+        local redirect_data = {
             consumer_key = redirect_tuple[model.CONSUMER_KEY],
             user_id = redirect_tuple[model.USER_ID],
             url = redirect_tuple[model.URL],
         }
 
-        return data
+        if data ~= nil then
+            for k,v in pairs(data) do
+                redirect_data[k] = v
+            end
+        end
+
+        return redirect_data
     end
 
     function model.upsert_redirect(redirect_tuple)

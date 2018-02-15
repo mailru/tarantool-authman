@@ -75,28 +75,45 @@ function test_get_user_redirects_success()
 
     local got, expected
 
-    auth.oauth.save_redirect("consumer_key1", "user_id1", "http://test.ru/1")
-    auth.oauth.save_redirect("consumer_key1", "user_id2", "http://test.ru/2")
-    auth.oauth.save_redirect("consumer_key2", "user_id1", "http://test.ru/3")
-    auth.oauth.save_redirect("consumer_key2", "user_id2", "http://test.ru/4")
+    local _, user = auth.registration(v.USER_EMAIL)
+    _, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+
+    local _, app1 = auth.oauth.add_app(user.id, "Test app 1", 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    local _, app2 = auth.oauth.add_app(user.id, "Test app 2", 'native', v.OAUTH_CONSUMER_REDIRECT_URLS)
+
+    local _, consumer1 = auth.oauth.get_consumer(app1.consumer_key)
+    local _, consumer2 = auth.oauth.get_consumer(app2.consumer_key)
+
+    auth.oauth.save_redirect(app1.consumer_key, "user_id1", "http://test.ru/1")
+    auth.oauth.save_redirect(app2.consumer_key, "user_id2", "http://test.ru/2")
 
     got = {auth.oauth.get_user_redirects("user_id1")}
 
     expected = {true, {
-        {consumer_key = "consumer_key1", user_id = "user_id1", url = "http://test.ru/1"},
-        {consumer_key = "consumer_key2", user_id = "user_id1", url = "http://test.ru/3"},
+        {consumer_key = app1.consumer_key, user_id = "user_id1", url = "http://test.ru/1", consumer = consumer1},
     }}
 
     test:is_deeply(got, expected, 'test_get_user_redirects_success; user_id1')
 
     got = {auth.oauth.get_user_redirects("user_id2")}
     expected = {true, {
-        {consumer_key = "consumer_key1", user_id = "user_id2", url = "http://test.ru/2"},
-        {consumer_key = "consumer_key2", user_id = "user_id2", url = "http://test.ru/4"},
+        {consumer_key = app2.consumer_key, user_id = "user_id2", url = "http://test.ru/2", consumer = consumer2},
     }}
     test:is_deeply(got, expected, 'test_get_user_redirects_success; user_id2')
 end
 
+function test_get_user_redirects_consumer_not_found()
+
+    local got, expected
+
+    auth.oauth.save_redirect("consumer_key1", "user_id1", "http://test.ru/1")
+    auth.oauth.save_redirect("consumer_key2", "user_id1", "http://test.ru/2")
+
+    got = {auth.oauth.get_user_redirects("user_id1")}
+    expected = {true, {}}
+
+    test:is_deeply(got, expected, 'test_get_user_redirects_consumer_not_found')
+end
 
 function test_get_user_redirects_invalid_params()
 
@@ -164,20 +181,21 @@ function test_delete_app()
 
     local ok, got, expected
 
-    local ok, user = auth.registration(v.USER_EMAIL)
-    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+    local _, user = auth.registration(v.USER_EMAIL)
+    _, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
 
-    local ok, app1 = auth.oauth.add_app(user.id, "Test app 1", 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    local _, app1 = auth.oauth.add_app(user.id, "Test app 1", 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
     auth.oauth.save_redirect(app1.consumer_key, 'user_id2', v.OAUTH_CONSUMER_REDIRECT_URLS)
 
-    local ok, app2 = auth.oauth.add_app(user.id, "Test app 2", 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    local _, app2 = auth.oauth.add_app(user.id, "Test app 2", 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
     auth.oauth.save_redirect(app2.consumer_key, 'user_id2', v.OAUTH_CONSUMER_REDIRECT_URLS)
 
     auth.oauth.delete_app(app1.id)
 
     got = {auth.oauth.get_user_redirects("user_id2", app1.consumer_key)}
-    expected = {ok, {
-        {consumer_key = app2.consumer_key, user_id = "user_id2", url = v.OAUTH_CONSUMER_REDIRECT_URLS},
+    local _, expected_consumer = auth.oauth.get_consumer(app2.consumer_key)
+    expected = {true, {
+        {consumer_key = app2.consumer_key, user_id = "user_id2", url = v.OAUTH_CONSUMER_REDIRECT_URLS, consumer = expected_consumer},
     }}
     test:is_deeply(got, expected, 'test_delete_app; app1 redirect urls deleted')
 end
@@ -229,6 +247,7 @@ exports.tests = {
     test_save_redirect_success,
     test_save_redirect_invalid_params,
     test_get_user_redirects_success,
+    test_get_user_redirects_consumer_not_found,
     test_get_user_redirects_invalid_params,
     test_delete_user_redirects_success,
     test_delete_user_redirects_invalid_params,

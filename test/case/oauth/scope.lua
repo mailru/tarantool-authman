@@ -100,27 +100,33 @@ function test_get_user_authorizations_success()
 
     local scopes, got, expected
 
+    local _, user = auth.registration(v.USER_EMAIL)
+    _, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+
+    local _, app = auth.oauth.add_app(user.id, "Test app 1", 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    local _, expected_consumer = auth.oauth.get_consumer(app.consumer_key)
+
     scopes = {"scope1", "scope2", "scope3"}
 
-    auth.oauth.add_consumer_scopes(v.OAUTH_CONSUMER_KEY, "user_id1", scopes)
+    auth.oauth.add_consumer_scopes(app.consumer_key, "user_id1", scopes)
 
     scopes = {"scope4", "scope5", "scope6"}
 
-    auth.oauth.add_consumer_scopes(v.OAUTH_CONSUMER_KEY, "user_id2", scopes)
+    auth.oauth.add_consumer_scopes(app.consumer_key, "user_id2", scopes)
 
     got = {auth.oauth.get_user_authorizations("user_id1")}
     expected = {true, {
-        {user_id = "user_id1", consumer_key = v.OAUTH_CONSUMER_KEY, name = "scope1"},
-        {user_id = "user_id1", consumer_key = v.OAUTH_CONSUMER_KEY, name = "scope2"},
-        {user_id = "user_id1", consumer_key = v.OAUTH_CONSUMER_KEY, name = "scope3"},
+        {user_id = "user_id1", consumer_key = app.consumer_key, name = "scope1", consumer = expected_consumer},
+        {user_id = "user_id1", consumer_key = app.consumer_key, name = "scope2", consumer = expected_consumer},
+        {user_id = "user_id1", consumer_key = app.consumer_key, name = "scope3", consumer = expected_consumer},
     }}
     test:is_deeply(got, expected, 'test_get_user_authorizations_success; user_id1')
 
     got = {auth.oauth.get_user_authorizations("user_id2")}
     expected = {true, {
-        {user_id = "user_id2", consumer_key = v.OAUTH_CONSUMER_KEY, name = "scope4"},
-        {user_id = "user_id2", consumer_key = v.OAUTH_CONSUMER_KEY, name = "scope5"},
-        {user_id = "user_id2", consumer_key = v.OAUTH_CONSUMER_KEY, name = "scope6"},
+        {user_id = "user_id2", consumer_key = app.consumer_key, name = "scope4", consumer = expected_consumer},
+        {user_id = "user_id2", consumer_key = app.consumer_key, name = "scope5", consumer = expected_consumer},
+        {user_id = "user_id2", consumer_key = app.consumer_key, name = "scope6", consumer = expected_consumer},
     }}
     test:is_deeply(got, expected, 'test_get_user_authorizations_success; user_id2')
 end
@@ -171,23 +177,23 @@ function test_delete_app()
 
     local ok, got, expected
 
-    local ok, user = auth.registration(v.USER_EMAIL)
-    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+    local _, user = auth.registration(v.USER_EMAIL)
+    _, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
 
-    local ok, app1 = auth.oauth.add_app(user.id, "Test app 1", 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    auth.oauth.add_consumer_scopes(app1.consumer_key, v.OAUTH_RESOURCE_OWNER, {v.OAUTH_SCOPE})
+    local _, app1 = auth.oauth.add_app(user.id, "Test app 1", 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    local _, s = auth.oauth.add_consumer_scopes(app1.consumer_key, v.OAUTH_RESOURCE_OWNER, {v.OAUTH_SCOPE})
 
-    local ok, app2 = auth.oauth.add_app(user.id, "Test app 2", 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    auth.oauth.add_consumer_scopes(app2.consumer_key, v.OAUTH_RESOURCE_OWNER, {v.OAUTH_SCOPE})
+    local _, app2 = auth.oauth.add_app(user.id, "Test app 2", 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    local _, s = auth.oauth.add_consumer_scopes(app2.consumer_key, v.OAUTH_RESOURCE_OWNER, {v.OAUTH_SCOPE})
 
     auth.oauth.delete_app(app1.id)
 
-    got = {auth.oauth.get_user_authorizations(v.OAUTH_RESOURCE_OWNER, app1.consumer_key)}
-    expected = {ok, {}}
+    got = {auth.oauth.get_consumer_authorizations(app1.consumer_key, v.OAUTH_RESOURCE_OWNER)}
+    expected = {true, {}}
     test:is_deeply(got, expected, 'test_delete_app; app1 authorization is deleted')
 
-    got = {auth.oauth.get_user_authorizations(v.OAUTH_RESOURCE_OWNER, app2.consumer_key)}
-    expected = {ok, {
+    got = {auth.oauth.get_consumer_authorizations(app2.consumer_key, v.OAUTH_RESOURCE_OWNER)}
+    expected = {true, {
         {user_id = v.OAUTH_RESOURCE_OWNER, consumer_key = app2.consumer_key, name = v.OAUTH_SCOPE},
     }}
     test:is_deeply(got, expected, 'test_delete_app; app2 authorization is not deleted')

@@ -307,7 +307,7 @@ tarantool> consumer_scopes
 ```
 Given consumer_key, user_id and list of scopes extend scopes granted by the user to the consumer. Return a list of scopes granted by the user to the consumer.
 
-#### auth.oauth.get_user_authorizations(user_id, consumer_key)
+#### auth.oauth.get_user_authorizations(user_id)
 ```
 tarantool> ok, user_authorizations = app.auth.oauth.get_user_authorizations('958e93a7-e6ca-471d-836e-21086c399c6d', '06b043c219752541ab50e82627148161')
 tarantool> user_authorizations
@@ -319,7 +319,7 @@ tarantool> user_authorizations
     consumer_key: 06b043c219752541ab50e82627148161
     name: write
 ```
-Given user_id and consumer_key (optional) return list of scopes granted by the user.
+Given user_id return list of scopes granted by the user.
 
 #### auth.oauth.delete_user_authorizations(user_id, consumer_key)
 ```

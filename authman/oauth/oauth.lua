@@ -408,21 +408,38 @@ return function(config)
         return response.ok(oauth_scope.serialize(oauth_scope.add_consumer_scopes(consumer_key, user_id, scopes)))
     end
 
-    function api.get_consumer_authorizations(consumer_key)
+    function api.get_consumer_authorizations(consumer_key, user_id)
         if not validator.not_empty_string(consumer_key) then
             return response.error(error.INVALID_PARAMS)
         end
 
-        return response.ok(oauth_scope.serialize(oauth_scope.get_by_consumer_key(consumer_key)))
+        return response.ok(oauth_scope.serialize(oauth_scope.get_by_consumer_key(consumer_key, user_id)))
     end
 
 
-    function api.get_user_authorizations(user_id, consumer_key)
+    function api.get_user_authorizations(user_id)
         if not validator.not_empty_string(user_id) then
             return response.error(error.INVALID_PARAMS)
         end
 
-        return response.ok(oauth_scope.serialize(oauth_scope.get_by_user_id(user_id, consumer_key)))
+        local tuples = oauth_scope.get_by_user_id(user_id)
+
+        local data = {}
+        local scopes = {}
+
+        if tuples ~= nil and #tuples ~= 0 then
+            for i, s in pairs(tuples) do
+
+                local ok, consumer = api.get_consumer(s[oauth_scope.CONSUMER_KEY])
+
+                if ok then
+                    scopes[i] = s
+                    data[i] = {consumer = consumer}
+                end
+            end
+        end
+
+        return response.ok(oauth_scope.serialize(scopes, data))
     end
 
     function api.delete_user_authorizations(user_id, consumer_key)
@@ -434,7 +451,7 @@ return function(config)
         oauth_token.delete_by_consumer_key(consumer_key, user_id)
         oauth_code.delete_by_consumer_key(consumer_key, user_id)
 
-        return response.ok(oauth_scope.serialize(oauth_scope.delete_by_user_id(user_id, consumer_key)))
+        return response.ok(oauth_scope.serialize(oauth_scope.delete_by_consumer_key(consumer_key, user_id)))
     end
 
     function api.save_redirect(consumer_key, user_id, redirect_url)
@@ -482,8 +499,13 @@ return function(config)
         local redirects = oauth_redirect.get_by_user_id(user_id)
 
         if redirects ~= nil and #redirects ~= 0 then
-            for i, u in pairs(redirects) do
-                result[i] = oauth_redirect.serialize(u)
+            for i, r in pairs(redirects) do
+
+                local ok, consumer = api.get_consumer(r[oauth_redirect.CONSUMER_KEY])
+
+                if ok then
+                    result[i] = oauth_redirect.serialize(r, {consumer = consumer})
+                end
             end
         end
 
