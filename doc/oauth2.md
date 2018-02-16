@@ -354,6 +354,17 @@ tarantool> data
 - user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
   consumer_key: 06b043c219752541ab50e82627148161
   url: http://test.ru/test1
+  consumer:
+      consumer_key: 06b043c219752541ab50e82627148161
+      id: 95767152-b7c7-456b-bb21-a13ac17350a7
+      is_active: true
+      is_trusted: false
+      user_id: 7f66aafb-5ab7-4fd5-8b4f-3f07c2c6cea3
+      type: browser
+      redirect_urls: https://mediator.media
+      consumer_secret_hash: !!binary eHrD00klpfupEm7mkyqnX/PYlTy7u5AGEsb2/BIcp44=
+      name: test5
+      app_id: 95767152-b7c7-456b-bb21-a13ac17350a7
 ```
 Given user_id return list of user's redirects.
 
