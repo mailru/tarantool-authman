@@ -179,21 +179,47 @@ return function(config)
         return response.ok({ data = apps, pager = { total = total, offset = offset, limit = limit }})
     end
 
-    function api.get_consumer(consumer_key)
-        if not validator.not_empty_string(consumer_key) then
-            return response.error(error.INVALID_PARAMS)
+    function api.get_consumer(args)
+
+        local res = {}
+        if type(args) == "table" then
+            for _, consumer_key in ipairs(args) do
+                if not validator.not_empty_string(consumer_key) then
+                    goto continue
+                end
+
+                local consumer = oauth_consumer.get_by_id(consumer_key)
+                if consumer == nil then
+                    goto continue
+                end
+
+                local app = oauth_app.get_by_id(consumer[oauth_consumer.APP_ID])
+                if app ~= nil then
+                    res[consumer_key] = oauth_app.serialize(app, oauth_consumer.serialize(consumer))
+                end
+
+                ::continue::
+            end
+        else
+            -- keep backward API compatibility
+            local consumer_key = args
+            if not validator.not_empty_string(consumer_key) then
+                return response.error(error.INVALID_PARAMS)
+            end
+
+            local consumer = oauth_consumer.get_by_id(consumer_key)
+            if consumer == nil then
+                return response.error(error.OAUTH_CONSUMER_NOT_FOUND)
+            end
+
+            local app = oauth_app.get_by_id(consumer[oauth_consumer.APP_ID])
+            if app == nil then
+                return response.error(error.OAUTH_APP_NOT_FOUND)
+            end
+            res = oauth_app.serialize(app, oauth_consumer.serialize(consumer))
         end
 
-        local consumer = oauth_consumer.get_by_id(consumer_key)
-        if consumer == nil then
-            return response.error(error.OAUTH_CONSUMER_NOT_FOUND)
-        end
-
-        local app = oauth_app.get_by_id(consumer[oauth_consumer.APP_ID])
-        if app == nil then
-            return response.error(error.OAUTH_APP_NOT_FOUND)
-        end
-        return response.ok(oauth_app.serialize(app, oauth_consumer.serialize(consumer)))
+        return response.ok(res)
     end
 
     function api.reset_consumer_secret(consumer_key)

@@ -93,23 +93,36 @@ tarantool> apps
 ```
 Given user id return list of user's applications
 
-#### auth.oauth.get_consumer(consumer_key)
+#### auth.oauth.get_consumer({consumer_key1, consumer_key2, ...})
 ```
-tarantool> ok, consumer = auth.oauth.get_consumer('9169b664839bca439ca11fe4274838b2')
-tarantool> consumer
+tarantool> ok, consumers = auth.oauth.get_consumer({"99908ae23c746b4db8b576f93d02b4d4","f2c53fa65cd6b143aa9c105f37915ce0"})
+tarantool> consumers
 ---
-- consumer_key: 9169b664839bca439ca11fe4274838b2
-  id: 1cd3806a-4221-4ff2-aa7c-e5d076c4c1a7
-  is_active: true
-  redirect_urls: https://example.com/1 https://example.com/2
-  type: browser
-  consumer_secret_hash: !!binary xPVbgBDs53gqmhp7ZBtzKIjU9IjtDlQYfqMAQOfVYLU=
-  application_id: 1cd3806a-4221-4ff2-aa7c-e5d076c4c1a7
-  name: test app
-  user_id: 268a8464-e39d-4f82-b55f-e68197c6c3f2
+- f2c53fa65cd6b143aa9c105f37915ce0:
+    consumer_key: f2c53fa65cd6b143aa9c105f37915ce0
+    id: 58b4ca14-1a1a-47be-bfad-beacec7846a6
+    is_active: true
+    is_trusted: true
+    user_id: 7f66aafb-5ab7-4fd5-8b4f-3f07c2c6cea3
+    type: browser
+    redirect_urls: https://mediator.media
+    consumer_secret_hash: !!binary o6PdmhDB5/NNBAEcyZ2nLVn1R/zuHTlIw11qBgrJgHs=
+    name: test2
+    app_id: 58b4ca14-1a1a-47be-bfad-beacec7846a6
+  99908ae23c746b4db8b576f93d02b4d4:
+    consumer_key: 99908ae23c746b4db8b576f93d02b4d4
+    id: 94e385eb-f61b-4c47-9f3c-50e061c0c5fb
+    is_active: true
+    is_trusted: true
+    user_id: 7f66aafb-5ab7-4fd5-8b4f-3f07c2c6cea3
+    type: server
+    redirect_urls: http://mail.ru
+    consumer_secret_hash: !!binary yqQe2Vl1e12Kdh6a1GMbq2D1CRUyOn1OvSXxt57o3/w=
+    name: test3
+    app_id: 94e385eb-f61b-4c47-9f3c-50e061c0c5fb
 ...
 ```
-Given consumer key return OAuth client info.
+Given table with consumer keys return table which keys are consumer keys and values are app tuples.
 
 #### auth.oauth.reset_consumer_secret(consumer_key)
 ```
