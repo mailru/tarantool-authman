@@ -50,12 +50,8 @@ function scope.model(config)
         local cur_scopes = model.get_by_consumer_key(consumer_key, user_id)
         for _, scope_name in ipairs(scopes) do
 
-            if validator.not_empty_string(scope_name) then
-                for _, scope in ipairs(cur_scopes) do
-                    if scope[model.NAME] == scope_name then
-                        goto continue
-                    end
-                end
+            if validator.not_empty_string(scope_name)
+                and not model.scope_exists(scope_name, cur_scopes) then
 
                 local scope_tuple = {
                     [model.CONSUMER_KEY] = consumer_key,
@@ -65,11 +61,19 @@ function scope.model(config)
 
                 table.insert(cur_scopes, model.get_space():replace(scope_tuple))
             end
-
-            ::continue::
         end
 
         return cur_scopes
+    end
+
+    function model.scope_exists(scope_name, scopes)
+        for _, scope in ipairs(scopes) do
+            if scope[model.NAME] == scope_name then
+                return true
+            end
+        end
+
+        return false
     end
 
     function model.get_by_user_id(user_id)
