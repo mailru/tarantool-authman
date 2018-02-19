@@ -212,7 +212,7 @@ return function(config)
         end
 
         local consumer_secret = oauth_consumer.generate_consumer_secret()
-        local _ = oauth_consumer.update_consumer_secret(consumer_key, consumer_secret, consumer[oauth_consumer.APP_ID])
+        oauth_consumer.update_consumer_secret(consumer_key, consumer_secret, consumer[oauth_consumer.APP_ID])
 
         return response.ok(consumer_secret)
     end
