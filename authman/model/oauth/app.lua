@@ -138,6 +138,36 @@ function app.model(config)
         return model.get_space():update(id, fields)
     end
 
+    function model.load_by_consumer_keys(args)
+
+        local res = {}
+        local users = {}
+        for _, consumer_key in ipairs(args) do
+
+            local consumer = oauth_consumer.get_by_id(consumer_key)
+            if consumer == nil then
+                goto continue
+            end
+
+            local app = model.get_by_id(consumer[oauth_consumer.APP_ID])
+            if app ~= nil then
+
+                local u = users[app[model.USER_ID]]
+                if not u then
+                    u = user.serialize(user.get_by_id(app[model.USER_ID]))
+                    users[app[model.USER_ID]] = u
+                end
+
+                local extra_data = oauth_consumer.serialize(consumer, {user = u})
+                res[consumer_key] = model.serialize(app, extra_data)
+            end
+
+            ::continue::
+        end
+        return res
+    end
+
+
     return model
 end
 

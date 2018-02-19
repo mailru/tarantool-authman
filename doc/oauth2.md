@@ -93,9 +93,27 @@ tarantool> apps
 ```
 Given user id return list of user's applications
 
-#### auth.oauth.get_consumer({consumer_key1, consumer_key2, ...})
+#### auth.oauth.get_consumer(consumer_key)
 ```
-tarantool> ok, consumers = auth.oauth.get_consumer({"99908ae23c746b4db8b576f93d02b4d4","f2c53fa65cd6b143aa9c105f37915ce0"})
+tarantool> ok, consumer = auth.oauth.get_consumer('9169b664839bca439ca11fe4274838b2')
+tarantool> consumer
+---
+- consumer_key: 9169b664839bca439ca11fe4274838b2
+  id: 1cd3806a-4221-4ff2-aa7c-e5d076c4c1a7
+  is_active: true
+  redirect_urls: https://example.com/1 https://example.com/2
+  type: browser
+  consumer_secret_hash: !!binary xPVbgBDs53gqmhp7ZBtzKIjU9IjtDlQYfqMAQOfVYLU=
+  application_id: 1cd3806a-4221-4ff2-aa7c-e5d076c4c1a7
+  name: test app
+  user_id: 268a8464-e39d-4f82-b55f-e68197c6c3f2
+...
+```
+Given consumer key return OAuth client info.
+
+#### auth.oauth.load_consumers({consumer_key1, consumer_key2, ...})
+```
+tarantool> ok, consumers = auth.oauth.load_consumers({"99908ae23c746b4db8b576f93d02b4d4","f2c53fa65cd6b143aa9c105f37915ce0"})
 tarantool> consumers
 ---
 - f2c53fa65cd6b143aa9c105f37915ce0:

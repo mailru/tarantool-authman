@@ -205,28 +205,33 @@ function test_get_consumer_empty_consumer_key()
     test:is_deeply(got, expected, 'test_get_consumer_empty_consumer_key')
 end
 
-function test_get_consumer_v2_success()
+function test_load_consumers()
 
-    local ok, user = auth.registration(v.USER_EMAIL)
-    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+    local _, user1 = auth.registration("test1@test.ru")
+    _, user1 = auth.complete_registration("test1@test.ru", user1.code, v.USER_PASSWORD)
+
+    local _, user2 = auth.registration("test2@test.ru")
+    _, user2 = auth.complete_registration("test2@test.ru", user2.code, v.USER_PASSWORD)
 
     local added_apps = {}
     local consumer_keys = {}
     local i = 1
-    while i <= 10 do
-
-        local app_name = string.format("%s %d", v.OAUTH_APP_NAME, i)
-        local _, app = auth.oauth.add_app(user.id, app_name, 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
-        consumer_keys[i] = app.consumer_key
-        local _, consumer = auth.oauth.get_app(app.id)
-        added_apps[app.consumer_key] = consumer
-        i = i + 1
+    while i <= 20 do
+        for _, u in ipairs{user1, user2} do
+            local app_name = string.format("%s %d", v.OAUTH_APP_NAME, i)
+            local _, app = auth.oauth.add_app(u.id, app_name, 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+            consumer_keys[i] = app.consumer_key
+            local _, consumer = auth.oauth.get_app(app.id)
+            consumer.user = u
+            added_apps[app.consumer_key] = consumer
+            i = i + 1
+        end
     end
 
-    local got = {auth.oauth.get_consumer(consumer_keys)}
+    local got = {auth.oauth.load_consumers(consumer_keys)}
     local expected = {true, added_apps}
 
-    test:is_deeply(got, expected, 'test_get_consumer_v2_success')
+    test:is_deeply(got, expected, 'test_load_consumers')
 end
 
 
@@ -491,7 +496,7 @@ exports.tests = {
     test_get_consumer_success,
     test_get_consumer_unknown_consumer,
     test_get_consumer_empty_consumer_key,
-    test_get_consumer_v2_success,
+    test_load_consumers,
     test_get_user_apps_success,
     test_get_user_apps_empty_user_id,
     test_delete_app_success,
