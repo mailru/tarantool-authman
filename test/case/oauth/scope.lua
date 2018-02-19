@@ -181,10 +181,10 @@ function test_delete_app()
     _, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
 
     local _, app1 = auth.oauth.add_app(user.id, "Test app 1", 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    local _, s = auth.oauth.add_consumer_scopes(app1.consumer_key, v.OAUTH_RESOURCE_OWNER, {v.OAUTH_SCOPE})
+    auth.oauth.add_consumer_scopes(app1.consumer_key, v.OAUTH_RESOURCE_OWNER, {v.OAUTH_SCOPE})
 
     local _, app2 = auth.oauth.add_app(user.id, "Test app 2", 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    local _, s = auth.oauth.add_consumer_scopes(app2.consumer_key, v.OAUTH_RESOURCE_OWNER, {v.OAUTH_SCOPE})
+    auth.oauth.add_consumer_scopes(app2.consumer_key, v.OAUTH_RESOURCE_OWNER, {v.OAUTH_SCOPE})
 
     auth.oauth.delete_app(app1.id)
 

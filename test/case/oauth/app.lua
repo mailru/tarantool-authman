@@ -459,35 +459,10 @@ function test_list_apps()
     app.consumer_secret = nil
     added_apps[app.id] = app
 
-    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 5), 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    app.consumer_secret = nil
-    added_apps[app.id] = app
-
-    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 6), 'mobile', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    app.consumer_secret = nil
-    added_apps[app.id] = app
-
-    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 7), 'native', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    app.consumer_secret = nil
-    added_apps[app.id] = app
-
-    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 8), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    app.consumer_secret = nil
-    added_apps[app.id] = app
-
-    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 9), 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    app.consumer_secret = nil
-    added_apps[app.id] = app
-
-    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 10), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    app.consumer_secret = nil
-    added_apps[app.id] = app
-
     local tt = {
         {offset = 0, limit = 1},
         {offset = 1, limit = 2},
-        {offset = 3, limit = 5},
-        {offset = 9, limit = 1},
+        {offset = 3, limit = 1},
     }
 
     for _, tc in ipairs(tt) do
@@ -502,7 +477,7 @@ function test_list_apps()
             test:is_deeply(app, expected, string.format("offset %d; limit %d; %d app is ok", tc.offset, tc.limit, i))
             added_apps[app.id] = nil
         end
-        test:is_deeply(got[2].pager, {offset = tc.offset, limit =  tc.limit, total = 10}, string.format("offset %d, limit %d; pager is ok", tc.offset, tc.limit))
+        test:is_deeply(got[2].pager, {offset = tc.offset, limit =  tc.limit, total = 4}, string.format("offset %d, limit %d; pager is ok", tc.offset, tc.limit))
     end
 end
 
@@ -522,39 +497,6 @@ function test_list_apps_invalid_offset_and_limit()
     app.consumer_secret = nil
     added_apps[app.id] = app
 
-    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 3), 'native', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    app.consumer_secret = nil
-    added_apps[app.id] = app
-
-    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 4), 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    app.consumer_secret = nil
-    added_apps[app.id] = app
-
-    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 5), 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    app.consumer_secret = nil
-    added_apps[app.id] = app
-
-    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 6), 'mobile', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    app.consumer_secret = nil
-    added_apps[app.id] = app
-
-    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 7), 'native', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    app.consumer_secret = nil
-    added_apps[app.id] = app
-
-    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 8), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    app.consumer_secret = nil
-    added_apps[app.id] = app
-
-    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 9), 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    app.consumer_secret = nil
-    added_apps[app.id] = app
-
-    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 10), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
-    app.consumer_secret = nil
-    added_apps[app.id] = app
-
-
     local offset, limit = -1, -2
 
     local got = {auth.oauth.list_apps(offset, limit)}
@@ -566,7 +508,7 @@ function test_list_apps_invalid_offset_and_limit()
         test:is_deeply(app, expected, string.format("%d app returned", i))
         added_apps[app.id] = nil
     end
-    test:is_deeply(got[2].pager, {offset = 0, limit =  10, total = 10}, string.format("offset %d, limit %d; pager is ok", offset, limit))
+    test:is_deeply(got[2].pager, {offset = 0, limit =  10, total = 2}, string.format("offset %d, limit %d; pager is ok", offset, limit))
 end
 
 

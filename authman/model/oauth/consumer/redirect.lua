@@ -51,8 +51,8 @@ function redirect.model(config)
     function model.delete_by_user_id(user_id)
         local redirect_list = {}
         local tuples = model.get_by_user_id(user_id)
-        for i, t in ipairs(tuples) do
-            redirect_list[i] = model.get_space():delete({[model.CONSUMER_KEY] = t[model.CONSUMER_KEY], [model.USER_ID] = t[model.USER_ID]})
+        for i, tuple in ipairs(tuples) do
+            redirect_list[i] = model.get_space():delete({[model.CONSUMER_KEY] = tuple[model.CONSUMER_KEY], [model.USER_ID] = tuple[model.USER_ID]})
         end
         return redirect_list
     end
@@ -68,8 +68,8 @@ function redirect.model(config)
     function model.delete_by_consumer_key(consumer_key, user_id)
         local redirect_list = {}
         local tuples = model.get_by_consumer_key(consumer_key, user_id)
-        for i, t in ipairs(tuples) do
-            redirect_list[i] = model.get_space():delete({[model.CONSUMER_KEY] = t[model.CONSUMER_KEY], [model.USER_ID] = t[model.USER_ID]})
+        for i, tuple in ipairs(tuples) do
+            redirect_list[i] = model.get_space():delete({[model.CONSUMER_KEY] = tuple[model.CONSUMER_KEY], [model.USER_ID] = tuple[model.USER_ID]})
         end
         return redirect_list
     end

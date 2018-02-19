@@ -212,7 +212,7 @@ return function(config)
         end
 
         local consumer_secret = oauth_consumer.generate_consumer_secret()
-        local c = oauth_consumer.update_consumer_secret(consumer_key, consumer_secret, consumer[oauth_consumer.APP_ID])
+        local _ = oauth_consumer.update_consumer_secret(consumer_key, consumer_secret, consumer[oauth_consumer.APP_ID])
 
         return response.ok(consumer_secret)
     end
@@ -232,14 +232,14 @@ return function(config)
             [oauth_code.RESOURCE_OWNER] = resource_owner or "",
         }
 
-        for _, v in pairs({oauth_code.CODE, oauth_code.CONSUMER_KEY, oauth_code.REDIRECT_URL, oauth_code.SCOPE}) do
-            if not validator.not_empty_string(code_tuple[v]) then
+        for _, field in pairs({oauth_code.CODE, oauth_code.CONSUMER_KEY, oauth_code.REDIRECT_URL, oauth_code.SCOPE}) do
+            if not validator.not_empty_string(code_tuple[field]) then
                 return response.error(error.INVALID_PARAMS)
             end
         end
 
-        for _, v in pairs({oauth_code.EXPIRES_IN, oauth_code.CREATED_AT}) do
-            if not validator.positive_number(code_tuple[v]) then
+        for _, field in pairs({oauth_code.EXPIRES_IN, oauth_code.CREATED_AT}) do
+            if not validator.positive_number(code_tuple[field]) then
                 return response.error(error.INVALID_PARAMS)
             end
         end
@@ -310,16 +310,16 @@ return function(config)
             [oauth_token.RESOURCE_OWNER] = resource_owner or "",
         }
 
-        for _, v in pairs({oauth_token.ACCESS_TOKEN, oauth_token.CONSUMER_KEY,
+        for _, field in pairs({oauth_token.ACCESS_TOKEN, oauth_token.CONSUMER_KEY,
                             oauth_token.REFRESH_TOKEN, oauth_token.REDIRECT_URL, oauth_token.SCOPE}) do
 
-            if not validator.not_empty_string(token_tuple[v]) then
+            if not validator.not_empty_string(token_tuple[field]) then
                 return response.error(error.INVALID_PARAMS)
             end
         end
 
-        for _, v in pairs({oauth_token.EXPIRES_IN, oauth_token.CREATED_AT}) do
-            if not validator.positive_number(token_tuple[v]) then
+        for _, field in pairs({oauth_token.EXPIRES_IN, oauth_token.CREATED_AT}) do
+            if not validator.positive_number(token_tuple[field]) then
                 return response.error(error.INVALID_PARAMS)
             end
         end
@@ -485,8 +485,8 @@ return function(config)
         local redirects = oauth_redirect.get_by_consumer_key(consumer_key, user_id)
 
         if redirects ~= nil and #redirects ~= 0 then
-            for i, u in pairs(redirects) do
-                result[i] = oauth_redirect.serialize(u)
+            for i, redirect in pairs(redirects) do
+                result[i] = oauth_redirect.serialize(redirect)
             end
         end
 
@@ -503,12 +503,12 @@ return function(config)
         local redirects = oauth_redirect.get_by_user_id(user_id)
 
         if redirects ~= nil and #redirects ~= 0 then
-            for i, r in pairs(redirects) do
+            for i, redirect in pairs(redirects) do
 
-                local ok, consumer = api.get_consumer(r[oauth_redirect.CONSUMER_KEY])
+                local ok, consumer = api.get_consumer(redirect[oauth_redirect.CONSUMER_KEY])
 
                 if ok then
-                    result[i] = oauth_redirect.serialize(r, {consumer = consumer})
+                    result[i] = oauth_redirect.serialize(redirect, {consumer = consumer})
                 end
             end
         end
@@ -526,8 +526,8 @@ return function(config)
         local redirects = oauth_redirect.delete_by_consumer_key(consumer_key, user_id)
 
         if redirects ~= nil and #redirects ~= 0 then
-            for i, u in pairs(redirects) do
-                result[i] = oauth_redirect.serialize(u)
+            for i, redirect in pairs(redirects) do
+                result[i] = oauth_redirect.serialize(redirect)
             end
         end
 

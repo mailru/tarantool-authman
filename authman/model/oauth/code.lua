@@ -96,10 +96,10 @@ function code.model(config)
     function model.delete_expired(expiration_ts)
         local total = 0
         local total_deleted = 0
-        for _, t in model.get_space().index[model.PRIMARY_INDEX]:pairs(nil, {iterator = box.index.ALL}) do
+        for _, tuple in model.get_space().index[model.PRIMARY_INDEX]:pairs(nil, {iterator = box.index.ALL}) do
 
-            if t[model.CREATED_AT] + t[model.EXPIRES_IN] <= expiration_ts then
-                model.get_space():delete({t[model.CODE]})
+            if tuple[model.CREATED_AT] + tuple[model.EXPIRES_IN] <= expiration_ts then
+                model.get_space():delete({tuple[model.CODE]})
                 total_deleted = total_deleted + 1
             end
             total = total + 1

@@ -79,14 +79,14 @@ function app.model(config)
             local users = {}
             for i, app in pairs(apps) do
 
-                local u = users[app[model.USER_ID]]
-                if not u then
-                    u = user.serialize(user.get_by_id(app[model.USER_ID]))
-                    users[app[model.USER_ID]] = u
+                local app_user = users[app[model.USER_ID]]
+                if not app_user then
+                    app_user = user.serialize(user.get_by_id(app[model.USER_ID]))
+                    users[app[model.USER_ID]] = app_user
                 end
 
                 local consumer_tuple = oauth_consumer.get_by_app_id(app[model.ID])
-                local extra_data = oauth_consumer.serialize(consumer_tuple, {user = u})
+                local extra_data = oauth_consumer.serialize(consumer_tuple, {user = app_user})
                 data[i] = model.serialize(app, extra_data)
             end
         end
