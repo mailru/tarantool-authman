@@ -40,6 +40,12 @@ return {
         oauth_token = {
             name = 'auth_oauth_token',
         },
+        oauth_scope = {
+            name = 'auth_oauth_scope',
+        },
+        oauth_redirect = {
+            name = 'auth_oauth_redirect',
+        },
     },
 
     facebook = {

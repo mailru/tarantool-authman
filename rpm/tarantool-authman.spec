@@ -40,6 +40,7 @@ rm -rf %{buildroot}
 %{luapkgdir}/*.lua
 %{luapkgdir}/model/*.lua
 %{luapkgdir}/model/oauth/*.lua
+%{luapkgdir}/model/oauth/consumer/*.lua
 %{luapkgdir}/utils/*.lua
 %{luapkgdir}/migrations/*.lua
 %{luapkgdir}/oauth/*.lua

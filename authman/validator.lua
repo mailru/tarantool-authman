@@ -54,6 +54,8 @@ local config_default_space_names = {
     oauth_consumer = 'auth_oauth_consumer',
     oauth_code = 'auth_oauth_code',
     oauth_token = 'auth_oauth_token',
+    oauth_scope = 'auth_oauth_scope',
+    oauth_redirect = 'auth_oauth_redirect',
 }
 
 function validator.string(str)

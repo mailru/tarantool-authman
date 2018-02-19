@@ -205,6 +205,61 @@ function test_get_consumer_empty_consumer_key()
     test:is_deeply(got, expected, 'test_get_consumer_empty_consumer_key')
 end
 
+function test_load_consumers()
+
+    local _, user1 = auth.registration("test1@test.ru")
+    _, user1 = auth.complete_registration("test1@test.ru", user1.code, v.USER_PASSWORD)
+
+    local _, user2 = auth.registration("test2@test.ru")
+    _, user2 = auth.complete_registration("test2@test.ru", user2.code, v.USER_PASSWORD)
+
+    local added_apps = {}
+    local consumer_keys = {}
+    local app, consumer
+
+    _, app = auth.oauth.add_app(user1.id, string.format("%s %d", v.OAUTH_APP_NAME, 1), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    table.insert(consumer_keys, app.consumer_key)
+    _, consumer = auth.oauth.get_app(app.id)
+    consumer.user = user1
+    added_apps[app.consumer_key] = consumer
+
+    _, app = auth.oauth.add_app(user1.id, string.format("%s %d", v.OAUTH_APP_NAME, 2), 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    table.insert(consumer_keys, app.consumer_key)
+    _, consumer = auth.oauth.get_app(app.id)
+    consumer.user = user1
+    added_apps[app.consumer_key] = consumer
+
+    _, app = auth.oauth.add_app(user1.id, string.format("%s %d", v.OAUTH_APP_NAME, 3), 'mobile', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    table.insert(consumer_keys, app.consumer_key)
+    _, consumer = auth.oauth.get_app(app.id)
+    consumer.user = user1
+    added_apps[app.consumer_key] = consumer
+
+    _, app = auth.oauth.add_app(user2.id, string.format("%s %d", v.OAUTH_APP_NAME, 1), 'native', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    table.insert(consumer_keys, app.consumer_key)
+    _, consumer = auth.oauth.get_app(app.id)
+    consumer.user = user2
+    added_apps[app.consumer_key] = consumer
+
+    _, app = auth.oauth.add_app(user2.id, string.format("%s %d", v.OAUTH_APP_NAME, 2), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    table.insert(consumer_keys, app.consumer_key)
+    _, consumer = auth.oauth.get_app(app.id)
+    consumer.user = user2
+    added_apps[app.consumer_key] = consumer
+
+    _, app = auth.oauth.add_app(user2.id, string.format("%s %d", v.OAUTH_APP_NAME, 3), 'mobile', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    table.insert(consumer_keys, app.consumer_key)
+    _, consumer = auth.oauth.get_app(app.id)
+    consumer.user = user2
+    added_apps[app.consumer_key] = consumer
+
+    local got = {auth.oauth.load_consumers(consumer_keys)}
+    local expected = {true, added_apps}
+
+    test:is_deeply(got, expected, 'test_load_consumers')
+end
+
+
 function test_get_user_apps_success()
 
     local ok, user = auth.registration(v.USER_EMAIL)
@@ -380,6 +435,81 @@ function test_reset_consumer_secret()
     test:is(got[2].consumer_secret_hash, utils.salted_hash(new_secret, app.id), 'test_reset_consumer_secret; consumer secret hash')
 end
 
+function test_list_apps()
+
+    local ok, user = auth.registration(v.USER_EMAIL)
+    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+
+    local added_apps = {}
+    local app, _
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 1), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 2), 'mobile', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 3), 'native', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 4), 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    local tt = {
+        {offset = 0, limit = 1},
+        {offset = 1, limit = 2},
+        {offset = 3, limit = 1},
+    }
+
+    for _, tc in ipairs(tt) do
+        local got = {auth.oauth.list_apps(tc.offset, tc.limit)}
+        test:is_deeply(got[1], true, string.format("offset %d; limit %d; result is true", tc.offset, tc.limit))
+
+        for i, app in ipairs(got[2].data) do
+            app.app_id = nil
+            app.consumer_secret_hash = nil
+            local expected = added_apps[app.id]
+            expected.user = user
+            test:is_deeply(app, expected, string.format("offset %d; limit %d; %d app is ok", tc.offset, tc.limit, i))
+            added_apps[app.id] = nil
+        end
+        test:is_deeply(got[2].pager, {offset = tc.offset, limit =  tc.limit, total = 4}, string.format("offset %d, limit %d; pager is ok", tc.offset, tc.limit))
+    end
+end
+
+function test_list_apps_invalid_offset_and_limit()
+
+    local ok, user = auth.registration(v.USER_EMAIL)
+    ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
+
+    local added_apps = {}
+     local app, _
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 1), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 2), 'mobile', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    local offset, limit = -1, -2
+
+    local got = {auth.oauth.list_apps(offset, limit)}
+    for i, app in ipairs(got[2].data) do
+        app.app_id = nil
+        app.consumer_secret_hash = nil
+        local expected = added_apps[app.id]
+        expected.user = user
+        test:is_deeply(app, expected, string.format("%d app returned", i))
+        added_apps[app.id] = nil
+    end
+    test:is_deeply(got[2].pager, {offset = 0, limit =  10, total = 2}, string.format("offset %d, limit %d; pager is ok", offset, limit))
+end
 
 
 
@@ -398,6 +528,7 @@ exports.tests = {
     test_get_consumer_success,
     test_get_consumer_unknown_consumer,
     test_get_consumer_empty_consumer_key,
+    test_load_consumers,
     test_get_user_apps_success,
     test_get_user_apps_empty_user_id,
     test_delete_app_success,
@@ -410,6 +541,8 @@ exports.tests = {
     test_enable_app_not_found,
     test_delete_user,
     test_reset_consumer_secret,
+    test_list_apps,
+    test_list_apps_invalid_offset_and_limit
 }
 
 

@@ -6,10 +6,11 @@ local utils = require('authman.utils.utils')
 
 
 -----
--- app (uuid, user_uuid, type, is_active, domain, redirect_url, secret)
+-- app (uuid, user_uuid, type, is_active, registration_ts, is_trusted)
 -----
 function app.model(config)
 
+    local user = require('authman.model.user').model(config)
     local oauth_consumer = require('authman.model.oauth.consumer').model(config)
     local oauth_code = require('authman.model.oauth.code').model(config)
     local oauth_token = require('authman.model.oauth.token').model(config)
@@ -27,6 +28,8 @@ function app.model(config)
     model.IS_ACTIVE = 5
     model.REGISTRATION_TS = 6
     model.IS_TRUSTED = 7
+
+    model.DEFAULT_LIST_LIMIT = 10
 
     function model.get_space()
         return box.space[model.SPACE_NAME]
@@ -67,6 +70,32 @@ function app.model(config)
             app_tuple[model.IS_TRUSTED],
         }
 
+    end
+
+    function model.list(offset, limit)
+        local data = {}
+        local apps = model.get_space().index[model.PRIMARY_INDEX]:select(nil, {offset = offset, limit = limit, iterator = box.index.ALL})
+        if apps ~= nil and #apps ~= 0 then
+            local users = {}
+            for i, app in pairs(apps) do
+
+                local app_user = users[app[model.USER_ID]]
+                if not app_user then
+                    app_user = user.serialize(user.get_by_id(app[model.USER_ID]))
+                    users[app[model.USER_ID]] = app_user
+                end
+
+                local consumer_tuple = oauth_consumer.get_by_app_id(app[model.ID])
+                local extra_data = oauth_consumer.serialize(consumer_tuple, {user = app_user})
+                data[i] = model.serialize(app, extra_data)
+            end
+        end
+
+        return data
+    end
+
+    function model.count_total()
+        return model.get_space():len()
     end
 
     function model.get_by_user_id(user_id)
@@ -110,6 +139,33 @@ function app.model(config)
         fields = utils.format_update(app_tuple)
         return model.get_space():update(id, fields)
     end
+
+    function model.load_by_consumer_keys(args)
+
+        local res = {}
+        local users = {}
+        for _, consumer_key in ipairs(args) do
+
+            local consumer = oauth_consumer.get_by_id(consumer_key)
+            if consumer ~= nil then
+
+                local app = model.get_by_id(consumer[oauth_consumer.APP_ID])
+                if app ~= nil then
+
+                    local current_user = users[app[model.USER_ID]]
+                    if not current_user then
+                        current_user = user.serialize(user.get_by_id(app[model.USER_ID]))
+                        users[app[model.USER_ID]] = current_user
+                    end
+
+                    local extra_data = oauth_consumer.serialize(consumer, {user = current_user})
+                    res[consumer_key] = model.serialize(app, extra_data)
+                end
+            end
+        end
+        return res
+    end
+
 
     return model
 end

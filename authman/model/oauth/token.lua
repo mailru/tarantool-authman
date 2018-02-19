@@ -25,6 +25,9 @@ function token.model(config)
     model.CREATED_AT = 7
     model.RESOURCE_OWNER = 8
 
+    model.CONSUMER_INDEX_CONSUMER_KEY = 1
+    model.CONSUMER_INDEX_RESOURCE_OWNER = 2
+
     function model.get_space()
         return box.space[model.SPACE_NAME]
     end
@@ -75,10 +78,10 @@ function token.model(config)
     function model.delete_expired(expiration_ts)
         local total = 0
         local total_deleted = 0
-        for _, t in model.get_space().index[model.PRIMARY_INDEX]:pairs(nil, {iterator = box.index.ALL}) do
+        for _, tuple in model.get_space().index[model.PRIMARY_INDEX]:pairs(nil, {iterator = box.index.ALL}) do
 
-            if t[model.CREATED_AT] + t[model.EXPIRES_IN] <= expiration_ts then
-                model.get_space():delete({t[model.ACCESS_TOKEN]})
+            if tuple[model.CREATED_AT] + tuple[model.EXPIRES_IN] <= expiration_ts then
+                model.get_space():delete({tuple[model.ACCESS_TOKEN]})
                 total_deleted = total_deleted + 1
             end
             total = total + 1
@@ -96,14 +99,18 @@ function token.model(config)
         end
     end
 
-    function model.get_by_consumer_key(consumer_key)
+    function model.get_by_consumer_key(consumer_key, resource_owner)
         if validator.not_empty_string(consumer_key) then
-            return model.get_space().index[model.CONSUMER_INDEX]:select({consumer_key})
+            local query = {[model.CONSUMER_INDEX_CONSUMER_KEY] = consumer_key}
+            if validator.not_empty_string(resource_owner) then
+                query[model.CONSUMER_INDEX_RESOURCE_OWNER] = resource_owner
+            end
+            return model.get_space().index[model.CONSUMER_INDEX]:select(query)
         end
     end
 
-    function model.delete_by_consumer_key(consumer_key)
-        local token_list = model.get_by_consumer_key(consumer_key)
+    function model.delete_by_consumer_key(consumer_key, resource_owner)
+        local token_list = model.get_by_consumer_key(consumer_key, resource_owner)
         if token_list ~= nil then
             for i, tuple in  ipairs(token_list) do
                 model.get_space():delete({tuple[model.ACCESS_TOKEN]})

@@ -111,6 +111,37 @@ tarantool> consumer
 ```
 Given consumer key return OAuth client info.
 
+#### auth.oauth.load_consumers({consumer_key1, consumer_key2, ...})
+```
+tarantool> ok, consumers = auth.oauth.load_consumers({"99908ae23c746b4db8b576f93d02b4d4","f2c53fa65cd6b143aa9c105f37915ce0"})
+tarantool> consumers
+---
+- f2c53fa65cd6b143aa9c105f37915ce0:
+    consumer_key: f2c53fa65cd6b143aa9c105f37915ce0
+    id: 58b4ca14-1a1a-47be-bfad-beacec7846a6
+    is_active: true
+    is_trusted: true
+    user_id: 7f66aafb-5ab7-4fd5-8b4f-3f07c2c6cea3
+    type: browser
+    redirect_urls: https://mediator.media
+    consumer_secret_hash: !!binary o6PdmhDB5/NNBAEcyZ2nLVn1R/zuHTlIw11qBgrJgHs=
+    name: test2
+    app_id: 58b4ca14-1a1a-47be-bfad-beacec7846a6
+  99908ae23c746b4db8b576f93d02b4d4:
+    consumer_key: 99908ae23c746b4db8b576f93d02b4d4
+    id: 94e385eb-f61b-4c47-9f3c-50e061c0c5fb
+    is_active: true
+    is_trusted: true
+    user_id: 7f66aafb-5ab7-4fd5-8b4f-3f07c2c6cea3
+    type: server
+    redirect_urls: http://mail.ru
+    consumer_secret_hash: !!binary yqQe2Vl1e12Kdh6a1GMbq2D1CRUyOn1OvSXxt57o3/w=
+    name: test3
+    app_id: 94e385eb-f61b-4c47-9f3c-50e061c0c5fb
+...
+```
+Given table with consumer keys return table which keys are consumer keys and values are app tuples.
+
 #### auth.oauth.reset_consumer_secret(consumer_key)
 ```
 tarantool> ok, secret = auth.oauth.reset_consumer_secret('9169b664839bca439ca11fe4274838b2')
@@ -293,4 +324,145 @@ tarantool> refresh
 ```
 Delete OAuth refresh token. Return token table w/o consumer
 
+#### auth.oauth.add_consumer_scopes(consumer_key, user_id, scopes)
+```
+tarantool> ok, consumer_scopes = auth.oauth.add_consumer_scopes('06b043c219752541ab50e82627148161', '958e93a7-e6ca-471d-836e-21086c399c6d', {'read', 'write'})
+tarantool> consumer_scopes
+---
+- - user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+    consumer_key: 06b043c219752541ab50e82627148161
+    name: read
+  - user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+    consumer_key: 06b043c219752541ab50e82627148161
+    name: write
+```
+Given consumer_key, user_id and list of scopes extend scopes granted by the user to the consumer. Return a list of scopes granted by the user to the consumer.
 
+#### auth.oauth.get_user_authorizations(user_id)
+```
+tarantool> ok, user_authorizations = app.auth.oauth.get_user_authorizations('958e93a7-e6ca-471d-836e-21086c399c6d', '06b043c219752541ab50e82627148161')
+tarantool> user_authorizations
+---
+- - user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+    consumer_key: 06b043c219752541ab50e82627148161
+    name: read
+  - user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+    consumer_key: 06b043c219752541ab50e82627148161
+    name: write
+```
+Given user_id return list of scopes granted by the user.
+
+#### auth.oauth.delete_user_authorizations(user_id, consumer_key)
+```
+tarantool> ok, deleted = app.auth.oauth.delete_user_authorizations('958e93a7-e6ca-471d-836e-21086c399c6d', '06b043c219752541ab50e82627148161')
+tarantool> deleted
+---
+- - user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+    consumer_key: 06b043c219752541ab50e82627148161
+    name: read
+  - user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+    consumer_key: 06b043c219752541ab50e82627148161
+    name: write
+```
+Given user_id and consumer_key delete all scopes granted by the user to the consumer. Return a list of deleted scopes.
+
+#### auth.oauth.save_redirect(consumer_key, user_id, redirect_url)
+```
+tarantool> ok, data = auth.oauth.save_redirect('06b043c219752541ab50e82627148161', '958e93a7-e6ca-471d-836e-21086c399c6d', 'http://test.ru/test1')
+tarantool> data
+---
+- user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+  consumer_key: 06b043c219752541ab50e82627148161
+  url: http://test.ru/test1
+```
+Add redirect to consumer's redirects list. Return redirect tuple.
+
+#### auth.oauth.get_user_redirects(user_id)
+```
+tarantool> ok, data = auth.oauth.get_user_redirects('958e93a7-e6ca-471d-836e-21086c399c6d')
+tarantool> data
+---
+- user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+  consumer_key: 06b043c219752541ab50e82627148161
+  url: http://test.ru/test1
+  consumer:
+      consumer_key: 06b043c219752541ab50e82627148161
+      id: 95767152-b7c7-456b-bb21-a13ac17350a7
+      is_active: true
+      is_trusted: false
+      user_id: 7f66aafb-5ab7-4fd5-8b4f-3f07c2c6cea3
+      type: browser
+      redirect_urls: https://mediator.media
+      consumer_secret_hash: !!binary eHrD00klpfupEm7mkyqnX/PYlTy7u5AGEsb2/BIcp44=
+      name: test5
+      app_id: 95767152-b7c7-456b-bb21-a13ac17350a7
+```
+Given user_id return list of user's redirects.
+
+#### auth.oauth.get_consumer_redirects(consumer_key, user_id)
+```
+tarantool> ok, data = auth.oauth.get_consumer_redirects('06b043c219752541ab50e82627148161')
+tarantool> data
+---
+- user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+  consumer_key: 06b043c219752541ab50e82627148161
+  url: http://test.ru/test1
+```
+Given consumer_key and user_id (optional) return list of consumer's redirects.
+
+#### auth.oauth.delete_user_redirects(user_id, consumer_key)
+```
+tarantool> ok, data = auth.oauth.delete_user_redirects('958e93a7-e6ca-471d-836e-21086c399c6d', '06b043c219752541ab50e82627148161')
+tarantool> data
+---
+- - user_id: 958e93a7-e6ca-471d-836e-21086c399c6d
+    consumer_key: 06b043c219752541ab50e82627148161
+    url: http://test.ru/test1
+```
+Given user_id and consumer_key delete user's redirects for the consumer. Return list of deleted redirects.
+
+#### auth.oauth.list_apps(offset, limit)
+```
+tarantool> ok, data = auth.oauth.list_apps(0, 2)
+tarantool> data
+---
+- true
+- data:
+  - consumer_key: 175f0bae674aa64db615b86e162246df
+    id: 3a32c0e7-137f-436d-8049-f34c4164bb55
+    user:
+      is_active: true
+      email: diez@devmail.ru
+      profile: null
+      id: 5c2ec04d-1c0c-4966-a705-f358a9084345
+    is_active: true
+    is_trusted: true
+    user_id: 5c2ec04d-1c0c-4966-a705-f358a9084345
+    type: browser
+    redirect_urls: http://test.com/test2
+    consumer_secret_hash: !!binary 7UeupUFjN58PpFw4fillc3/mTJVbk1nhfphBimJY5PU=
+    name: test app 2
+    app_id: 3a32c0e7-137f-436d-8049-f34c4164bb55
+  - consumer_key: e08ef89d66dea2488ab0189617b88e3d
+    id: 8b89066f-5603-46ab-8f38-85d4cc18e4ed
+    user:
+      is_active: true
+      email: diez@devmail.ru
+      profile: null
+      id: 5c2ec04d-1c0c-4966-a705-f358a9084345
+    is_active: true
+    is_trusted: true
+    user_id: 5c2ec04d-1c0c-4966-a705-f358a9084345
+    type: browser
+    redirect_urls: http://test.com/test1
+    consumer_secret_hash: !!binary 7DCGKXT4MspO8zpMFr66Rq3gFO2G5CZGESzSH/5lqPk=
+    name: test app 1
+    app_id: 8b89066f-5603-46ab-8f38-85d4cc18e4ed
+  pager:
+    offset: 0
+    limit: 2
+    total: 2
+```
+Return table with 2 elements:
+- data - list of app tuples
+- pager - values for pagination

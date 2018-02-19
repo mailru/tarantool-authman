@@ -10,6 +10,8 @@ return function(config)
     local oauth_consumer = require('authman.model.oauth.consumer').model(config)
     local oauth_code = require('authman.model.oauth.code').model(config)
     local oauth_token = require('authman.model.oauth.token').model(config)
+    local oauth_scope = require('authman.model.oauth.consumer.scope').model(config)
+    local oauth_redirect = require('authman.model.oauth.consumer.redirect').model(config)
 
     function api.add_app(user_id, app_name, app_type, redirect_urls, is_trusted)
 
@@ -113,6 +115,8 @@ return function(config)
         if consumer ~= nil then
             oauth_code.delete_by_consumer_key(consumer[oauth_consumer.ID])
             oauth_token.delete_by_consumer_key(consumer[oauth_consumer.ID])
+            oauth_scope.delete_by_consumer_key(consumer[oauth_consumer.ID])
+            oauth_redirect.delete_by_consumer_key(consumer[oauth_consumer.ID])
         end
 
         local app = oauth_app.delete(app_id)
@@ -159,6 +163,26 @@ return function(config)
         return response.ok(result)
     end
 
+    function api.list_apps(offset, limit)
+
+        if not validator.positive_number(offset) then
+            offset = 0
+        end
+
+        if not validator.positive_number(limit) then
+            limit = oauth_app.DEFAULT_LIST_LIMIT
+        end
+
+        local apps = oauth_app.list(offset, limit)
+        local total = oauth_app.count_total()
+
+        return response.ok({ data = apps, pager = { total = total, offset = offset, limit = limit }})
+    end
+
+    function api.load_consumers(args)
+        return response.ok(oauth_app.load_by_consumer_keys(args))
+    end
+
     function api.get_consumer(consumer_key)
         if not validator.not_empty_string(consumer_key) then
             return response.error(error.INVALID_PARAMS)
@@ -188,7 +212,7 @@ return function(config)
         end
 
         local consumer_secret = oauth_consumer.generate_consumer_secret()
-        local c = oauth_consumer.update_consumer_secret(consumer_key, consumer_secret, consumer[oauth_consumer.APP_ID])
+        oauth_consumer.update_consumer_secret(consumer_key, consumer_secret, consumer[oauth_consumer.APP_ID])
 
         return response.ok(consumer_secret)
     end
@@ -208,14 +232,14 @@ return function(config)
             [oauth_code.RESOURCE_OWNER] = resource_owner or "",
         }
 
-        for _, v in pairs({oauth_code.CODE, oauth_code.CONSUMER_KEY, oauth_code.REDIRECT_URL, oauth_code.SCOPE}) do
-            if not validator.not_empty_string(code_tuple[v]) then
+        for _, field in pairs({oauth_code.CODE, oauth_code.CONSUMER_KEY, oauth_code.REDIRECT_URL, oauth_code.SCOPE}) do
+            if not validator.not_empty_string(code_tuple[field]) then
                 return response.error(error.INVALID_PARAMS)
             end
         end
 
-        for _, v in pairs({oauth_code.EXPIRES_IN, oauth_code.CREATED_AT}) do
-            if not validator.positive_number(code_tuple[v]) then
+        for _, field in pairs({oauth_code.EXPIRES_IN, oauth_code.CREATED_AT}) do
+            if not validator.positive_number(code_tuple[field]) then
                 return response.error(error.INVALID_PARAMS)
             end
         end
@@ -286,16 +310,16 @@ return function(config)
             [oauth_token.RESOURCE_OWNER] = resource_owner or "",
         }
 
-        for _, v in pairs({oauth_token.ACCESS_TOKEN, oauth_token.CONSUMER_KEY,
+        for _, field in pairs({oauth_token.ACCESS_TOKEN, oauth_token.CONSUMER_KEY,
                             oauth_token.REFRESH_TOKEN, oauth_token.REDIRECT_URL, oauth_token.SCOPE}) do
 
-            if not validator.not_empty_string(token_tuple[v]) then
+            if not validator.not_empty_string(token_tuple[field]) then
                 return response.error(error.INVALID_PARAMS)
             end
         end
 
-        for _, v in pairs({oauth_token.EXPIRES_IN, oauth_token.CREATED_AT}) do
-            if not validator.positive_number(token_tuple[v]) then
+        for _, field in pairs({oauth_token.EXPIRES_IN, oauth_token.CREATED_AT}) do
+            if not validator.positive_number(token_tuple[field]) then
                 return response.error(error.INVALID_PARAMS)
             end
         end
@@ -357,7 +381,7 @@ return function(config)
         -- could not get oauth consumer
         -- return error
         if not ok then
-            return ok, consumer
+            return ok, nil
         end
 
         return response.ok(oauth_token.serialize(token_tuple, {consumer = consumer}))
@@ -377,6 +401,138 @@ return function(config)
         end
     end
 
+    function api.add_consumer_scopes(consumer_key, user_id, scopes)
+
+        if not validator.not_empty_string(user_id)
+            or not validator.not_empty_string(consumer_key)
+        then
+            return response.error(error.INVALID_PARAMS)
+        end
+
+        return response.ok(oauth_scope.serialize(oauth_scope.add_consumer_scopes(consumer_key, user_id, scopes)))
+    end
+
+    function api.get_consumer_authorizations(consumer_key, user_id)
+        if not validator.not_empty_string(consumer_key) then
+            return response.error(error.INVALID_PARAMS)
+        end
+
+        return response.ok(oauth_scope.serialize(oauth_scope.get_by_consumer_key(consumer_key, user_id)))
+    end
+
+
+    function api.get_user_authorizations(user_id)
+        if not validator.not_empty_string(user_id) then
+            return response.error(error.INVALID_PARAMS)
+        end
+
+        local scope_tuples = oauth_scope.get_by_user_id(user_id)
+
+        local data = {}
+        local scopes = {}
+
+        if scope_tuples ~= nil and #scope_tuples ~= 0 then
+            for i, scope_tuple in pairs(scope_tuples) do
+
+                local ok, consumer = api.get_consumer(scope_tuple[oauth_scope.CONSUMER_KEY])
+
+                if ok then
+                    scopes[i] = scope_tuple
+                    data[i] = {consumer = consumer}
+                end
+            end
+        end
+
+        return response.ok(oauth_scope.serialize(scopes, data))
+    end
+
+    function api.delete_user_authorizations(user_id, consumer_key)
+        if not validator.not_empty_string(user_id)
+            or not validator.not_empty_string(consumer_key) then
+            return response.error(error.INVALID_PARAMS)
+        end
+
+        oauth_token.delete_by_consumer_key(consumer_key, user_id)
+        oauth_code.delete_by_consumer_key(consumer_key, user_id)
+
+        return response.ok(oauth_scope.serialize(oauth_scope.delete_by_consumer_key(consumer_key, user_id)))
+    end
+
+    function api.save_redirect(consumer_key, user_id, redirect_url)
+
+        if not validator.not_empty_string(user_id)
+            or not validator.not_empty_string(consumer_key)
+            or not validator.not_empty_string(redirect_url)
+        then
+            return response.error(error.INVALID_PARAMS)
+        end
+
+        local url_tuple = {
+            [oauth_redirect.CONSUMER_KEY] = consumer_key,
+            [oauth_redirect.USER_ID] = user_id,
+            [oauth_redirect.URL] = redirect_url,
+        }
+
+        return response.ok(oauth_redirect.serialize(oauth_redirect.upsert_redirect(url_tuple)))
+    end
+
+    function api.get_consumer_redirects(consumer_key, user_id)
+        if not validator.not_empty_string(consumer_key) then
+            return response.error(error.INVALID_PARAMS)
+        end
+
+        local result = {}
+        local redirects = oauth_redirect.get_by_consumer_key(consumer_key, user_id)
+
+        if redirects ~= nil and #redirects ~= 0 then
+            for i, redirect in pairs(redirects) do
+                result[i] = oauth_redirect.serialize(redirect)
+            end
+        end
+
+        return response.ok(result)
+    end
+
+
+    function api.get_user_redirects(user_id)
+        if not validator.not_empty_string(user_id) then
+            return response.error(error.INVALID_PARAMS)
+        end
+
+        local result = {}
+        local redirects = oauth_redirect.get_by_user_id(user_id)
+
+        if redirects ~= nil and #redirects ~= 0 then
+            for i, redirect in pairs(redirects) do
+
+                local ok, consumer = api.get_consumer(redirect[oauth_redirect.CONSUMER_KEY])
+
+                if ok then
+                    result[i] = oauth_redirect.serialize(redirect, {consumer = consumer})
+                end
+            end
+        end
+
+        return response.ok(result)
+    end
+
+    function api.delete_user_redirects(user_id, consumer_key)
+        if not validator.not_empty_string(user_id)
+            or not validator.not_empty_string(consumer_key) then
+            return response.error(error.INVALID_PARAMS)
+        end
+
+        local result = {}
+        local redirects = oauth_redirect.delete_by_consumer_key(consumer_key, user_id)
+
+        if redirects ~= nil and #redirects ~= 0 then
+            for i, redirect in pairs(redirects) do
+                result[i] = oauth_redirect.serialize(redirect)
+            end
+        end
+
+        return response.ok(result)
+    end
 
     return api
 end
