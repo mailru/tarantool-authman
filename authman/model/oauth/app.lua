@@ -29,6 +29,8 @@ function app.model(config)
     model.REGISTRATION_TS = 6
     model.IS_TRUSTED = 7
 
+    model.DEFAULT_LIST_LIMIT = 10
+
     function model.get_space()
         return box.space[model.SPACE_NAME]
     end
@@ -145,24 +147,21 @@ function app.model(config)
         for _, consumer_key in ipairs(args) do
 
             local consumer = oauth_consumer.get_by_id(consumer_key)
-            if consumer == nil then
-                goto continue
-            end
+            if consumer ~= nil then
 
-            local app = model.get_by_id(consumer[oauth_consumer.APP_ID])
-            if app ~= nil then
+                local app = model.get_by_id(consumer[oauth_consumer.APP_ID])
+                if app ~= nil then
 
-                local u = users[app[model.USER_ID]]
-                if not u then
-                    u = user.serialize(user.get_by_id(app[model.USER_ID]))
-                    users[app[model.USER_ID]] = u
+                    local current_user = users[app[model.USER_ID]]
+                    if not current_user then
+                        current_user = user.serialize(user.get_by_id(app[model.USER_ID]))
+                        users[app[model.USER_ID]] = current_user
+                    end
+
+                    local extra_data = oauth_consumer.serialize(consumer, {user = current_user})
+                    res[consumer_key] = model.serialize(app, extra_data)
                 end
-
-                local extra_data = oauth_consumer.serialize(consumer, {user = u})
-                res[consumer_key] = model.serialize(app, extra_data)
             end
-
-            ::continue::
         end
         return res
     end

@@ -215,18 +215,43 @@ function test_load_consumers()
 
     local added_apps = {}
     local consumer_keys = {}
-    local i = 1
-    while i <= 20 do
-        for _, u in ipairs{user1, user2} do
-            local app_name = string.format("%s %d", v.OAUTH_APP_NAME, i)
-            local _, app = auth.oauth.add_app(u.id, app_name, 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
-            consumer_keys[i] = app.consumer_key
-            local _, consumer = auth.oauth.get_app(app.id)
-            consumer.user = u
-            added_apps[app.consumer_key] = consumer
-            i = i + 1
-        end
-    end
+    local app, consumer
+
+    _, app = auth.oauth.add_app(user1.id, string.format("%s %d", v.OAUTH_APP_NAME, 1), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    table.insert(consumer_keys, app.consumer_key)
+    _, consumer = auth.oauth.get_app(app.id)
+    consumer.user = user1
+    added_apps[app.consumer_key] = consumer
+
+    _, app = auth.oauth.add_app(user1.id, string.format("%s %d", v.OAUTH_APP_NAME, 2), 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    table.insert(consumer_keys, app.consumer_key)
+    _, consumer = auth.oauth.get_app(app.id)
+    consumer.user = user1
+    added_apps[app.consumer_key] = consumer
+
+    _, app = auth.oauth.add_app(user1.id, string.format("%s %d", v.OAUTH_APP_NAME, 3), 'mobile', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    table.insert(consumer_keys, app.consumer_key)
+    _, consumer = auth.oauth.get_app(app.id)
+    consumer.user = user1
+    added_apps[app.consumer_key] = consumer
+
+    _, app = auth.oauth.add_app(user2.id, string.format("%s %d", v.OAUTH_APP_NAME, 1), 'native', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    table.insert(consumer_keys, app.consumer_key)
+    _, consumer = auth.oauth.get_app(app.id)
+    consumer.user = user2
+    added_apps[app.consumer_key] = consumer
+
+    _, app = auth.oauth.add_app(user2.id, string.format("%s %d", v.OAUTH_APP_NAME, 2), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    table.insert(consumer_keys, app.consumer_key)
+    _, consumer = auth.oauth.get_app(app.id)
+    consumer.user = user2
+    added_apps[app.consumer_key] = consumer
+
+    _, app = auth.oauth.add_app(user2.id, string.format("%s %d", v.OAUTH_APP_NAME, 3), 'mobile', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    table.insert(consumer_keys, app.consumer_key)
+    _, consumer = auth.oauth.get_app(app.id)
+    consumer.user = user2
+    added_apps[app.consumer_key] = consumer
 
     local got = {auth.oauth.load_consumers(consumer_keys)}
     local expected = {true, added_apps}
@@ -416,15 +441,47 @@ function test_list_apps()
     ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
 
     local added_apps = {}
-    local i = 1
-    while i <= 10 do
+    local app, _
 
-        local app_name = string.format("%s %d", v.OAUTH_APP_NAME, i)
-        local ok, app = auth.oauth.add_app(user.id, app_name, 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
-        app.consumer_secret = nil
-        added_apps[app.id] = app
-        i = i + 1
-    end
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 1), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 2), 'mobile', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 3), 'native', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 4), 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 5), 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 6), 'mobile', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 7), 'native', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 8), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 9), 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 10), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
 
     local tt = {
         {offset = 0, limit = 1},
@@ -455,15 +512,48 @@ function test_list_apps_invalid_offset_and_limit()
     ok, user = auth.complete_registration(v.USER_EMAIL, user.code, v.USER_PASSWORD)
 
     local added_apps = {}
-    local i = 1
-    while i <= 10 do
+     local app, _
 
-        local app_name = string.format("%s %d", v.OAUTH_APP_NAME, i)
-        local ok, app = auth.oauth.add_app(user.id, app_name, 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
-        app.consumer_secret = nil
-        added_apps[app.id] = app
-        i = i + 1
-    end
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 1), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 2), 'mobile', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 3), 'native', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 4), 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 5), 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 6), 'mobile', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 7), 'native', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 8), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 9), 'server', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
+    _, app = auth.oauth.add_app(user.id, string.format("%s %d", v.OAUTH_APP_NAME, 10), 'browser', v.OAUTH_CONSUMER_REDIRECT_URLS)
+    app.consumer_secret = nil
+    added_apps[app.id] = app
+
 
     local offset, limit = -1, -2
 

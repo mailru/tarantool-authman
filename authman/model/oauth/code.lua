@@ -27,6 +27,9 @@ function code.model(config)
     model.CODE_CHALLENGE_METHOD = 9
     model.RESOURCE_OWNER = 10
 
+    model.CONSUMER_INDEX_CONSUMER_KEY = 1
+    model.CONSUMER_INDEX_RESOURCE_OWNER = 2
+
     function model.get_space()
         return box.space[model.SPACE_NAME]
     end
@@ -72,9 +75,9 @@ function code.model(config)
 
     function model.get_by_consumer_key(consumer_key, resource_owner)
         if validator.not_empty_string(consumer_key) then
-            local query = {consumer_key}
+            local query = {[model.CONSUMER_INDEX_CONSUMER_KEY] = consumer_key}
             if validator.not_empty_string(resource_owner) then
-                query[2] = resource_owner
+                query[model.CONSUMER_INDEX_RESOURCE_OWNER] = resource_owner
             end
             return model.get_space().index[model.CONSUMER_INDEX]:select(query)
         end

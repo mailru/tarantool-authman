@@ -170,7 +170,7 @@ return function(config)
         end
 
         if not validator.positive_number(limit) then
-            limit = 10
+            limit = oauth_app.DEFAULT_LIST_LIMIT
         end
 
         local apps = oauth_app.list(offset, limit)
@@ -426,18 +426,18 @@ return function(config)
             return response.error(error.INVALID_PARAMS)
         end
 
-        local tuples = oauth_scope.get_by_user_id(user_id)
+        local scope_tuples = oauth_scope.get_by_user_id(user_id)
 
         local data = {}
         local scopes = {}
 
-        if tuples ~= nil and #tuples ~= 0 then
-            for i, s in pairs(tuples) do
+        if scope_tuples ~= nil and #scope_tuples ~= 0 then
+            for i, scope_tuple in pairs(scope_tuples) do
 
-                local ok, consumer = api.get_consumer(s[oauth_scope.CONSUMER_KEY])
+                local ok, consumer = api.get_consumer(scope_tuple[oauth_scope.CONSUMER_KEY])
 
                 if ok then
-                    scopes[i] = s
+                    scopes[i] = scope_tuple
                     data[i] = {consumer = consumer}
                 end
             end
