@@ -252,7 +252,7 @@ function auth.api(config)
                 return response.error(error.NOT_AUTHENTICATED)
 
             elseif session.need_common_update(session_data) then
-                new_session = session.create(session_data.user_id, session.COMMON_SESSION_TYPE)
+                new_session = session.create(user_tuple[user.ID], session.COMMON_SESSION_TYPE)
                 user.update_session_ts(user_tuple)
             else
                 new_session = signed_session
