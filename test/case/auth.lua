@@ -119,9 +119,10 @@ function test_check_auth_empty_session()
 end
 
 function test_check_auth_update_session_success()
-    local ok, user, got, expected, first_session, second_session
+    local ok, user, got, expected, first_session, second_session, user_id
     ok, user = auth.auth('test@test.ru', v.USER_PASSWORD)
     first_session = user['session']
+    user_id = user['id']
 
     fiber.sleep(config.session_lifetime - config.session_update_timedelta)
 
@@ -131,6 +132,9 @@ function test_check_auth_update_session_success()
     second_session = user['session']
     test:isstring(second_session, 'test_check_auth_update_session_success session returned')
     test:isnt(first_session, second_session, 'test_check_auth_update_session_success new session')
+
+    ok, user = auth.check_auth(second_session)
+    test:is(user['id'], user_id, 'test_check_auth_update_session_success user returned')
 end
 
 function test_check_auth_expired_session()
