@@ -286,7 +286,6 @@ error.OAUTH_CODE_NOT_FOUND = '20'
 error.OAUTH_ACCESS_TOKEN_NOT_FOUND = '21'
 ```
 
-
 ## Run tests:
 To perform tests run this in directory with tarantool-authman module:
 ```
