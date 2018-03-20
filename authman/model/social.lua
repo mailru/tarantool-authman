@@ -204,7 +204,7 @@ function social.model(config)
             response = http.request(
                 'GET',
                 'https://api.vk.com/method/users.get',
-                '?access_token=${token}&fields=first_name,last_name',
+                '?access_token=${token}&fields=first_name,last_name&v=3.0',
                 { token = token }
             )
 
@@ -212,6 +212,9 @@ function social.model(config)
                 return nil
             else
                 data = json.decode(response.body)
+                if not validator.table(data.response) then
+                    return nil
+                end
                 data = data.response[1]
                 if data == nil then
                     return nil
