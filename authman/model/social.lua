@@ -148,6 +148,7 @@ function social.model(config)
                     code = code,
                 }
             )
+
             if response == nil or response.status ~= 200 then
                 return nil
             else
@@ -190,7 +191,6 @@ function social.model(config)
                 '?access_token=${token}&fields=email,first_name,last_name',
                 { token = token }
             )
-
             if response == nil or response.status ~= 200 then
                 return nil
             else
@@ -204,7 +204,7 @@ function social.model(config)
             response = http.request(
                 'GET',
                 'https://api.vk.com/method/users.get',
-                '?access_token=${token}&fields=first_name,last_name&v=3.0',
+                '?access_token=${token}&fields=first_name,last_name&v=5.0',
                 { token = token }
             )
 
@@ -219,12 +219,12 @@ function social.model(config)
                 if data == nil then
                     return nil
                 end
-                if data.uid == nil then
+                if data.id == nil then
                     return nil
                 end
                 user_tuple[user.PROFILE][user.PROFILE_FIRST_NAME] = data.first_name
                 user_tuple[user.PROFILE][user.PROFILE_LAST_NAME] = data.last_name
-                return tostring(data.uid)
+                return tostring(data.id)
             end
 
         elseif provider == 'google' then

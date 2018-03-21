@@ -45,13 +45,13 @@ function http.api(config)
                 if param_values['token'] == v.VALID_TOKEN then
                     return response(v.HTTP_OK, {
                         response = {
-                            {uid=v.SOCIAL_ID, first_name=v.USER_FIRST_NAME, last_name=v.USER_LAST_NAME},
+                            {id=v.SOCIAL_ID, first_name=v.USER_FIRST_NAME, last_name=v.USER_LAST_NAME},
                         }
                     })
                 elseif param_values['token'] == v.VALID_TOKEN_NO_PROFILE then
                     return response(v.HTTP_OK, {
                         response = {
-                            {uid=v.SOCIAL_ID},
+                            {id=v.SOCIAL_ID},
                         }
                     })
                 elseif param_values['token'] == v.INVALID_TOKEN then
