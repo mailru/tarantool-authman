@@ -137,7 +137,7 @@ tarantool> user
 ...
 
 ```
-Set user profile first_name and last_name
+Get user profile details by id
 
 #### auth.delete_user(user_id)
 ```
