@@ -37,12 +37,16 @@ function test_restore_password_success()
 end
 
 function test_complete_restore_password_success()
-    local ok, token, user, expected
+    local ok, token, user, expected, session, nok
+    ok, user = auth.auth('test@test.ru', v.USER_PASSWORD)
+    session = user['session']
     ok, token = auth.restore_password('test@test.ru')
     ok, user = auth.complete_restore_password('test@test.ru', token, 'new_pwd')
+    nok, _ = auth.check_auth(session)
     user['id'] = nil
     expected = {email = 'test@test.ru', is_active = true}
     test:is(ok, true, 'test_complete_restore_password_success password changed')
+    test:is(nok, false, 'test_complete_restore_password_success session dropped')
     test:is_deeply(user, expected, 'test_complete_restore_password_success user returned')
 end
 
