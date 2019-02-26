@@ -85,6 +85,12 @@ function db.configurate(config)
             parts = {session.ID, 'string'},
             if_not_exists = true
         })
+        session_space:create_index(session.USER_ID_INDEX, {
+            type = 'tree',
+            parts = {session.USER_ID, 'string'},
+            unique = false,
+            if_not_exists = true
+        })
 
         local app_space = box.schema.space.create(oauth_app.SPACE_NAME, {
             if_not_exists = true

@@ -14,6 +14,7 @@ function session.model(config)
     model.SPACE_NAME = config.spaces.session.name
 
     model.PRIMARY_INDEX = 'primary'
+    model.USER_ID_INDEX = 'user_index'
 
     model.ID = 1
     model.CODE = 2
@@ -47,7 +48,15 @@ function session.model(config)
         return session_tuple ~= nil
     end
 
-    -- TODO drop sessions by user_id
+    function model.drop_by_user(user_id)
+        if user_id == nil then
+            return nil
+        end
+        local user_id = tostring(user_id)
+        for _, s in model.get_space().index[model.USER_ID_INDEX]:pairs(user_id, {iterator = box.index.EQ}) do
+            model.get_space():delete(s[model.ID])
+        end
+    end
 
     function model.decode(encoded_session_data)
         local session_data_json, session_data, ok, msg
