@@ -322,6 +322,7 @@ function auth.api(config)
                 [password.HASH] = password.hash(raw_password, user_id)
             })
 
+            session.drop_by_user(user_id)
 
             user_tuple = user.update({
                 [user.ID] = user_id,
