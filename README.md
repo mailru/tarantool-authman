@@ -26,7 +26,7 @@ $ apt-get install tarantool-authman
 ```
 
 ## Quickstart
-Create tarantool instance file /etc/tarantool/intanses.availible/tarantool-authman.lua:
+Create tarantool instance file /etc/tarantool/instances.available/tarantool-authman.lua:
 ```
 box.cfg {
     listen = 3302,
@@ -39,9 +39,9 @@ local config = {
 auth = require('authman').api(config)
 
 ```
-Create symlink in /etc/tarantool/intanses.enabled:
+Create symlink in /etc/tarantool/instances.enabled:
 ```
-$ ln -s /etc/tarantool/instances.availible/tarantool-authman.lua .
+$ ln -s /etc/tarantool/instances.available/tarantool-authman.lua .
 ```
 
 Run tarantool and connect to it:
