@@ -102,10 +102,10 @@ function password.model(config)
     end
 
     function model.update(password_tuple)
-        local social_id, fields
-        social_id = password_tuple[model.ID]
+        local id, fields
+        id = password_tuple[model.ID]
         fields = utils.format_update(password_tuple)
-        return model.get_space():update(social_id, fields)
+        return model.get_space():update(id, fields)
     end
 
     function model.create_or_update(password_tuple)
