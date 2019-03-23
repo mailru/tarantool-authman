@@ -55,7 +55,7 @@ Use auth api:
 ```
 tarantool> ok, user = auth.registration('example@mail.ru')
 tarantool> ok, user = auth.complete_registration('example@mail.ru', user.code, 'Pa$$wOrD')
-tarantool> ok, user = auth.set_profile(user['id'], {first_name='name', laste_name='surname'})
+tarantool> ok, user = auth.set_profile(user['id'], {first_name='name', last_name='surname'})
 tarantool> ok, user = auth.auth('example@mail.ru', 'Pa$$wOrD')
 tarantool> session =  user['session']
 tarantool> ok, user = auth.check_auth(session) -- user can get new session
