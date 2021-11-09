@@ -1,7 +1,7 @@
 package = 'authman'
 version = 'scm-1'
 source  = {
-    url    = 'git://github.com/mailru/tarantool-authman.git',
+    url    = 'git+https://github.com/mailru/tarantool-authman.git',
     branch = 'master',
 }
 description = {
